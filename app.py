@@ -57,6 +57,11 @@ class ScanRequest(BaseModel):
     rsi_threshold: float = 50.0
     swing_window: int = 3
     min_volume: float = 0
+    require_hh_hl: bool = True
+    require_rsi: bool = True
+    require_ema_compression: bool = False
+    require_pinbar_doji: bool = False
+    max_ema_spread_pct: float = 3.5
 
 
 def load_default_nvda():
@@ -124,7 +129,7 @@ async def execute_scan(req: ScanRequest):
     Executes a scan or returns instantly from the high-speed shared memory cache.
     Protects upstream data feeds when lakhs of users scan simultaneously.
     """
-    cache_key = f"{req.universe}_{req.timeframe}_{req.rsi_period}_{req.rsi_threshold}_{req.swing_window}"
+    cache_key = f"{req.universe}_{req.timeframe}_{req.rsi_period}_{req.rsi_threshold}_{req.swing_window}_{req.require_hh_hl}_{req.require_rsi}_{req.require_ema_compression}_{req.require_pinbar_doji}_{req.max_ema_spread_pct}"
     now = time.time()
 
     # Fast in-memory read
@@ -150,7 +155,12 @@ async def execute_scan(req: ScanRequest):
         rsi_period=req.rsi_period,
         rsi_threshold=req.rsi_threshold,
         swing_window=req.swing_window,
-        min_volume=req.min_volume
+        min_volume=req.min_volume,
+        require_hh_hl=req.require_hh_hl,
+        require_rsi=req.require_rsi,
+        require_ema_compression=req.require_ema_compression,
+        require_pinbar_doji=req.require_pinbar_doji,
+        max_ema_spread_pct=req.max_ema_spread_pct
     )
 
     with _SCAN_LOCK:
@@ -167,7 +177,12 @@ async def execute_scan_stream(
     rsi_period: int = Query(21),
     rsi_threshold: float = Query(50.0),
     swing_window: int = Query(3),
-    min_volume: float = Query(0.0)
+    min_volume: float = Query(0.0),
+    require_hh_hl: bool = Query(True),
+    require_rsi: bool = Query(True),
+    require_ema_compression: bool = Query(False),
+    require_pinbar_doji: bool = Query(False),
+    max_ema_spread_pct: float = Query(3.5)
 ):
     """
     Server-Sent Events (SSE) streaming endpoint for live scanner progress.
@@ -186,7 +201,12 @@ async def execute_scan_stream(
             rsi_period=rsi_period,
             rsi_threshold=rsi_threshold,
             swing_window=swing_window,
-            min_volume=min_volume
+            min_volume=min_volume,
+            require_hh_hl=require_hh_hl,
+            require_rsi=require_rsi,
+            require_ema_compression=require_ema_compression,
+            require_pinbar_doji=require_pinbar_doji,
+            max_ema_spread_pct=max_ema_spread_pct
         )
         for item in gen:
             payload = f"data: {json.dumps(item)}\n\n"
@@ -233,6 +253,7 @@ async def get_chart_data(
     candles = []
     volumes = []
     rsi_series = []
+    ema_10_series = []
     ema_20_series = []
     ema_50_series = []
     ema_200_series = []
@@ -257,6 +278,8 @@ async def get_chart_data(
             rsi_series.append({"time": t, "value": round(float(row["rsi_21"]), 2)})
 
         # EMA series
+        if "ema_10" in df.columns and not row.isna()["ema_10"]:
+            ema_10_series.append({"time": t, "value": round(float(row["ema_10"]), 2)})
         if "ema_20" in df.columns and not row.isna()["ema_20"]:
             ema_20_series.append({"time": t, "value": round(float(row["ema_20"]), 2)})
         if "ema_50" in df.columns and not row.isna()["ema_50"]:
@@ -271,6 +294,7 @@ async def get_chart_data(
         "candles": candles,
         "volumes": volumes,
         "rsi": rsi_series,
+        "ema_10": ema_10_series,
         "ema_20": ema_20_series,
         "ema_50": ema_50_series,
         "ema_200": ema_200_series,

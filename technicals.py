@@ -139,14 +139,20 @@ def analyze_market_structure(
     df: pd.DataFrame,
     rsi_period: int = 21,
     rsi_threshold: float = 50.0,
-    swing_window: int = 3
+    swing_window: int = 3,
+    require_hh_hl: bool = True,
+    require_rsi: bool = True,
+    require_ema_compression: bool = False,
+    require_pinbar_doji: bool = False,
+    max_ema_spread_pct: float = 3.5
 ) -> Dict[str, Any]:
     """
     Performs complete market structure analysis for a given stock DataFrame.
-    Checks:
+    Evaluates:
       1. Price is making Higher Highs (HH) and Higher Lows (HL)
       2. RSI(21) is above 50 (or custom threshold)
-      3. Trend health and support/resistance levels
+      3. EMA (10, 20, 50) Compression (tight convergence/squeeze)
+      4. Bullish Pinbar or Doji candlestick pattern trading above EMAs
     """
     if len(df) < 5:
         return {
@@ -156,6 +162,7 @@ def analyze_market_structure(
 
     # Calculate indicators
     df['rsi_21'] = compute_rsi(df['close'], period=rsi_period)
+    df['ema_10'] = compute_ema(df['close'], 10)
     df['ema_20'] = compute_ema(df['close'], 20)
     df['ema_50'] = compute_ema(df['close'], 50)
     df['ema_200'] = compute_ema(df['close'], 200) if len(df) >= 200 else pd.Series(np.nan, index=df.index)
@@ -171,7 +178,7 @@ def analyze_market_structure(
     curr_rsi = float(latest['rsi_21']) if not np.isnan(latest['rsi_21']) else 0.0
     rsi_condition = curr_rsi >= rsi_threshold
 
-    # Swings detection
+    # Swings detection (HH & HL)
     swing_highs, swing_lows = detect_swings(df, window=swing_window)
 
     # Evaluate HH (Higher High)
@@ -186,7 +193,6 @@ def analyze_market_structure(
         recent_high_price = recent_h['price']
         prev_high_price = prev_h['price']
         recent_high_date = str(pd.to_datetime(recent_h['time'], unit='s').date())
-        # Confirmed HH or current price is breaking out above recent swing high
         if recent_h['price'] > prev_h['price'] or curr_price > recent_h['price']:
             has_hh = True
     elif len(swing_highs) == 1:
@@ -212,18 +218,116 @@ def analyze_market_structure(
     elif len(swing_lows) == 1:
         recent_l = swing_lows[0]
         recent_low_price = recent_l['price']
-        # If low is well above start of dataset
         if recent_low_price > df.iloc[0]['low']:
             has_hl = True
 
-    # Market structure integrity: current price must be sustaining above the recent Higher Low
+    # Market structure integrity: current price must be sustaining above recent Higher Low
     structure_intact = curr_price >= recent_low_price if recent_low_price > 0 else True
 
-    # Combined master condition:
-    # 1. Price is making HH and HL
-    # 2. RSI(21) is above 50
-    # 3. Market structure is intact
-    passes_scan = bool(has_hh and has_hl and rsi_condition and structure_intact)
+    # --- RULE 3: EMA Compression (10, 20, 50) ---
+    # Spread between max and min of (EMA 10, EMA 20, EMA 50) relative to price
+    spreads = []
+    for offset in [-1, -2, -3]:
+        if abs(offset) <= len(df):
+            row_bar = df.iloc[offset]
+            c_val = float(row_bar['close'])
+            e10 = float(row_bar['ema_10'])
+            e20 = float(row_bar['ema_20'])
+            e50 = float(row_bar['ema_50'])
+            if c_val > 0 and not (np.isnan(e10) or np.isnan(e20) or np.isnan(e50)):
+                sp = ((max(e10, e20, e50) - min(e10, e20, e50)) / c_val) * 100.0
+                spreads.append(sp)
+
+    curr_ema_spread_pct = round(spreads[0], 2) if spreads else 999.0
+    min_recent_spread = min(spreads) if spreads else 999.0
+    has_ema_compression = (min_recent_spread <= max_ema_spread_pct)
+
+    # --- RULE 4: Bullish Pinbar or Doji Type above EMAs ---
+    # Check latest candle (or previous fully-formed candle)
+    candle_pattern = "Standard Candle"
+    is_above_emas = False
+    has_pinbar_or_doji = False
+    pinbar_candle_time = None
+
+    def check_candle(row_bar):
+        o = float(row_bar['open'])
+        h = float(row_bar['high'])
+        l = float(row_bar['low'])
+        c = float(row_bar['close'])
+        rng = h - l
+        if rng <= 0:
+            return "Standard Candle", False, False
+        body = abs(c - o)
+        lower_shadow = min(o, c) - l
+        upper_shadow = h - max(o, c)
+
+        e10 = float(row_bar['ema_10'])
+        e20 = float(row_bar['ema_20'])
+        e50 = float(row_bar['ema_50'])
+        min_ema = min(e10, e20, e50)
+        max_ema = max(e10, e20, e50)
+
+        # Above EMAs: candle is holding above or bouncing off EMA support
+        above = (c >= min_ema * 0.995) and (h >= max_ema * 0.99)
+
+        # Bullish Pinbar (Hammer / Rejection Wick off low)
+        is_pin = (
+            lower_shadow >= 1.25 * body and
+            lower_shadow >= 0.38 * rng and
+            upper_shadow <= 0.35 * rng and
+            c >= l + 0.45 * rng
+        )
+
+        # Doji Type (tight body, indecision/coiling before breakout)
+        is_dj = (
+            body <= 0.22 * rng and
+            (lower_shadow >= 0.25 * rng or c >= l + 0.40 * rng)
+        )
+
+        pat = "Bullish Pinbar" if is_pin else ("Doji" if is_dj else "Standard Candle")
+        matched = (is_pin or is_dj) and above
+        return pat, above, matched
+
+    # Evaluate bar -1 first
+    pat_1, above_1, match_1 = check_candle(latest)
+    if match_1:
+        candle_pattern = pat_1
+        is_above_emas = above_1
+        has_pinbar_or_doji = True
+        pinbar_candle_time = int(latest['time']) if 'time' in latest else None
+    elif len(df) >= 2:
+        # Check bar -2
+        prev_bar = df.iloc[-2]
+        pat_2, above_2, match_2 = check_candle(prev_bar)
+        if match_2:
+            candle_pattern = f"{pat_2} (Prev Bar)"
+            is_above_emas = above_2
+            has_pinbar_or_doji = True
+            pinbar_candle_time = int(prev_bar['time']) if 'time' in prev_bar else None
+        else:
+            candle_pattern = pat_1
+            is_above_emas = above_1
+    else:
+        candle_pattern = pat_1
+        is_above_emas = above_1
+
+    # --- Combined Master Scan Logic ---
+    hh_hl_ok = bool(has_hh and has_hl and structure_intact)
+    rsi_ok = bool(rsi_condition)
+    comp_ok = bool(has_ema_compression)
+    candle_ok = bool(has_pinbar_or_doji)
+
+    passes = True
+    if require_hh_hl and not hh_hl_ok:
+        passes = False
+    if require_rsi and not rsi_ok:
+        passes = False
+    if require_ema_compression and not comp_ok:
+        passes = False
+    if require_pinbar_doji and not candle_ok:
+        passes = False
+
+    passes_scan = bool(passes)
 
     # 20-day Volume Average & Volume Surge
     vol_20_avg = float(df['volume'].iloc[-20:].mean()) if len(df) >= 20 else float(df['volume'].mean())
@@ -260,6 +364,18 @@ def analyze_market_structure(
             'size': 1.5
         })
 
+    # Add marker for Pinbar / Doji if detected
+    if has_pinbar_or_doji and pinbar_candle_time:
+        pat_badge = "📌 PIN" if "Pinbar" in candle_pattern else "⚖️ DOJI"
+        markers.append({
+            'time': pinbar_candle_time,
+            'position': 'belowBar',
+            'color': '#a855f7',
+            'shape': 'circle',
+            'text': pat_badge,
+            'size': 2.0
+        })
+
     # Sort markers by time
     markers.sort(key=lambda m: m['time'])
 
@@ -274,6 +390,11 @@ def analyze_market_structure(
         'has_hh': has_hh,
         'has_hl': has_hl,
         'structure_intact': structure_intact,
+        'has_ema_compression': has_ema_compression,
+        'ema_spread_pct': curr_ema_spread_pct,
+        'candle_pattern': candle_pattern,
+        'is_above_emas': is_above_emas,
+        'has_pinbar_or_doji': has_pinbar_or_doji,
         'recent_high': round(recent_high_price, 2),
         'prev_high': round(prev_high_price, 2),
         'recent_low': round(recent_low_price, 2),
@@ -285,6 +406,7 @@ def analyze_market_structure(
         'volume_ratio': round(vol_ratio, 2),
         'high_52w': round(high_52w, 2),
         'low_52w': round(low_52w, 2),
+        'ema_10': round(float(latest['ema_10']), 2) if not np.isnan(latest['ema_10']) else None,
         'ema_20': round(float(latest['ema_20']), 2) if not np.isnan(latest['ema_20']) else None,
         'ema_50': round(float(latest['ema_50']), 2) if not np.isnan(latest['ema_50']) else None,
         'ema_200': round(float(latest['ema_200']), 2) if not np.isnan(latest['ema_200']) else None,

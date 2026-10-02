@@ -1078,6 +1078,35 @@ body.dark-theme {
     display: inline-block;
 }
 
+.badge-squeeze {
+    background: rgba(234, 179, 8, 0.15);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    display: inline-block;
+}
+
+.badge-squeeze.wide {
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--text-muted);
+    border-color: rgba(148, 163, 184, 0.2);
+}
+
+.badge-pattern {
+    background: rgba(168, 85, 247, 0.15);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
 .btn-view-chart {
     background: rgba(6, 182, 212, 0.15);
     border: 1px solid var(--cyan-accent);
@@ -1170,11 +1199,17 @@ body.dark-theme {
             </div>
 
             <div class="rule-badges">
-                <div class="rule-tag" title="Dow Theory market structure condition">
-                    <span class="rule-chk">✓</span> Rule 1: HH & HL
+                <div class="rule-tag" title="Rule 1: Dow Theory market structure condition">
+                    <span class="rule-chk">✓</span> R1: HH & HL
                 </div>
-                <div class="rule-tag" title="Bullish momentum filter">
-                    <span class="rule-chk">✓</span> Rule 2: RSI(21) > 50
+                <div class="rule-tag" title="Rule 2: Bullish momentum filter">
+                    <span class="rule-chk">✓</span> R2: RSI(21) > 50
+                </div>
+                <div class="rule-tag" title="Rule 3: EMA 10, 20, 50 compression squeeze">
+                    <span class="rule-chk">✓</span> R3: EMA Squeeze
+                </div>
+                <div class="rule-tag" title="Rule 4: Bullish Pinbar or Doji type candle above EMAs">
+                    <span class="rule-chk">✓</span> R4: Pinbar / Doji
                 </div>
             </div>
         </div>
@@ -1216,39 +1251,83 @@ body.dark-theme {
                     </div>
                 </div>
 
-                <!-- Core Strategy Parameters -->
+                <!-- Strategy Rules & Presets Card -->
                 <div class="criteria-card">
-                    <div class="criteria-header">
-                        <h4>Scanner Criteria</h4>
+                    <div class="criteria-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                        <h4 style="margin-bottom: 0;">Strategy Criteria</h4>
+                        <span style="font-size: 0.65rem; color: var(--cyan-accent); font-weight: 700; background: rgba(6,182,212,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid rgba(6,182,212,0.25);">PRO SETUP</span>
                     </div>
 
-                    <!-- RSI Slider -->
-                    <div class="criteria-item">
+                    <!-- Strategy Preset Selector -->
+                    <div class="criteria-item" style="margin-bottom: 0.85rem;">
                         <div class="slider-label-row">
-                            <span>RSI(21) Threshold</span>
-                            <span class="slider-val" id="rsiVal">50</span>
+                            <span style="font-weight: 600; color: var(--text-primary);">Preset Strategy</span>
                         </div>
-                        <input type="range" id="rsiThreshold" min="40" max="65" value="50" step="1" class="slider" />
-                        <span class="sub-text">Default: RSI(21) > 50 (Bullish Momentum)</span>
+                        <select id="strategyPreset" class="form-control" style="font-size: 0.75rem; padding: 0.35rem 0.5rem; margin-top: 0.25rem;">
+                            <option value="all4" selected>🌟 All 4 Rules: Full Master Setup</option>
+                            <option value="core">📈 Core: HH + HL & RSI(21) > 50</option>
+                            <option value="squeeze">⚡ Squeeze: EMA Compression + Pin/Doji</option>
+                            <option value="custom">🛠️ Custom Selection</option>
+                        </select>
                     </div>
 
-                    <!-- Swing Pivot Window -->
-                    <div class="criteria-item">
+                    <!-- Rule 1: HH & HL -->
+                    <div class="criteria-item checkbox-item" style="margin-bottom: 0.5rem;">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="chkHhHl" checked>
+                            <span class="checkmark"></span>
+                            <span style="font-weight: 600;">Rule 1: HH & HL Swings</span>
+                        </label>
+                    </div>
+                    <div class="criteria-item" style="margin-left: 1.4rem; margin-bottom: 0.75rem;">
                         <div class="slider-label-row">
-                            <span>Swing Sensitivity (Bars)</span>
+                            <span style="font-size: 0.7rem;">Pivot Window</span>
                             <span class="slider-val" id="swingVal">3</span>
                         </div>
                         <input type="range" id="swingWindow" min="2" max="6" value="3" step="1" class="slider" />
-                        <span class="sub-text">Number of bars on each side for Pivot High/Low</span>
                     </div>
 
-                    <!-- Optional EMA confirmation -->
-                    <div class="criteria-item checkbox-item">
+                    <!-- Rule 2: RSI(21) > 50 -->
+                    <div class="criteria-item checkbox-item" style="margin-bottom: 0.5rem;">
                         <label class="checkbox-container">
-                            <input type="checkbox" id="chkAboveEma50">
+                            <input type="checkbox" id="chkRsi" checked>
                             <span class="checkmark"></span>
-                            <span>Require Close > EMA 50</span>
+                            <span style="font-weight: 600;">Rule 2: RSI(21) > Threshold</span>
                         </label>
+                    </div>
+                    <div class="criteria-item" style="margin-left: 1.4rem; margin-bottom: 0.75rem;">
+                        <div class="slider-label-row">
+                            <span style="font-size: 0.7rem;">RSI Cutoff</span>
+                            <span class="slider-val" id="rsiVal">50</span>
+                        </div>
+                        <input type="range" id="rsiThreshold" min="40" max="65" value="50" step="1" class="slider" />
+                    </div>
+
+                    <!-- Rule 3: EMA (10, 20, 50) Compression -->
+                    <div class="criteria-item checkbox-item" style="margin-bottom: 0.5rem;">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="chkEmaCompression" checked>
+                            <span class="checkmark"></span>
+                            <span style="font-weight: 600;">Rule 3: EMA (10,20,50) Squeeze</span>
+                        </label>
+                    </div>
+                    <div class="criteria-item" style="margin-left: 1.4rem; margin-bottom: 0.75rem;">
+                        <div class="slider-label-row">
+                            <span style="font-size: 0.7rem;">Max Spread %</span>
+                            <span class="slider-val" id="emaSpreadVal">3.5%</span>
+                        </div>
+                        <input type="range" id="emaSpreadThreshold" min="1.5" max="6.0" value="3.5" step="0.5" class="slider" />
+                        <span class="sub-text">EMAs coiled tightly within narrow price band</span>
+                    </div>
+
+                    <!-- Rule 4: Bullish Pinbar / Doji above EMAs -->
+                    <div class="criteria-item checkbox-item" style="margin-bottom: 0.2rem;">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="chkPinbarDoji" checked>
+                            <span class="checkmark"></span>
+                            <span style="font-weight: 600;">Rule 4: Bullish Pinbar / Doji</span>
+                        </label>
+                        <span class="sub-text" style="margin-left: 1.4rem;">Candle showing rejection wick & holding above EMAs</span>
                     </div>
                 </div>
 
@@ -1307,10 +1386,11 @@ body.dark-theme {
                     <div class="chart-toolbar">
                         <!-- Chart Indicators Toggles -->
                         <div class="indicator-pills">
+                            <button class="pill-btn active" id="toggleEma10" style="border-color: rgba(234, 179, 8, 0.4); color: #eab308;">EMA 10</button>
                             <button class="pill-btn active" id="toggleEma20">EMA 20</button>
                             <button class="pill-btn active" id="toggleEma50">EMA 50</button>
                             <button class="pill-btn" id="toggleEma200">EMA 200</button>
-                            <button class="pill-btn active" id="toggleSwings">HH / HL Badges</button>
+                            <button class="pill-btn active" id="toggleSwings">HH/HL & Pins</button>
                         </div>
 
                         <!-- Range selector -->
@@ -1373,6 +1453,22 @@ body.dark-theme {
                                     <div class="check-desc" id="diagStructureDesc">Above Last Swing Low</div>
                                 </div>
                             </div>
+
+                            <div class="check-row" id="chkRowEmaCompression">
+                                <span class="check-icon">✓</span>
+                                <div class="check-content">
+                                    <div class="check-title">EMA (10, 20, 50) Squeeze</div>
+                                    <div class="check-desc" id="diagEmaCompDesc">Spread: 0.00% (&le; 3.5%)</div>
+                                </div>
+                            </div>
+
+                            <div class="check-row" id="chkRowCandlePattern">
+                                <span class="check-icon">✓</span>
+                                <div class="check-content">
+                                    <div class="check-title">Bullish Pinbar / Doji above EMAs</div>
+                                    <div class="check-desc" id="diagCandlePatternDesc">Pattern: Checking...</div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Key Trading Levels -->
@@ -1431,18 +1527,20 @@ body.dark-theme {
                                 <th>Price</th>
                                 <th>Change %</th>
                                 <th>RSI(21)</th>
+                                <th>EMA Squeeze %</th>
+                                <th>Candle Pattern</th>
                                 <th>Recent Peak (HH)</th>
                                 <th>Recent Trough (HL)</th>
-                                <th>Structure Status</th>
+                                <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="resultsTableBody">
                             <tr class="empty-row">
-                                <td colspan="8">
+                                <td colspan="10">
                                     <div class="empty-state">
                                         <span class="empty-icon">📊</span>
-                                        <p>Click <strong>"Run Full Scanner"</strong> to scan stocks matching Higher Highs, Higher Lows, and RSI(21) > 50.</p>
+                                        <p>Click <strong>"Run Full Scanner"</strong> to scan stocks matching HH + HL, RSI(21) > 50, EMA Compression, and Bullish Pinbar/Doji above EMAs.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -1455,8 +1553,6 @@ body.dark-theme {
 
     <!-- Notification Toast -->
     <div id="toast" class="toast"></div>
-
-    <script src="/static/js/app.js"></script>
     <script>
 /**
  * AlphaPulse - Stock Scanner & Trading Terminal
@@ -1470,12 +1566,18 @@ const state = {
     activeRange: "6mo",
     swingWindow: 3,
     rsiThreshold: 50.0,
+    maxEmaSpread: 3.5,
+    requireHhHl: true,
+    requireRsi: true,
+    requireEmaCompression: true,
+    requirePinbarDoji: true,
     isScanning: false,
     autoRefresh: true,
     autoRefreshTimer: null,
     eventSource: null,
     scanMatches: [],
     indicators: {
+        ema10: true,
         ema20: true,
         ema50: true,
         ema200: false,
@@ -1488,6 +1590,7 @@ const state = {
 let mainChart = null;
 let candleSeries = null;
 let volumeSeries = null;
+let ema10Series = null;
 let ema20Series = null;
 let ema50Series = null;
 let ema200Series = null;
@@ -1594,6 +1697,12 @@ function initCharts() {
         priceFormat: { type: 'volume' },
         priceScaleId: '', // overlay
         scaleMargins: { top: 0.8, bottom: 0 }
+    });
+
+    ema10Series = mainChart.addLineSeries({
+        color: '#eab308',
+        lineWidth: 2,
+        title: 'EMA 10'
     });
 
     ema20Series = mainChart.addLineSeries({
@@ -1755,6 +1864,9 @@ function renderChartData(data, isSilentRefresh = false) {
     volumeSeries.setData(formattedVolumes);
 
     // 2. EMAs
+    if (data.ema_10 && data.ema_10.length > 0) {
+        ema10Series.setData(data.ema_10.map(e => ({ ...e, time: formatChartTime(e.time, tf) })));
+    }
     if (data.ema_20 && data.ema_20.length > 0) {
         ema20Series.setData(data.ema_20.map(e => ({ ...e, time: formatChartTime(e.time, tf) })));
     }
@@ -1818,7 +1930,7 @@ function renderChartData(data, isSilentRefresh = false) {
     // Trend badge
     const trendEl = document.getElementById("activeTrendBadge");
     if (data.analysis.passes_scan) {
-        trendEl.innerText = "MATCH: UPTREND (HH+HL & RSI>50)";
+        trendEl.innerText = "MATCH: MASTER SETUP (HH/HL + RSI>50 + SQUEEZE + PIN)";
         trendEl.className = "trend-badge";
     } else {
         trendEl.innerText = data.analysis.trend_status || "STRUCTURE INCOMPLETE";
@@ -1882,6 +1994,36 @@ function renderDiagnosis(a, meta) {
         rowStruct.className = "check-row failed";
         rowStruct.querySelector(".check-icon").innerText = "✕";
         structDesc.innerText = `Price broke below ${currency}${a.recent_low}`;
+    }
+
+    // 5. EMA Compression (10, 20, 50)
+    const rowComp = document.getElementById("chkRowEmaCompression");
+    const compDesc = document.getElementById("diagEmaCompDesc");
+    if (rowComp && compDesc) {
+        if (a.has_ema_compression) {
+            rowComp.className = "check-row";
+            rowComp.querySelector(".check-icon").innerText = "✓";
+            compDesc.innerText = `Spread: ${a.ema_spread_pct}% (Tight Squeeze <= ${state.maxEmaSpread}%)`;
+        } else {
+            rowComp.className = "check-row failed";
+            rowComp.querySelector(".check-icon").innerText = "✕";
+            compDesc.innerText = `Spread: ${a.ema_spread_pct}% (Above ${state.maxEmaSpread}%)`;
+        }
+    }
+
+    // 6. Bullish Pinbar / Doji above EMAs
+    const rowPat = document.getElementById("chkRowCandlePattern");
+    const patDesc = document.getElementById("diagCandlePatternDesc");
+    if (rowPat && patDesc) {
+        if (a.has_pinbar_or_doji) {
+            rowPat.className = "check-row";
+            rowPat.querySelector(".check-icon").innerText = "✓";
+            patDesc.innerText = `${a.candle_pattern} holding above EMAs`;
+        } else {
+            rowPat.className = "check-row failed";
+            rowPat.querySelector(".check-icon").innerText = "✕";
+            patDesc.innerText = `${a.candle_pattern || "Standard"} (No pinbar/doji above EMAs)`;
+        }
     }
 
     // Key Levels
@@ -2104,7 +2246,74 @@ function setupEventListeners() {
         state.swingWindow = parseInt(e.target.value);
     });
 
+    // Strategy Preset Dropdown
+    const presetSelect = document.getElementById("strategyPreset");
+    if (presetSelect) {
+        presetSelect.addEventListener("change", () => {
+            const val = presetSelect.value;
+            if (val === "all4") {
+                document.getElementById("chkHhHl").checked = true;
+                document.getElementById("chkRsi").checked = true;
+                document.getElementById("chkEmaCompression").checked = true;
+                document.getElementById("chkPinbarDoji").checked = true;
+                state.requireHhHl = true;
+                state.requireRsi = true;
+                state.requireEmaCompression = true;
+                state.requirePinbarDoji = true;
+            } else if (val === "core") {
+                document.getElementById("chkHhHl").checked = true;
+                document.getElementById("chkRsi").checked = true;
+                document.getElementById("chkEmaCompression").checked = false;
+                document.getElementById("chkPinbarDoji").checked = false;
+                state.requireHhHl = true;
+                state.requireRsi = true;
+                state.requireEmaCompression = false;
+                state.requirePinbarDoji = false;
+            } else if (val === "squeeze") {
+                document.getElementById("chkHhHl").checked = false;
+                document.getElementById("chkRsi").checked = false;
+                document.getElementById("chkEmaCompression").checked = true;
+                document.getElementById("chkPinbarDoji").checked = true;
+                state.requireHhHl = false;
+                state.requireRsi = false;
+                state.requireEmaCompression = true;
+                state.requirePinbarDoji = true;
+            }
+        });
+    }
+
+    // Individual Rule Checkboxes
+    const chkHhHl = document.getElementById("chkHhHl");
+    if (chkHhHl) chkHhHl.addEventListener("change", (e) => state.requireHhHl = e.target.checked);
+
+    const chkRsi = document.getElementById("chkRsi");
+    if (chkRsi) chkRsi.addEventListener("change", (e) => state.requireRsi = e.target.checked);
+
+    const chkEmaComp = document.getElementById("chkEmaCompression");
+    if (chkEmaComp) chkEmaComp.addEventListener("change", (e) => state.requireEmaCompression = e.target.checked);
+
+    const chkPinbar = document.getElementById("chkPinbarDoji");
+    if (chkPinbar) chkPinbar.addEventListener("change", (e) => state.requirePinbarDoji = e.target.checked);
+
+    const emaSpreadThreshold = document.getElementById("emaSpreadThreshold");
+    const emaSpreadVal = document.getElementById("emaSpreadVal");
+    if (emaSpreadThreshold && emaSpreadVal) {
+        emaSpreadThreshold.addEventListener("input", (e) => {
+            emaSpreadVal.innerText = `${e.target.value}%`;
+            state.maxEmaSpread = parseFloat(e.target.value);
+        });
+    }
+
     // Indicator Toggles
+    const btnEma10 = document.getElementById("toggleEma10");
+    if (btnEma10) {
+        btnEma10.addEventListener("click", function() {
+            state.indicators.ema10 = !state.indicators.ema10;
+            this.classList.toggle("active");
+            ema10Series.applyOptions({ visible: state.indicators.ema10 });
+        });
+    }
+
     document.getElementById("toggleEma20").addEventListener("click", function() {
         state.indicators.ema20 = !state.indicators.ema20;
         this.classList.toggle("active");
@@ -2171,10 +2380,10 @@ function startScan() {
     const tbody = document.getElementById("resultsTableBody");
     tbody.innerHTML = `
         <tr class="empty-row">
-            <td colspan="8">
+            <td colspan="10">
                 <div class="empty-state">
                     <span class="empty-icon">⏳</span>
-                    <p>Scanning in real-time... Stocks meeting HH + HL & RSI(21) > ${state.rsiThreshold} will populate below.</p>
+                    <p>Scanning in real-time... Stocks meeting selected criteria will populate below.</p>
                 </div>
             </td>
         </tr>
@@ -2185,7 +2394,12 @@ function startScan() {
         timeframe: state.activeTimeframe,
         rsi_period: 21,
         rsi_threshold: state.rsiThreshold,
-        swing_window: state.swingWindow
+        swing_window: state.swingWindow,
+        require_hh_hl: state.requireHhHl,
+        require_rsi: state.requireRsi,
+        require_ema_compression: state.requireEmaCompression,
+        require_pinbar_doji: state.requirePinbarDoji,
+        max_ema_spread_pct: state.maxEmaSpread
     });
     if (universe === "custom" && customSymbols) {
         params.append("custom_symbols", customSymbols);
@@ -2262,14 +2476,22 @@ function addMatchToTable(stock) {
 
     const tr = document.createElement("tr");
     tr.dataset.symbol = stock.symbol;
+
+    const isSqueeze = stock.has_ema_compression;
+    const squeezeBadge = `<span class="badge-squeeze ${isSqueeze ? '' : 'wide'}">${stock.ema_spread_pct != null ? stock.ema_spread_pct + '%' : 'N/A'}</span>`;
+    const patClass = stock.has_pinbar_or_doji ? "badge-pattern" : "sub-text";
+    const patText = stock.candle_pattern || "Standard";
+
     tr.innerHTML = `
         <td class="ticker-cell" onclick="loadStockChart('${stock.symbol}')">${stock.symbol}</td>
         <td class="mono-cell">${currency}${stock.price.toFixed(2)}</td>
         <td class="mono-cell ${changeClass}">${sign}${stock.change_pct.toFixed(2)}%</td>
         <td class="mono-cell" style="color: #10b981; font-weight: 700;">${stock.rsi_21.toFixed(1)}</td>
+        <td class="mono-cell">${squeezeBadge}</td>
+        <td><span class="${patClass}">${patText}</span></td>
         <td class="mono-cell">${currency}${stock.recent_high} <span style="color:#10b981; font-size:0.7rem;">(HH)</span></td>
         <td class="mono-cell">${currency}${stock.recent_low} <span style="color:#06b6d4; font-size:0.7rem;">(HL)</span></td>
-        <td><span class="status-badge-match">✓ HH + HL + RSI>50</span></td>
+        <td><span class="status-badge-match">✓ ALL RULES MET</span></td>
         <td>
             <button class="btn-view-chart" onclick="loadStockChart('${stock.symbol}')">View Chart</button>
         </td>
@@ -2312,12 +2534,14 @@ function exportCsv() {
         return;
     }
 
-    const headers = ["Symbol", "Price", "Change %", "RSI(21)", "Recent High (HH)", "Recent Low (HL)", "Stop Loss", "Volume"];
+    const headers = ["Symbol", "Price", "Change %", "RSI(21)", "EMA Spread %", "Candle Pattern", "Recent High (HH)", "Recent Low (HL)", "Stop Loss", "Volume"];
     const rows = state.scanMatches.map(s => [
         s.symbol,
         s.price,
         s.change_pct,
         s.rsi_21,
+        s.ema_spread_pct,
+        s.candle_pattern,
         s.recent_high,
         s.recent_low,
         s.suggested_stop_loss,
@@ -2328,7 +2552,7 @@ function exportCsv() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `AlphaPulse_Scan_HH_HL_RSI_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `AlphaPulse_Scan_HH_HL_RSI_EMA_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

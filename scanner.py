@@ -21,10 +21,19 @@ def scan_single_stock(
     rsi_period: int = 21,
     rsi_threshold: float = 50.0,
     swing_window: int = 3,
-    min_volume: float = 0
+    min_volume: float = 0,
+    require_hh_hl: bool = True,
+    require_rsi: bool = True,
+    require_ema_compression: bool = False,
+    require_pinbar_doji: bool = False,
+    max_ema_spread_pct: float = 3.5
 ) -> Dict[str, Any]:
     """
-    Scans an individual stock ticker and evaluates HH/HL + RSI(21) > 50 criteria.
+    Scans an individual stock ticker and evaluates:
+    1. Higher Highs (HH) and Higher Lows (HL)
+    2. RSI(21) > 50
+    3. EMA (10, 20, 50) Compression
+    4. Bullish Pinbar or Doji candle above EMAs
     """
     symbol = symbol.strip().upper()
     try:
@@ -41,7 +50,12 @@ def scan_single_stock(
             df,
             rsi_period=rsi_period,
             rsi_threshold=rsi_threshold,
-            swing_window=swing_window
+            swing_window=swing_window,
+            require_hh_hl=require_hh_hl,
+            require_rsi=require_rsi,
+            require_ema_compression=require_ema_compression,
+            require_pinbar_doji=require_pinbar_doji,
+            max_ema_spread_pct=max_ema_spread_pct
         )
 
         if not analysis.get("is_valid", False):
@@ -82,6 +96,11 @@ def run_batch_scan(
     rsi_threshold: float = 50.0,
     swing_window: int = 3,
     min_volume: float = 0,
+    require_hh_hl: bool = True,
+    require_rsi: bool = True,
+    require_ema_compression: bool = False,
+    require_pinbar_doji: bool = False,
+    max_ema_spread_pct: float = 3.5,
     max_workers: int = 10,
     progress_callback: Optional[Callable[[Dict[str, Any]], None]] = None
 ) -> Dict[str, Any]:
@@ -104,7 +123,12 @@ def run_batch_scan(
                 rsi_period,
                 rsi_threshold,
                 swing_window,
-                min_volume
+                min_volume,
+                require_hh_hl,
+                require_rsi,
+                require_ema_compression,
+                require_pinbar_doji,
+                max_ema_spread_pct
             ): sym
             for sym in symbols
         }
@@ -149,6 +173,8 @@ def run_batch_scan(
         "criteria": {
             "condition_1": "Price is making Higher Highs (HH) and Higher Lows (HL)",
             "condition_2": f"RSI({rsi_period}) > {rsi_threshold}",
+            "condition_3": f"EMA (10, 20, 50) Compression <= {max_ema_spread_pct}%",
+            "condition_4": "Bullish Pinbar or Doji above EMAs",
             "timeframe": timeframe,
             "swing_window": swing_window
         },
@@ -165,6 +191,11 @@ def stream_scan(
     rsi_threshold: float = 50.0,
     swing_window: int = 3,
     min_volume: float = 0,
+    require_hh_hl: bool = True,
+    require_rsi: bool = True,
+    require_ema_compression: bool = False,
+    require_pinbar_doji: bool = False,
+    max_ema_spread_pct: float = 3.5,
     max_workers: int = 8
 ) -> Generator[Dict[str, Any], None, None]:
     """
@@ -191,7 +222,12 @@ def stream_scan(
                 rsi_period,
                 rsi_threshold,
                 swing_window,
-                min_volume
+                min_volume,
+                require_hh_hl,
+                require_rsi,
+                require_ema_compression,
+                require_pinbar_doji,
+                max_ema_spread_pct
             ): sym
             for sym in symbols
         }

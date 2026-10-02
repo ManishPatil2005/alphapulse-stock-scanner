@@ -10,12 +10,18 @@ const state = {
     activeRange: "6mo",
     swingWindow: 3,
     rsiThreshold: 50.0,
+    maxEmaSpread: 3.5,
+    requireHhHl: true,
+    requireRsi: true,
+    requireEmaCompression: true,
+    requirePinbarDoji: true,
     isScanning: false,
     autoRefresh: true,
     autoRefreshTimer: null,
     eventSource: null,
     scanMatches: [],
     indicators: {
+        ema10: true,
         ema20: true,
         ema50: true,
         ema200: false,
@@ -28,6 +34,7 @@ const state = {
 let mainChart = null;
 let candleSeries = null;
 let volumeSeries = null;
+let ema10Series = null;
 let ema20Series = null;
 let ema50Series = null;
 let ema200Series = null;
@@ -44,6 +51,9 @@ let cachedChartData = null;
 let searchDebounceTimer = null;
 let activeSuggestionIndex = -1;
 
+// Pre-seeded initial stock data injected from server (instant <5ms load, zero-delay)
+const initialStockData = null;
+
 // Initialize on DOM load
 document.addEventListener("DOMContentLoaded", () => {
     initCharts();
@@ -51,8 +61,14 @@ document.addEventListener("DOMContentLoaded", () => {
     setupSearchAutoComplete();
     setupAutoRefresh();
 
-    // Load default initial stock
-    loadStockChart(state.activeSymbol);
+    // If pre-seeded initial stock data exists, render immediately!
+    if (initialStockData && initialStockData.candles && initialStockData.candles.length > 0) {
+        cachedChartData = initialStockData;
+        renderChartData(initialStockData);
+        renderDiagnosis(initialStockData.analysis, initialStockData.meta);
+    } else {
+        loadStockChart(state.activeSymbol);
+    }
 });
 
 /**
@@ -125,6 +141,12 @@ function initCharts() {
         priceFormat: { type: 'volume' },
         priceScaleId: '', // overlay
         scaleMargins: { top: 0.8, bottom: 0 }
+    });
+
+    ema10Series = mainChart.addLineSeries({
+        color: '#eab308',
+        lineWidth: 2,
+        title: 'EMA 10'
     });
 
     ema20Series = mainChart.addLineSeries({
@@ -223,7 +245,7 @@ async function loadStockChart(symbol, isSilentRefresh = false) {
 
     if (!isSilentRefresh) {
         document.getElementById("activeSymbol").innerText = symbol;
-        document.getElementById("activeTrendBadge").innerText = "LOADING DATA...";
+        document.getElementById("activeTrendBadge").innerText = "FETCHING MARKET DATA...";
         document.getElementById("activeTrendBadge").className = "trend-badge";
     }
 
@@ -231,8 +253,14 @@ async function loadStockChart(symbol, isSilentRefresh = false) {
         const url = `/api/chart/${encodeURIComponent(symbol)}?timeframe=${state.activeTimeframe}&range_param=${state.activeRange}&rsi_period=21&swing_window=${state.swingWindow}`;
         const res = await fetch(url);
         if (!res.ok) {
-            const err = await res.json();
-            showToast(err.detail || "Error loading stock data");
+            let errMsg = `Failed to load data for ${symbol}`;
+            try {
+                const errData = await res.json();
+                errMsg = errData.detail || errMsg;
+            } catch(e) {}
+            showToast(errMsg);
+            document.getElementById("activeTrendBadge").innerText = "DATA UNAVAILABLE";
+            document.getElementById("activeTrendBadge").className = "trend-badge bearish";
             return;
         }
 
@@ -250,6 +278,8 @@ async function loadStockChart(symbol, isSilentRefresh = false) {
 
     } catch (err) {
         console.error("Error loading chart:", err);
+        document.getElementById("activeTrendBadge").innerText = "CONNECTION ISSUE";
+        document.getElementById("activeTrendBadge").className = "trend-badge bearish";
         if (!isSilentRefresh) showToast(`Failed to load ${symbol}`);
     }
 }
@@ -278,6 +308,9 @@ function renderChartData(data, isSilentRefresh = false) {
     volumeSeries.setData(formattedVolumes);
 
     // 2. EMAs
+    if (data.ema_10 && data.ema_10.length > 0) {
+        ema10Series.setData(data.ema_10.map(e => ({ ...e, time: formatChartTime(e.time, tf) })));
+    }
     if (data.ema_20 && data.ema_20.length > 0) {
         ema20Series.setData(data.ema_20.map(e => ({ ...e, time: formatChartTime(e.time, tf) })));
     }
@@ -341,7 +374,7 @@ function renderChartData(data, isSilentRefresh = false) {
     // Trend badge
     const trendEl = document.getElementById("activeTrendBadge");
     if (data.analysis.passes_scan) {
-        trendEl.innerText = "MATCH: UPTREND (HH+HL & RSI>50)";
+        trendEl.innerText = "MATCH: MASTER SETUP (HH/HL + RSI>50 + SQUEEZE + PIN)";
         trendEl.className = "trend-badge";
     } else {
         trendEl.innerText = data.analysis.trend_status || "STRUCTURE INCOMPLETE";
@@ -405,6 +438,36 @@ function renderDiagnosis(a, meta) {
         rowStruct.className = "check-row failed";
         rowStruct.querySelector(".check-icon").innerText = "✕";
         structDesc.innerText = `Price broke below ${currency}${a.recent_low}`;
+    }
+
+    // 5. EMA Compression (10, 20, 50)
+    const rowComp = document.getElementById("chkRowEmaCompression");
+    const compDesc = document.getElementById("diagEmaCompDesc");
+    if (rowComp && compDesc) {
+        if (a.has_ema_compression) {
+            rowComp.className = "check-row";
+            rowComp.querySelector(".check-icon").innerText = "✓";
+            compDesc.innerText = `Spread: ${a.ema_spread_pct}% (Tight Squeeze <= ${state.maxEmaSpread}%)`;
+        } else {
+            rowComp.className = "check-row failed";
+            rowComp.querySelector(".check-icon").innerText = "✕";
+            compDesc.innerText = `Spread: ${a.ema_spread_pct}% (Above ${state.maxEmaSpread}%)`;
+        }
+    }
+
+    // 6. Bullish Pinbar / Doji above EMAs
+    const rowPat = document.getElementById("chkRowCandlePattern");
+    const patDesc = document.getElementById("diagCandlePatternDesc");
+    if (rowPat && patDesc) {
+        if (a.has_pinbar_or_doji) {
+            rowPat.className = "check-row";
+            rowPat.querySelector(".check-icon").innerText = "✓";
+            patDesc.innerText = `${a.candle_pattern} holding above EMAs`;
+        } else {
+            rowPat.className = "check-row failed";
+            rowPat.querySelector(".check-icon").innerText = "✕";
+            patDesc.innerText = `${a.candle_pattern || "Standard"} (No pinbar/doji above EMAs)`;
+        }
     }
 
     // Key Levels
@@ -627,7 +690,74 @@ function setupEventListeners() {
         state.swingWindow = parseInt(e.target.value);
     });
 
+    // Strategy Preset Dropdown
+    const presetSelect = document.getElementById("strategyPreset");
+    if (presetSelect) {
+        presetSelect.addEventListener("change", () => {
+            const val = presetSelect.value;
+            if (val === "all4") {
+                document.getElementById("chkHhHl").checked = true;
+                document.getElementById("chkRsi").checked = true;
+                document.getElementById("chkEmaCompression").checked = true;
+                document.getElementById("chkPinbarDoji").checked = true;
+                state.requireHhHl = true;
+                state.requireRsi = true;
+                state.requireEmaCompression = true;
+                state.requirePinbarDoji = true;
+            } else if (val === "core") {
+                document.getElementById("chkHhHl").checked = true;
+                document.getElementById("chkRsi").checked = true;
+                document.getElementById("chkEmaCompression").checked = false;
+                document.getElementById("chkPinbarDoji").checked = false;
+                state.requireHhHl = true;
+                state.requireRsi = true;
+                state.requireEmaCompression = false;
+                state.requirePinbarDoji = false;
+            } else if (val === "squeeze") {
+                document.getElementById("chkHhHl").checked = false;
+                document.getElementById("chkRsi").checked = false;
+                document.getElementById("chkEmaCompression").checked = true;
+                document.getElementById("chkPinbarDoji").checked = true;
+                state.requireHhHl = false;
+                state.requireRsi = false;
+                state.requireEmaCompression = true;
+                state.requirePinbarDoji = true;
+            }
+        });
+    }
+
+    // Individual Rule Checkboxes
+    const chkHhHl = document.getElementById("chkHhHl");
+    if (chkHhHl) chkHhHl.addEventListener("change", (e) => state.requireHhHl = e.target.checked);
+
+    const chkRsi = document.getElementById("chkRsi");
+    if (chkRsi) chkRsi.addEventListener("change", (e) => state.requireRsi = e.target.checked);
+
+    const chkEmaComp = document.getElementById("chkEmaCompression");
+    if (chkEmaComp) chkEmaComp.addEventListener("change", (e) => state.requireEmaCompression = e.target.checked);
+
+    const chkPinbar = document.getElementById("chkPinbarDoji");
+    if (chkPinbar) chkPinbar.addEventListener("change", (e) => state.requirePinbarDoji = e.target.checked);
+
+    const emaSpreadThreshold = document.getElementById("emaSpreadThreshold");
+    const emaSpreadVal = document.getElementById("emaSpreadVal");
+    if (emaSpreadThreshold && emaSpreadVal) {
+        emaSpreadThreshold.addEventListener("input", (e) => {
+            emaSpreadVal.innerText = `${e.target.value}%`;
+            state.maxEmaSpread = parseFloat(e.target.value);
+        });
+    }
+
     // Indicator Toggles
+    const btnEma10 = document.getElementById("toggleEma10");
+    if (btnEma10) {
+        btnEma10.addEventListener("click", function() {
+            state.indicators.ema10 = !state.indicators.ema10;
+            this.classList.toggle("active");
+            ema10Series.applyOptions({ visible: state.indicators.ema10 });
+        });
+    }
+
     document.getElementById("toggleEma20").addEventListener("click", function() {
         state.indicators.ema20 = !state.indicators.ema20;
         this.classList.toggle("active");
@@ -694,10 +824,10 @@ function startScan() {
     const tbody = document.getElementById("resultsTableBody");
     tbody.innerHTML = `
         <tr class="empty-row">
-            <td colspan="8">
+            <td colspan="10">
                 <div class="empty-state">
                     <span class="empty-icon">⏳</span>
-                    <p>Scanning in real-time... Stocks meeting HH + HL & RSI(21) > ${state.rsiThreshold} will populate below.</p>
+                    <p>Scanning in real-time... Stocks meeting selected criteria will populate below.</p>
                 </div>
             </td>
         </tr>
@@ -708,7 +838,12 @@ function startScan() {
         timeframe: state.activeTimeframe,
         rsi_period: 21,
         rsi_threshold: state.rsiThreshold,
-        swing_window: state.swingWindow
+        swing_window: state.swingWindow,
+        require_hh_hl: state.requireHhHl,
+        require_rsi: state.requireRsi,
+        require_ema_compression: state.requireEmaCompression,
+        require_pinbar_doji: state.requirePinbarDoji,
+        max_ema_spread_pct: state.maxEmaSpread
     });
     if (universe === "custom" && customSymbols) {
         params.append("custom_symbols", customSymbols);
@@ -785,14 +920,22 @@ function addMatchToTable(stock) {
 
     const tr = document.createElement("tr");
     tr.dataset.symbol = stock.symbol;
+
+    const isSqueeze = stock.has_ema_compression;
+    const squeezeBadge = `<span class="badge-squeeze ${isSqueeze ? '' : 'wide'}">${stock.ema_spread_pct != null ? stock.ema_spread_pct + '%' : 'N/A'}</span>`;
+    const patClass = stock.has_pinbar_or_doji ? "badge-pattern" : "sub-text";
+    const patText = stock.candle_pattern || "Standard";
+
     tr.innerHTML = `
         <td class="ticker-cell" onclick="loadStockChart('${stock.symbol}')">${stock.symbol}</td>
         <td class="mono-cell">${currency}${stock.price.toFixed(2)}</td>
         <td class="mono-cell ${changeClass}">${sign}${stock.change_pct.toFixed(2)}%</td>
         <td class="mono-cell" style="color: #10b981; font-weight: 700;">${stock.rsi_21.toFixed(1)}</td>
+        <td class="mono-cell">${squeezeBadge}</td>
+        <td><span class="${patClass}">${patText}</span></td>
         <td class="mono-cell">${currency}${stock.recent_high} <span style="color:#10b981; font-size:0.7rem;">(HH)</span></td>
         <td class="mono-cell">${currency}${stock.recent_low} <span style="color:#06b6d4; font-size:0.7rem;">(HL)</span></td>
-        <td><span class="status-badge-match">✓ HH + HL + RSI>50</span></td>
+        <td><span class="status-badge-match">✓ ALL RULES MET</span></td>
         <td>
             <button class="btn-view-chart" onclick="loadStockChart('${stock.symbol}')">View Chart</button>
         </td>
@@ -835,12 +978,14 @@ function exportCsv() {
         return;
     }
 
-    const headers = ["Symbol", "Price", "Change %", "RSI(21)", "Recent High (HH)", "Recent Low (HL)", "Stop Loss", "Volume"];
+    const headers = ["Symbol", "Price", "Change %", "RSI(21)", "EMA Spread %", "Candle Pattern", "Recent High (HH)", "Recent Low (HL)", "Stop Loss", "Volume"];
     const rows = state.scanMatches.map(s => [
         s.symbol,
         s.price,
         s.change_pct,
         s.rsi_21,
+        s.ema_spread_pct,
+        s.candle_pattern,
         s.recent_high,
         s.recent_low,
         s.suggested_stop_loss,
@@ -851,7 +996,7 @@ function exportCsv() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `AlphaPulse_Scan_HH_HL_RSI_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `AlphaPulse_Scan_HH_HL_RSI_EMA_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
