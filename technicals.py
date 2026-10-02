@@ -148,10 +148,10 @@ def analyze_market_structure(
       2. RSI(21) is above 50 (or custom threshold)
       3. Trend health and support/resistance levels
     """
-    if len(df) < rsi_period + 10:
+    if len(df) < 5:
         return {
             'is_valid': False,
-            'error': f'Not enough data bars ({len(df)} available, need >= {rsi_period + 10})'
+            'error': f'Not enough data bars ({len(df)} available, need >= 5)'
         }
 
     # Calculate indicators

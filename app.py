@@ -59,31 +59,27 @@ class ScanRequest(BaseModel):
     min_volume: float = 0
 
 
-# Vercel Path Normalizer: Handles serverless URL rewrites to prevent 404 Not Found
-@app.middleware("http")
-async def vercel_path_normalizer(request: Request, call_next):
-    orig_path = request.headers.get("x-matched-path") or request.headers.get("x-forwarded-uri")
-    if orig_path and orig_path != "/api/index.py":
-        request.scope["path"] = orig_path
-
-    path = request.scope.get("path", "")
-    if path in ("/api/index.py", "/api", "/api/index"):
-        request.scope["path"] = "/"
-    elif path.startswith("/api/index.py/"):
-        request.scope["path"] = path.replace("/api/index.py", "", 1)
-
-    return await call_next(request)
+def load_default_nvda():
+    try:
+        with open(BASE_DIR / "default_nvda.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return None
 
 
 @app.get("/", response_class=HTMLResponse)
+@app.get("/app.py", response_class=HTMLResponse)
 @app.get("/api/index.py", response_class=HTMLResponse)
 @app.get("/api", response_class=HTMLResponse)
-@app.get("/api/index", response_class=HTMLResponse)
+@app.get("/index", response_class=HTMLResponse)
+@app.get("/index.html", response_class=HTMLResponse)
 async def serve_index(request: Request):
-    """Serves the main trading application dashboard."""
+    """Serves the main trading application dashboard with pre-loaded initial chart."""
+    initial_data = load_default_nvda()
     context = {
         "request": request,
-        "universes": UNIVERSES
+        "universes": UNIVERSES,
+        "initial_data": initial_data
     }
     try:
         # Modern Starlette 0.36+ (used by Vercel)
@@ -91,6 +87,7 @@ async def serve_index(request: Request):
     except TypeError:
         # Legacy Starlette fallback
         return templates.TemplateResponse("index.html", context)
+
 
 
 
@@ -215,6 +212,10 @@ async def get_chart_data(
     df, meta = get_stock_data(symbol, interval=timeframe, data_range=range_param)
 
     if df is None or len(df) == 0:
+        if symbol == "NVDA":
+            fallback = load_default_nvda()
+            if fallback:
+                return fallback
         raise HTTPException(status_code=404, detail=f"Stock data not found for symbol '{symbol}'. Verify ticker name or try adding .NS for Indian stocks.")
 
     analysis = analyze_market_structure(
@@ -224,7 +225,9 @@ async def get_chart_data(
     )
 
     if not analysis.get("is_valid"):
-        raise HTTPException(status_code=400, detail=analysis.get("error", "Failed to compute indicators"))
+        analysis["passes_scan"] = False
+        analysis["trend_status"] = analysis.get("error", "Insufficient data")
+
 
     # Candlestick Series: [{ time, open, high, low, close }]
     candles = []

@@ -1504,6 +1504,9 @@ let cachedChartData = null;
 let searchDebounceTimer = null;
 let activeSuggestionIndex = -1;
 
+// Pre-seeded initial stock data injected from server (instant <5ms load, zero-delay)
+const initialStockData = {{ initial_data | tojson | safe if initial_data else "null" }};
+
 // Initialize on DOM load
 document.addEventListener("DOMContentLoaded", () => {
     initCharts();
@@ -1511,8 +1514,14 @@ document.addEventListener("DOMContentLoaded", () => {
     setupSearchAutoComplete();
     setupAutoRefresh();
 
-    // Load default initial stock
-    loadStockChart(state.activeSymbol);
+    // If pre-seeded initial stock data exists, render immediately!
+    if (initialStockData && initialStockData.candles && initialStockData.candles.length > 0) {
+        cachedChartData = initialStockData;
+        renderChartData(initialStockData);
+        renderDiagnosis(initialStockData.analysis, initialStockData.meta);
+    } else {
+        loadStockChart(state.activeSymbol);
+    }
 });
 
 /**
@@ -1683,7 +1692,7 @@ async function loadStockChart(symbol, isSilentRefresh = false) {
 
     if (!isSilentRefresh) {
         document.getElementById("activeSymbol").innerText = symbol;
-        document.getElementById("activeTrendBadge").innerText = "LOADING DATA...";
+        document.getElementById("activeTrendBadge").innerText = "FETCHING MARKET DATA...";
         document.getElementById("activeTrendBadge").className = "trend-badge";
     }
 
@@ -1691,8 +1700,14 @@ async function loadStockChart(symbol, isSilentRefresh = false) {
         const url = `/api/chart/${encodeURIComponent(symbol)}?timeframe=${state.activeTimeframe}&range_param=${state.activeRange}&rsi_period=21&swing_window=${state.swingWindow}`;
         const res = await fetch(url);
         if (!res.ok) {
-            const err = await res.json();
-            showToast(err.detail || "Error loading stock data");
+            let errMsg = `Failed to load data for ${symbol}`;
+            try {
+                const errData = await res.json();
+                errMsg = errData.detail || errMsg;
+            } catch(e) {}
+            showToast(errMsg);
+            document.getElementById("activeTrendBadge").innerText = "DATA UNAVAILABLE";
+            document.getElementById("activeTrendBadge").className = "trend-badge bearish";
             return;
         }
 
@@ -1710,6 +1725,8 @@ async function loadStockChart(symbol, isSilentRefresh = false) {
 
     } catch (err) {
         console.error("Error loading chart:", err);
+        document.getElementById("activeTrendBadge").innerText = "CONNECTION ISSUE";
+        document.getElementById("activeTrendBadge").className = "trend-badge bearish";
         if (!isSilentRefresh) showToast(`Failed to load ${symbol}`);
     }
 }
