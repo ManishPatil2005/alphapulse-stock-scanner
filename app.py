@@ -62,10 +62,17 @@ class ScanRequest(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 async def serve_index(request: Request):
     """Serves the main trading application dashboard."""
-    return templates.TemplateResponse("index.html", {
+    context = {
         "request": request,
         "universes": UNIVERSES
-    })
+    }
+    try:
+        # Modern Starlette 0.36+ (used by Vercel)
+        return templates.TemplateResponse(request=request, name="index.html", context=context)
+    except TypeError:
+        # Legacy Starlette fallback
+        return templates.TemplateResponse("index.html", context)
+
 
 
 @app.get("/api/search")
