@@ -59,7 +59,26 @@ class ScanRequest(BaseModel):
     min_volume: float = 0
 
 
+# Vercel Path Normalizer: Handles serverless URL rewrites to prevent 404 Not Found
+@app.middleware("http")
+async def vercel_path_normalizer(request: Request, call_next):
+    orig_path = request.headers.get("x-matched-path") or request.headers.get("x-forwarded-uri")
+    if orig_path and orig_path != "/api/index.py":
+        request.scope["path"] = orig_path
+
+    path = request.scope.get("path", "")
+    if path in ("/api/index.py", "/api", "/api/index"):
+        request.scope["path"] = "/"
+    elif path.startswith("/api/index.py/"):
+        request.scope["path"] = path.replace("/api/index.py", "", 1)
+
+    return await call_next(request)
+
+
 @app.get("/", response_class=HTMLResponse)
+@app.get("/api/index.py", response_class=HTMLResponse)
+@app.get("/api", response_class=HTMLResponse)
+@app.get("/api/index", response_class=HTMLResponse)
 async def serve_index(request: Request):
     """Serves the main trading application dashboard."""
     context = {
@@ -72,6 +91,7 @@ async def serve_index(request: Request):
     except TypeError:
         # Legacy Starlette fallback
         return templates.TemplateResponse("index.html", context)
+
 
 
 
