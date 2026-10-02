@@ -259,11 +259,29 @@ if __name__ == "__main__":
     import uvicorn
     import webbrowser
     import threading
+    import socket
+
+    def find_free_port(start_port=8000):
+        for p in range(start_port, start_port + 20):
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                try:
+                    s.bind(("127.0.0.1", p))
+                    return p
+                except OSError:
+                    continue
+        return start_port
+
+    port = find_free_port(8000)
 
     def open_browser():
         import time
         time.sleep(1.2)
-        webbrowser.open("http://127.0.0.1:8000")
+        webbrowser.open(f"http://127.0.0.1:{port}")
 
     threading.Thread(target=open_browser, daemon=True).start()
-    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=False)
+    print(f"\n==========================================================")
+    print(f"  ⚡ AlphaPulse Stock Scanner & Trading Terminal is LIVE!")
+    print(f"  Access URL: http://127.0.0.1:{port}")
+    print(f"==========================================================\n")
+    uvicorn.run(app, host="127.0.0.1", port=port, log_level="info")
+
