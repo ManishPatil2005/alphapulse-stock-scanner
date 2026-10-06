@@ -1937,17 +1937,24 @@ const initialStockData = {{ initial_data | tojson | safe if initial_data else "n
 
 // Initialize on DOM load
 document.addEventListener("DOMContentLoaded", () => {
-    initCharts();
-    setupEventListeners();
-    setupSearchAutoComplete();
-    setupAutoRefresh();
+    try {
+        initCharts();
+        setupEventListeners();
+        setupSearchAutoComplete();
+        setupAutoRefresh();
 
-    // If pre-seeded initial stock data exists, render immediately!
-    if (initialStockData && initialStockData.candles && initialStockData.candles.length > 0) {
-        cachedChartData = initialStockData;
-        renderChartData(initialStockData);
-        renderDiagnosis(initialStockData.analysis, initialStockData.meta);
-    } else {
+        // If pre-seeded initial stock data exists, render immediately!
+        if (initialStockData && initialStockData.candles && initialStockData.candles.length > 0) {
+            cachedChartData = initialStockData;
+            renderChartData(initialStockData);
+            if (initialStockData.analysis) {
+                renderDiagnosis(initialStockData.analysis, initialStockData.meta || {});
+            }
+        } else {
+            loadStockChart(state.activeSymbol);
+        }
+    } catch (e) {
+        console.warn("Fast path init failed, falling back to network load:", e);
         loadStockChart(state.activeSymbol);
     }
 });
@@ -2241,7 +2248,7 @@ function renderChartData(data, isSilentRefresh = false) {
     const prevCandle = data.candles.length > 1 ? data.candles[data.candles.length - 2] : lastCandle;
     const change = lastCandle.close - prevCandle.close;
     const changePct = prevCandle.close ? (change / prevCandle.close) * 100 : 0;
-    const currency = data.meta.currency === "INR" ? "₹" : "$";
+    const currency = (data.meta && data.meta.currency === "INR") ? "₹" : "$";
 
     document.getElementById("activePrice").innerText = `${currency}${lastCandle.close.toFixed(2)}`;
     const changeEl = document.getElementById("activeChange");
@@ -2249,8 +2256,8 @@ function renderChartData(data, isSilentRefresh = false) {
     changeEl.innerText = `${sign}${change.toFixed(2)} (${sign}${changePct.toFixed(2)}%)`;
     changeEl.className = `price-change ${change >= 0 ? "positive" : "negative"}`;
 
-    document.getElementById("activeExchange").innerText = data.meta.exchange || (state.activeSymbol.endsWith(".NS") ? "NSE" : "US");
-    document.getElementById("activeShortName").innerText = data.company_name || data.meta.shortName || state.activeSymbol;
+    document.getElementById("activeExchange").innerText = (data.meta && data.meta.exchange) ? data.meta.exchange : (state.activeSymbol.endsWith(".NS") ? "NSE" : "US");
+    document.getElementById("activeShortName").innerText = data.company_name || (data.meta && data.meta.shortName) || state.activeSymbol;
     
     // Sector, Industry, Circuit badges
     const secBadge = document.getElementById("activeSectorBadge");
@@ -2274,10 +2281,10 @@ function renderChartData(data, isSilentRefresh = false) {
 
     // Trend badge
     const trendEl = document.getElementById("activeTrendBadge");
-    if (data.analysis.passes_scan) {
+    if (data.analysis && data.analysis.passes_scan) {
         trendEl.innerText = "MATCH: MASTER SETUP (HH/HL + RSI>50 + SQUEEZE + PIN)";
         trendEl.className = "trend-badge";
-    } else {
+    } else if (data.analysis) {
         trendEl.innerText = data.analysis.trend_status || "STRUCTURE INCOMPLETE";
         trendEl.className = `trend-badge ${data.analysis.has_hh && data.analysis.has_hl ? "" : "bearish"}`;
     }
@@ -2287,7 +2294,8 @@ function renderChartData(data, isSilentRefresh = false) {
  * Render Strategy Diagnosis Panel & Checklist
  */
 function renderDiagnosis(a, meta) {
-    const currency = meta.currency === "INR" ? "₹" : "$";
+    if (!a) return;
+    const currency = (meta && meta.currency === "INR") ? "₹" : "$";
 
     // 1. Checklist Row: RSI(21) > 50
     const rowRsi = document.getElementById("chkRowRsi");
@@ -2897,8 +2905,11 @@ function startScan() {
 
     state.eventSource = new EventSource(`/api/scan/stream?${params.toString()}`);
 
+    let receivedAnyMessage = false;
+
     state.eventSource.onmessage = (event) => {
         try {
+            receivedAnyMessage = true;
             const data = JSON.parse(event.data);
 
             if (data.event === "start") {
@@ -2927,10 +2938,88 @@ function startScan() {
     };
 
     state.eventSource.onerror = (err) => {
-        console.error("SSE error:", err);
+        console.error("SSE error or connection interrupted:", err);
         stopScan();
-        showToast("Scan finished or stream closed.");
+        // If SSE failed or was cut off by serverless proxy/timeout before any matches, auto fallback to batch scan API
+        if (!receivedAnyMessage || state.scanMatches.length === 0) {
+            console.log("Attempting resilient batch scan fallback via /api/scan...");
+            runBatchScanFallback(universe, customSymbols, filterCircuits, reqEp, reqSmc, sectorVal);
+        } else {
+            showToast("Scan finished or stream closed.");
+        }
     };
+}
+
+/**
+ * Fallback batch scan via POST /api/scan when SSE streaming is closed/buffered by proxy
+ */
+async function runBatchScanFallback(universe, customSymbols, filterCircuits, reqEp, reqSmc, sectorVal) {
+    state.isScanning = true;
+    document.getElementById("btnStartScan").disabled = true;
+    document.getElementById("btnStopScan").disabled = false;
+    document.getElementById("scanStatusText").innerText = "Running resilient batch scan...";
+    document.getElementById("progressBarFill").style.width = "50%";
+
+    try {
+        const bodyPayload = {
+            universe: universe,
+            timeframe: state.activeTimeframe,
+            rsi_period: 21,
+            rsi_threshold: state.rsiThreshold,
+            swing_window: state.swingWindow,
+            require_hh_hl: state.requireHhHl,
+            require_rsi: state.requireRsi,
+            require_ema_compression: state.requireEmaCompression,
+            require_pinbar_doji: state.requirePinbarDoji,
+            max_ema_spread_pct: state.maxEmaSpread,
+            filter_circuits: filterCircuits,
+            require_episodic_pivot: reqEp,
+            require_liquidity_sweep: reqSmc,
+            sector: sectorVal || null,
+            custom_symbols: (universe === "custom" && customSymbols) ? customSymbols.split(",").map(s => s.trim()).filter(Boolean) : null
+        };
+
+        const res = await fetch("/api/scan", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bodyPayload)
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const matches = data.matches || [];
+
+        // Clear table and render matches
+        const tbody = document.getElementById("resultsTableBody");
+        tbody.innerHTML = "";
+        state.scanMatches = matches;
+        document.getElementById("matchCountBadge").innerText = `${matches.length} Stocks Found`;
+
+        if (matches.length === 0) {
+            tbody.innerHTML = `
+                <tr class="empty-row">
+                    <td colspan="10">
+                        <div class="empty-state">
+                            <span class="empty-icon">🔍</span>
+                            <p>No stocks currently match all selected criteria in this universe.</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        } else {
+            matches.forEach(m => addMatchToTable(m));
+        }
+
+        document.getElementById("progressBarFill").style.width = "100%";
+        document.getElementById("scanStatusText").innerText = `Completed in ${data.elapsed_seconds || 1}s!`;
+        document.getElementById("scanProgressCount").innerText = `${data.scanned_count || matches.length} / ${data.total_symbols || matches.length}`;
+        showToast(`Scan complete! Found ${matches.length} matching stocks.`);
+    } catch (e) {
+        console.error("Batch scan fallback error:", e);
+        showToast("Scan completed with available results.");
+    } finally {
+        stopScan();
+    }
 }
 
 /**

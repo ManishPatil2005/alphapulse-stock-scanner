@@ -108,10 +108,16 @@ async def serve_index(request: Request):
     }
     try:
         # Modern Starlette 0.36+ (used by Vercel)
-        return templates.TemplateResponse(request=request, name="index.html", context=context)
+        response = templates.TemplateResponse(request=request, name="index.html", context=context)
     except TypeError:
         # Legacy Starlette fallback
-        return templates.TemplateResponse("index.html", context)
+        response = templates.TemplateResponse("index.html", context)
+
+    # Force browsers and edge proxies to always fetch fresh version (prevent stale script cache)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @app.get("/api/search")
