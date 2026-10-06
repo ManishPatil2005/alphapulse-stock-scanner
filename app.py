@@ -3,7 +3,12 @@ app.py
 Enterprise-Grade Trading Application & Stock Scanner Backend:
 - Scalable architecture designed for high concurrent user loads (lakhs of users)
 - In-memory shared scan cache & GZip compression
-- Instant search suggestions API (<1ms) across US, NSE/BSE stocks & world indices
+- 5,000+ Cash Equities (NSE/US) with Sector & Industry classification
+- Backtesting Engine (Win Rate %, Profit Factor, Max Drawdown %, Equity Curve, Trade Logs)
+- Circuit Filter (Upper/Lower Circuit locks detection)
+- Episodic Pivots Scanner (Catalyst Gap-Up + Volume Surge)
+- Smart Money Concepts (ICT Liquidity Sweeps, FVGs, Market Profile POC/VAH/VAL)
+- In-Trade Psychology & Risk Management
 - REST & Server-Sent Events (SSE) endpoints for live scanner streaming and charting
 """
 
@@ -19,16 +24,17 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel
 
-from stock_lists import UNIVERSES
+from stock_lists import UNIVERSES, SECTOR_MAP, STOCK_METADATA_MAP
 from data_feed import get_stock_data
 from technicals import analyze_market_structure
 from scanner import run_batch_scan, stream_scan, scan_single_stock
 from ticker_search import search_tickers
+from backtester import run_strategy_backtest
 
 app = FastAPI(
     title="AlphaPulse Stock Scanner & Trading Terminal",
-    description="Enterprise-grade Stock Scanner for Higher Highs/Lows and RSI(21) > 50",
-    version="2.0.0"
+    description="Enterprise-grade Stock Scanner for Higher Highs/Lows, RSI(21) > 50, Episodic Pivots, SMC & Backtesting",
+    version="2.1.0"
 )
 
 # Enable GZip compression (reduces payload by ~80% for candlestick data)
@@ -43,7 +49,6 @@ app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="stat
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 # Shared In-Memory Scan Cache: key -> (timestamp, results_dict)
-# Allows lakhs of users to read cached scan results simultaneously with sub-millisecond response time
 _GLOBAL_SCAN_CACHE: Dict[str, Tuple[float, Dict[str, Any]]] = {}
 _SCAN_CACHE_TTL = 120.0  # 2 minutes cache for scans
 _SCAN_LOCK = threading.Lock()
@@ -62,6 +67,20 @@ class ScanRequest(BaseModel):
     require_ema_compression: bool = False
     require_pinbar_doji: bool = False
     max_ema_spread_pct: float = 3.5
+    filter_circuits: bool = True
+    require_episodic_pivot: bool = False
+    require_liquidity_sweep: bool = False
+    sector: Optional[str] = None
+
+
+class BacktestRequest(BaseModel):
+    symbol: str = "NVDA"
+    timeframe: str = "1d"
+    data_range: str = "1y"
+    strategy: str = "master"
+    risk_reward: float = 2.0
+    initial_capital: float = 100000.0
+    risk_per_trade_pct: float = 1.0
 
 
 def load_default_nvda():
@@ -84,6 +103,7 @@ async def serve_index(request: Request):
     context = {
         "request": request,
         "universes": UNIVERSES,
+        "sectors": sorted(list(SECTOR_MAP.keys())),
         "initial_data": initial_data
     }
     try:
@@ -92,9 +112,6 @@ async def serve_index(request: Request):
     except TypeError:
         # Legacy Starlette fallback
         return templates.TemplateResponse("index.html", context)
-
-
-
 
 
 @app.get("/api/search")
@@ -123,13 +140,32 @@ async def get_universes():
     }
 
 
+@app.get("/api/sectors")
+async def get_sectors():
+    """Returns all available market sectors with stock counts from 5,000+ universe."""
+    return {
+        "sectors": [
+            {
+                "name": sec,
+                "count": len(syms)
+            }
+            for sec, syms in sorted(SECTOR_MAP.items())
+        ]
+    }
+
+
 @app.post("/api/scan")
 async def execute_scan(req: ScanRequest):
     """
     Executes a scan or returns instantly from the high-speed shared memory cache.
     Protects upstream data feeds when lakhs of users scan simultaneously.
     """
-    cache_key = f"{req.universe}_{req.timeframe}_{req.rsi_period}_{req.rsi_threshold}_{req.swing_window}_{req.require_hh_hl}_{req.require_rsi}_{req.require_ema_compression}_{req.require_pinbar_doji}_{req.max_ema_spread_pct}"
+    cache_key = (
+        f"{req.universe}_{req.timeframe}_{req.rsi_period}_{req.rsi_threshold}_"
+        f"{req.swing_window}_{req.require_hh_hl}_{req.require_rsi}_{req.require_ema_compression}_"
+        f"{req.require_pinbar_doji}_{req.max_ema_spread_pct}_{req.filter_circuits}_"
+        f"{req.require_episodic_pivot}_{req.require_liquidity_sweep}_{req.sector}"
+    )
     now = time.time()
 
     # Fast in-memory read
@@ -146,11 +182,18 @@ async def execute_scan(req: ScanRequest):
     else:
         raise HTTPException(status_code=400, detail="Invalid universe or symbols list")
 
+    if req.sector and req.sector in SECTOR_MAP:
+        sector_syms = set(SECTOR_MAP[req.sector])
+        symbols = [s for s in symbols if s in sector_syms]
+
     if not symbols:
-        raise HTTPException(status_code=400, detail="No symbols provided to scan")
+        raise HTTPException(status_code=400, detail="No symbols found for the selected universe/sector")
+
+    # Limit maximum batch scan per run to 200 for lightning responsiveness
+    scan_subset = symbols[:200]
 
     results = run_batch_scan(
-        symbols=symbols,
+        symbols=scan_subset,
         timeframe=req.timeframe,
         rsi_period=req.rsi_period,
         rsi_threshold=req.rsi_threshold,
@@ -160,7 +203,10 @@ async def execute_scan(req: ScanRequest):
         require_rsi=req.require_rsi,
         require_ema_compression=req.require_ema_compression,
         require_pinbar_doji=req.require_pinbar_doji,
-        max_ema_spread_pct=req.max_ema_spread_pct
+        max_ema_spread_pct=req.max_ema_spread_pct,
+        filter_circuits=req.filter_circuits,
+        require_episodic_pivot=req.require_episodic_pivot,
+        require_liquidity_sweep=req.require_liquidity_sweep
     )
 
     with _SCAN_LOCK:
@@ -171,18 +217,22 @@ async def execute_scan(req: ScanRequest):
 
 @app.get("/api/scan/stream")
 async def execute_scan_stream(
-    universe: str = Query("us_mega_caps"),
-    custom_symbols: Optional[str] = Query(None),
-    timeframe: str = Query("1d"),
-    rsi_period: int = Query(21),
-    rsi_threshold: float = Query(50.0),
-    swing_window: int = Query(3),
-    min_volume: float = Query(0.0),
-    require_hh_hl: bool = Query(True),
-    require_rsi: bool = Query(True),
-    require_ema_compression: bool = Query(False),
-    require_pinbar_doji: bool = Query(False),
-    max_ema_spread_pct: float = Query(3.5)
+    universe: str = "us_mega_caps",
+    custom_symbols: Optional[str] = None,
+    timeframe: str = "1d",
+    rsi_period: int = 21,
+    rsi_threshold: float = 50.0,
+    swing_window: int = 3,
+    min_volume: float = 0.0,
+    require_hh_hl: bool = True,
+    require_rsi: bool = True,
+    require_ema_compression: bool = False,
+    require_pinbar_doji: bool = False,
+    max_ema_spread_pct: float = 3.5,
+    filter_circuits: bool = True,
+    require_episodic_pivot: bool = False,
+    require_liquidity_sweep: bool = False,
+    sector: Optional[str] = None
 ):
     """
     Server-Sent Events (SSE) streaming endpoint for live scanner progress.
@@ -194,9 +244,15 @@ async def execute_scan_stream(
     else:
         symbols = UNIVERSES["us_mega_caps"]["symbols"]
 
+    if sector and sector in SECTOR_MAP:
+        sector_syms = set(SECTOR_MAP[sector])
+        symbols = [s for s in symbols if s in sector_syms]
+
+    scan_subset = symbols[:200]
+
     async def event_generator():
         gen = stream_scan(
-            symbols=symbols,
+            symbols=scan_subset,
             timeframe=timeframe,
             rsi_period=rsi_period,
             rsi_threshold=rsi_threshold,
@@ -206,7 +262,10 @@ async def execute_scan_stream(
             require_rsi=require_rsi,
             require_ema_compression=require_ema_compression,
             require_pinbar_doji=require_pinbar_doji,
-            max_ema_spread_pct=max_ema_spread_pct
+            max_ema_spread_pct=max_ema_spread_pct,
+            filter_circuits=filter_circuits,
+            require_episodic_pivot=require_episodic_pivot,
+            require_liquidity_sweep=require_liquidity_sweep
         )
         for item in gen:
             payload = f"data: {json.dumps(item)}\n\n"
@@ -219,14 +278,14 @@ async def execute_scan_stream(
 @app.get("/api/chart/{symbol}")
 async def get_chart_data(
     symbol: str,
-    timeframe: str = Query("1d"),
-    range_param: str = Query("6mo"),
-    rsi_period: int = Query(21),
-    swing_window: int = Query(3)
+    timeframe: str = "1d",
+    range_param: str = "6mo",
+    rsi_period: int = 21,
+    swing_window: int = 3
 ):
     """
-    Returns full candlestick, volume, indicator, and swing marker data
-    formatted specifically for TradingView Lightweight Charts.
+    Returns full candlestick, volume, indicator, swing markers, Market Profile,
+    Fair Value Gaps, Liquidity Sweeps, and Trade Psychology metadata.
     """
     symbol = symbol.strip().upper()
     df, meta = get_stock_data(symbol, interval=timeframe, data_range=range_param)
@@ -247,7 +306,6 @@ async def get_chart_data(
     if not analysis.get("is_valid"):
         analysis["passes_scan"] = False
         analysis["trend_status"] = analysis.get("error", "Insufficient data")
-
 
     # Candlestick Series: [{ time, open, high, low, close }]
     candles = []
@@ -287,8 +345,16 @@ async def get_chart_data(
         if "ema_200" in df.columns and not row.isna()["ema_200"]:
             ema_200_series.append({"time": t, "value": round(float(row["ema_200"]), 2)})
 
+    meta_entry = STOCK_METADATA_MAP.get(symbol, {})
+    company_name = meta_entry.get("name", symbol)
+    sector = meta_entry.get("sector", "Equities")
+    industry = meta_entry.get("industry", "Equity")
+
     return {
         "symbol": symbol,
+        "company_name": company_name,
+        "sector": sector,
+        "industry": industry,
         "meta": meta,
         "analysis": analysis,
         "candles": candles,
@@ -298,7 +364,13 @@ async def get_chart_data(
         "ema_20": ema_20_series,
         "ema_50": ema_50_series,
         "ema_200": ema_200_series,
-        "markers": analysis.get("markers", [])
+        "markers": analysis.get("markers", []),
+        "market_profile": analysis.get("market_profile", {}),
+        "fair_value_gaps": analysis.get("fair_value_gaps", []),
+        "liquidity_sweeps": analysis.get("liquidity_sweeps", []),
+        "episodic_pivot": analysis.get("episodic_pivot", {}),
+        "trade_psychology": analysis.get("trade_psychology", {}),
+        "is_circuit_locked": analysis.get("is_circuit_locked", False)
     }
 
 
@@ -307,6 +379,45 @@ async def get_quick_quote(symbol: str):
     """Instant single-ticker diagnosis."""
     res = scan_single_stock(symbol)
     return res
+
+
+@app.post("/api/backtest")
+async def run_backtest_endpoint(req: BacktestRequest):
+    """
+    Executes a comprehensive historical strategy backtest.
+    Returns: win rate, profit factor, max drawdown, equity curve, and trade log.
+    """
+    result = run_strategy_backtest(
+        symbol=req.symbol,
+        timeframe=req.timeframe,
+        data_range=req.data_range,
+        strategy=req.strategy,
+        risk_reward=req.risk_reward,
+        initial_capital=req.initial_capital,
+        risk_per_trade_pct=req.risk_per_trade_pct
+    )
+    if result.get("status") == "error":
+        raise HTTPException(status_code=400, detail=result.get("message", "Backtest failed"))
+    return result
+
+
+@app.get("/api/backtest/quick/{symbol}")
+async def quick_backtest_endpoint(
+    symbol: str,
+    strategy: str = "master",
+    timeframe: str = "1d",
+    data_range: str = "1y",
+    risk_reward: float = 2.0
+):
+    """1-Click quick backtest on the currently loaded ticker."""
+    result = run_strategy_backtest(
+        symbol=symbol,
+        timeframe=timeframe,
+        data_range=data_range,
+        strategy=strategy,
+        risk_reward=risk_reward
+    )
+    return result
 
 
 if __name__ == "__main__":
@@ -338,4 +449,3 @@ if __name__ == "__main__":
     print(f"  Access URL: http://127.0.0.1:{port}")
     print(f"==========================================================\n")
     uvicorn.run(app, host="127.0.0.1", port=port, log_level="info")
-

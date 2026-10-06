@@ -127,15 +127,40 @@ TICKER_REGISTRY = [
     {"symbol": "DLF.NS", "name": "DLF Ltd", "exchange": "NSE", "country": "IN", "type": "Stock"},
     {"symbol": "PFC.NS", "name": "Power Finance Corporation Ltd", "exchange": "NSE", "country": "IN", "type": "Stock"},
     {"symbol": "RECLTD.NS", "name": "REC Ltd", "exchange": "NSE", "country": "IN", "type": "Stock"},
-    {"symbol": "TRENT.NS", "name": "Trent Ltd", "exchange": "NSE", "country": "IN", "type": "Stock"},
-    {"symbol": "ZOMATO.NS", "name": "Zomato Ltd", "exchange": "NSE", "country": "IN", "type": "Stock"},
-    {"symbol": "JIOFIN.NS", "name": "Jio Financial Services Ltd", "exchange": "NSE", "country": "IN", "type": "Stock"}
+    {"symbol": "TRENT.NS", "name": "Trent Ltd", "exchange": "NSE", "country": "IN", "type": "Stock", "sector": "Consumer Goods & Retail", "industry": "Retail & Fashion"},
+    {"symbol": "ZOMATO.NS", "name": "Zomato Ltd", "exchange": "NSE", "country": "IN", "type": "Stock", "sector": "Information Technology", "industry": "Food Delivery & Internet"},
+    {"symbol": "JIOFIN.NS", "name": "Jio Financial Services Ltd", "exchange": "NSE", "country": "IN", "type": "Stock", "sector": "Financial Services", "industry": "NBFC & Broking"}
 ]
 
+# Enrich with 5,000+ Cash Segment Equities from stock_lists
+try:
+    from stock_lists import STOCK_METADATA_MAP
+    _existing_map = {x["symbol"]: x for x in TICKER_REGISTRY}
+    for sym, meta in STOCK_METADATA_MAP.items():
+        if sym in _existing_map:
+            if not _existing_map[sym].get("sector"):
+                _existing_map[sym]["sector"] = meta.get("sector", "Other")
+            if not _existing_map[sym].get("industry"):
+                _existing_map[sym]["industry"] = meta.get("industry", "General")
+        else:
+            item = {
+                "symbol": sym,
+                "name": meta.get("name", sym),
+                "exchange": "NSE" if meta.get("market") == "NSE" else "US",
+                "country": meta.get("country", "US"),
+                "type": "Stock",
+                "sector": meta.get("sector", "Other"),
+                "industry": meta.get("industry", "General")
+            }
+            _existing_map[sym] = item
+            TICKER_REGISTRY.append(item)
+except Exception:
+    pass
 
-def search_tickers(query: str, limit: int = 10) -> List[Dict[str, Any]]:
+
+def search_tickers(query: str, limit: int = 15) -> List[Dict[str, Any]]:
     """
-    High-speed substring and prefix search over symbols and names.
+    High-speed substring, prefix, sector, and industry search over 5,000+ equities.
     Returns matched items ranked by relevance.
     """
     q = query.strip().upper()
@@ -145,13 +170,16 @@ def search_tickers(query: str, limit: int = 10) -> List[Dict[str, Any]]:
     exact_matches = []
     prefix_matches = []
     contain_matches = []
+    sector_matches = []
 
-    # Strip .NS or .BO if user typed it loosely
     q_clean = q.replace(".NS", "").replace(".BO", "")
+    q_lower = query.strip().lower()
 
     for item in TICKER_REGISTRY:
         sym = item["symbol"].upper()
-        name = item["name"].upper()
+        name = item.get("name", "").upper()
+        sec = item.get("sector", "").lower()
+        ind = item.get("industry", "").lower()
         sym_clean = sym.replace(".NS", "").replace(".BO", "")
 
         # 1. Exact symbol match
@@ -161,21 +189,25 @@ def search_tickers(query: str, limit: int = 10) -> List[Dict[str, Any]]:
         elif sym.startswith(q) or sym_clean.startswith(q_clean):
             prefix_matches.append(item)
         # 3. Name or symbol contains query
-        elif q in sym or q_clean in sym_clean or q.lower() in name.lower():
+        elif q in sym or q_clean in sym_clean or q_lower in name.lower():
             contain_matches.append(item)
+        # 4. Sector or Industry match
+        elif q_lower in sec or q_lower in ind:
+            sector_matches.append(item)
 
-    results = exact_matches + prefix_matches + contain_matches
+    results = exact_matches + prefix_matches + contain_matches + sector_matches
     
     # If no results found in local registry, allow user-typed symbol dynamically
     if not results:
-        # Check if it looks like Indian stock without .NS
         guess_symbol = q if ("." in q or "^" in q or "-" in q) else q
         results.append({
             "symbol": guess_symbol,
             "name": f"Search '{guess_symbol}' directly",
             "exchange": "CUSTOM",
             "country": "US/GLOBAL",
-            "type": "Stock"
+            "type": "Stock",
+            "sector": "Custom",
+            "industry": "Custom"
         })
         if not guess_symbol.endswith(".NS") and not guess_symbol.startswith("^"):
             results.append({
@@ -183,7 +215,9 @@ def search_tickers(query: str, limit: int = 10) -> List[Dict[str, Any]]:
                 "name": f"Search NSE '{guess_symbol}.NS'",
                 "exchange": "NSE",
                 "country": "IN",
-                "type": "Stock"
+                "type": "Stock",
+                "sector": "NSE Cash",
+                "industry": "Equities"
             })
 
     return results[:limit]

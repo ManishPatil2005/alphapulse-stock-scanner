@@ -4,6 +4,11 @@ Multithreaded Stock Scanner Engine:
 Scans stock universes or custom lists against the core criteria:
 1. Price is making Higher Highs (HH) and Higher Lows (HL)
 2. RSI(21) is above 50
+3. EMA (10, 20, 50) Compression (Coiling Squeeze)
+4. Bullish Pinbar or Doji candle above EMAs
+5. Exclude Upper / Lower Circuit Locked stocks
+6. Episodic Pivots (Quarterly Earnings Catalyst Gap & Volume Surge)
+7. Smart Money Concepts (ICT Liquidity Sweeps, FVGs, Market Profile)
 """
 
 import time
@@ -11,7 +16,7 @@ import concurrent.futures
 from typing import List, Dict, Any, Generator, Callable, Optional
 from data_feed import get_stock_data
 from technicals import analyze_market_structure
-from stock_lists import UNIVERSES
+from stock_lists import UNIVERSES, STOCK_METADATA_MAP
 
 
 def scan_single_stock(
@@ -26,7 +31,10 @@ def scan_single_stock(
     require_rsi: bool = True,
     require_ema_compression: bool = False,
     require_pinbar_doji: bool = False,
-    max_ema_spread_pct: float = 3.5
+    max_ema_spread_pct: float = 3.5,
+    filter_circuits: bool = True,
+    require_episodic_pivot: bool = False,
+    require_liquidity_sweep: bool = False
 ) -> Dict[str, Any]:
     """
     Scans an individual stock ticker and evaluates:
@@ -34,6 +42,9 @@ def scan_single_stock(
     2. RSI(21) > 50
     3. EMA (10, 20, 50) Compression
     4. Bullish Pinbar or Doji candle above EMAs
+    5. Upper/Lower Circuit Lock detection
+    6. Episodic Pivot catalyst gap
+    7. SMC liquidity sweeps
     """
     symbol = symbol.strip().upper()
     try:
@@ -55,7 +66,10 @@ def scan_single_stock(
             require_rsi=require_rsi,
             require_ema_compression=require_ema_compression,
             require_pinbar_doji=require_pinbar_doji,
-            max_ema_spread_pct=max_ema_spread_pct
+            max_ema_spread_pct=max_ema_spread_pct,
+            filter_circuits=filter_circuits,
+            require_episodic_pivot=require_episodic_pivot,
+            require_liquidity_sweep=require_liquidity_sweep
         )
 
         if not analysis.get("is_valid", False):
@@ -71,8 +85,19 @@ def scan_single_stock(
             analysis["passes_scan"] = False
             analysis["volume_filter_failed"] = True
 
+        # Fetch metadata from 5,000+ stock master universe
+        meta_entry = STOCK_METADATA_MAP.get(symbol, {})
+        company_name = meta_entry.get("name", symbol)
+        sector = meta_entry.get("sector", "Equities")
+        industry = meta_entry.get("industry", "Equity")
+        market = meta_entry.get("market", meta.get("currency", "USD"))
+
         result = {
             "symbol": symbol,
+            "company_name": company_name,
+            "sector": sector,
+            "industry": industry,
+            "market": market,
             "currency": meta.get("currency", "USD"),
             "status": "success",
             **analysis
@@ -101,6 +126,9 @@ def run_batch_scan(
     require_ema_compression: bool = False,
     require_pinbar_doji: bool = False,
     max_ema_spread_pct: float = 3.5,
+    filter_circuits: bool = True,
+    require_episodic_pivot: bool = False,
+    require_liquidity_sweep: bool = False,
     max_workers: int = 10,
     progress_callback: Optional[Callable[[Dict[str, Any]], None]] = None
 ) -> Dict[str, Any]:
@@ -128,7 +156,10 @@ def run_batch_scan(
                 require_rsi,
                 require_ema_compression,
                 require_pinbar_doji,
-                max_ema_spread_pct
+                max_ema_spread_pct,
+                filter_circuits,
+                require_episodic_pivot,
+                require_liquidity_sweep
             ): sym
             for sym in symbols
         }
@@ -175,6 +206,9 @@ def run_batch_scan(
             "condition_2": f"RSI({rsi_period}) > {rsi_threshold}",
             "condition_3": f"EMA (10, 20, 50) Compression <= {max_ema_spread_pct}%",
             "condition_4": "Bullish Pinbar or Doji above EMAs",
+            "filter_circuits": filter_circuits,
+            "require_episodic_pivot": require_episodic_pivot,
+            "require_liquidity_sweep": require_liquidity_sweep,
             "timeframe": timeframe,
             "swing_window": swing_window
         },
@@ -196,6 +230,9 @@ def stream_scan(
     require_ema_compression: bool = False,
     require_pinbar_doji: bool = False,
     max_ema_spread_pct: float = 3.5,
+    filter_circuits: bool = True,
+    require_episodic_pivot: bool = False,
+    require_liquidity_sweep: bool = False,
     max_workers: int = 8
 ) -> Generator[Dict[str, Any], None, None]:
     """
@@ -227,7 +264,10 @@ def stream_scan(
                 require_rsi,
                 require_ema_compression,
                 require_pinbar_doji,
-                max_ema_spread_pct
+                max_ema_spread_pct,
+                filter_circuits,
+                require_episodic_pivot,
+                require_liquidity_sweep
             ): sym
             for sym in symbols
         }
@@ -249,6 +289,7 @@ def stream_scan(
             if is_match:
                 matches.append(res)
 
+            meta_entry = STOCK_METADATA_MAP.get(sym, {})
             yield {
                 "event": "progress",
                 "scanned": scanned,
@@ -258,8 +299,12 @@ def stream_scan(
                 "matches_count": len(matches),
                 "stock": res if is_match else {
                     "symbol": sym,
+                    "company_name": meta_entry.get("name", sym),
+                    "sector": meta_entry.get("sector", "Equities"),
+                    "industry": meta_entry.get("industry", "Equity"),
                     "price": res.get("price"),
                     "rsi_21": res.get("rsi_21"),
+                    "is_circuit_locked": res.get("is_circuit_locked", False),
                     "passes_scan": False
                 }
             }

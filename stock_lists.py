@@ -70,10 +70,69 @@ NIFTY_NEXT_50 = [
     "CANBK.NS", "IRCTC.NS", "COLPAL.NS", "AUROPHARMA.NS", "LTIM.NS"
 ]
 
+# Market Indices
+MARKET_INDICES = ["^GSPC", "^IXIC", "^DJI", "^NSEI", "^NSEBANK", "^BSESN", "^CNXIT", "^VIX", "BTC-USD", "ETH-USD"]
+
+# Load 5,000+ Cash Segment Equities from cash_stocks_db.json
+import json
+from pathlib import Path
+
+_DB_PATH = Path(__file__).resolve().parent / "cash_stocks_db.json"
+STOCK_METADATA_MAP = {}
+NSE_CASH_ALL = []
+US_CASH_ALL = []
+ALL_CASH_5000 = []
+SECTOR_MAP = {}
+
+try:
+    if _DB_PATH.exists():
+        with open(_DB_PATH, "r", encoding="utf-8") as f:
+            _db_records = json.load(f)
+            for item in _db_records:
+                sym = item["symbol"]
+                STOCK_METADATA_MAP[sym] = item
+                ALL_CASH_5000.append(sym)
+                if item.get("market") == "NSE":
+                    NSE_CASH_ALL.append(sym)
+                else:
+                    US_CASH_ALL.append(sym)
+                
+                sec = item.get("sector", "Other")
+                if sec not in SECTOR_MAP:
+                    SECTOR_MAP[sec] = []
+                SECTOR_MAP[sec].append(sym)
+except Exception as e:
+    print(f"Warning loading cash_stocks_db.json: {e}")
+
 # Predefined dictionary for easy lookup in scanner
 UNIVERSES = {
+    "nse_cash_all": {
+        "name": f"NSE Cash Segment ({len(NSE_CASH_ALL)} Equities)",
+        "market": "NSE",
+        "symbols": NSE_CASH_ALL if NSE_CASH_ALL else NIFTY_50
+    },
+    "us_cash_all": {
+        "name": f"US Cash Segment ({len(US_CASH_ALL)} Equities)",
+        "market": "US",
+        "symbols": US_CASH_ALL if US_CASH_ALL else SP500_TOP100
+    },
+    "all_cash_5000": {
+        "name": f"All Cash Equities 5000+ ({len(ALL_CASH_5000)} Stocks)",
+        "market": "GLOBAL",
+        "symbols": ALL_CASH_5000 if ALL_CASH_5000 else (NIFTY_50 + SP500_TOP100)
+    },
+    "nifty_50": {
+        "name": "India NIFTY 50 (NSE Bluechips)",
+        "market": "NSE",
+        "symbols": NIFTY_50
+    },
+    "nifty_next_50": {
+        "name": "India NIFTY Next 50 (NSE Mid/Large)",
+        "market": "NSE",
+        "symbols": NIFTY_NEXT_50
+    },
     "us_mega_caps": {
-        "name": "US Mega-Caps (Top 38)",
+        "name": "US Mega-Caps (Top 38 Titans)",
         "market": "US",
         "symbols": MEGA_CAPS
     },
@@ -92,19 +151,9 @@ UNIVERSES = {
         "market": "US",
         "symbols": DOW_30
     },
-    "nifty_50": {
-        "name": "India NIFTY 50 (NSE)",
-        "market": "NSE",
-        "symbols": NIFTY_50
-    },
-    "nifty_next_50": {
-        "name": "India NIFTY Next 50 (NSE)",
-        "market": "NSE",
-        "symbols": NIFTY_NEXT_50
-    },
     "market_indices": {
         "name": "Global & Indian Market Indices",
         "market": "INDEX",
-        "symbols": ["^GSPC", "^IXIC", "^DJI", "^NSEI", "^NSEBANK", "^BSESN", "^CNXIT", "^VIX", "BTC-USD", "ETH-USD"]
+        "symbols": MARKET_INDICES
     }
 }

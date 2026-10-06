@@ -1160,6 +1160,94 @@ body.dark-theme {
     transform: translateY(0);
 }
 
+
+/* Sector & Industry Badges */
+.sector-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+}
+
+.industry-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: rgba(139, 92, 246, 0.15);
+    color: #c084fc;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+}
+
+.circuit-status-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+}
+
+.circuit-status-tag.active {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--bullish-green);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.circuit-status-tag.locked {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--bearish-red);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+/* Tab Header for Bottom Section */
+.panel-tab-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.45rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+}
+
+.panel-tab-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-light);
+}
+
+.panel-tab-btn.active {
+    background: var(--bg-primary);
+    border-color: var(--cyan-accent);
+    color: var(--cyan-accent);
+}
+
+.badge-ep {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.badge-smc {
+    background: rgba(192, 132, 252, 0.2);
+    color: #c084fc;
+    border: 1px solid rgba(192, 132, 252, 0.4);
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
     </style>
 </head>
 <body class="dark-theme">
@@ -1241,6 +1329,17 @@ body.dark-theme {
                     <textarea id="customTickersInput" class="form-control" rows="3" placeholder="AAPL, MSFT, NVDA, TSLA, INFY.NS, RELIANCE.NS, ^NSEI, ^GSPC"></textarea>
                 </div>
 
+                <!-- Sector Selection (Filter within Universe) -->
+                <div class="form-group">
+                    <label for="sectorSelect">Sector Filter (5,000+ Universe)</label>
+                    <select id="sectorSelect" class="form-control">
+                        <option value="">All Sectors (Entire Universe)</option>
+                        {% for sec in sectors %}
+                        <option value="{{ sec }}">{{ sec }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
                 <!-- Timeframe Selection -->
                 <div class="form-group">
                     <label>Timeframe</label>
@@ -1267,6 +1366,8 @@ body.dark-theme {
                             <option value="all4" selected>🌟 All 4 Rules: Full Master Setup</option>
                             <option value="core">📈 Core: HH + HL & RSI(21) > 50</option>
                             <option value="squeeze">⚡ Squeeze: EMA Compression + Pin/Doji</option>
+                            <option value="episodic">🚀 Episodic Pivot: Catalyst Gap & Volume Surge (Stockbee)</option>
+                            <option value="smc">⚡ SMC / ICT: Liquidity Sweep & Squeeze</option>
                             <option value="custom">🛠️ Custom Selection</option>
                         </select>
                     </div>
@@ -1329,6 +1430,36 @@ body.dark-theme {
                         </label>
                         <span class="sub-text" style="margin-left: 1.4rem;">Candle showing rejection wick & holding above EMAs</span>
                     </div>
+
+                    <!-- Advanced Institutional & Circuit Filters -->
+                    <div style="border-top: 1px solid var(--border-color); margin-top: 0.75rem; padding-top: 0.65rem;">
+                        <div class="criteria-item checkbox-item" style="margin-bottom: 0.45rem;">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="chkFilterCircuits" checked>
+                                <span class="checkmark"></span>
+                                <span style="font-weight: 600; font-size: 0.75rem;">Exclude Circuit-Locked (UC/LC)</span>
+                            </label>
+                            <span class="sub-text" style="margin-left: 1.4rem;">Removes 0-spread or frozen circuit limit stocks</span>
+                        </div>
+
+                        <div class="criteria-item checkbox-item" style="margin-bottom: 0.45rem;">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="chkEpisodicPivot">
+                                <span class="checkmark"></span>
+                                <span style="font-weight: 600; font-size: 0.75rem;">Require Episodic Pivot (EP)</span>
+                            </label>
+                            <span class="sub-text" style="margin-left: 1.4rem;">Catalyst Gap &ge; 3.5% + RVOL &ge; 2x volume surge</span>
+                        </div>
+
+                        <div class="criteria-item checkbox-item" style="margin-bottom: 0.2rem;">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="chkLiquiditySweep">
+                                <span class="checkmark"></span>
+                                <span style="font-weight: 600; font-size: 0.75rem;">Require SMC Liquidity Sweep</span>
+                            </label>
+                            <span class="sub-text" style="margin-left: 1.4rem;">ICT / SMC institutional stop hunt & reclaim</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Action Buttons -->
@@ -1375,6 +1506,9 @@ body.dark-theme {
                             <span class="exchange-tag" id="activeExchange">NASDAQ</span>
                             <div class="trend-badge" id="activeTrendBadge">BULLISH UPTREND</div>
                             <span id="activeShortName" class="company-name-tag">NVIDIA Corporation</span>
+                            <span id="activeSectorBadge" class="sector-tag">Technology</span>
+                            <span id="activeIndustryBadge" class="industry-tag">Semiconductors</span>
+                            <span id="activeCircuitBadge" class="circuit-status-tag active">Normal Trading</span>
                         </div>
                         <div class="price-display">
                             <span class="current-price" id="activePrice">$0.00</span>
@@ -1390,6 +1524,7 @@ body.dark-theme {
                             <button class="pill-btn active" id="toggleEma20">EMA 20</button>
                             <button class="pill-btn active" id="toggleEma50">EMA 50</button>
                             <button class="pill-btn" id="toggleEma200">EMA 200</button>
+                            <button class="pill-btn active" id="toggleVolume" title="Click to show or remove volume indicator">Volume</button>
                             <button class="pill-btn active" id="toggleSwings">HH/HL & Pins</button>
                         </div>
 
@@ -1495,19 +1630,87 @@ body.dark-theme {
                                 <span class="val" id="lvl52w">0 - 0</span>
                             </div>
                         </div>
+
+                        <!-- Market Profile & Orderflow -->
+                        <div class="levels-card" style="margin-top: 0.5rem;">
+                            <h5 class="levels-title" style="color: #60a5fa;">Market Profile (Orderflow)</h5>
+                            <div class="level-row">
+                                <span class="lbl">Point of Control (POC):</span>
+                                <span class="val" id="mpPoc" style="color: #60a5fa;">$0.00</span>
+                            </div>
+                            <div class="level-row">
+                                <span class="lbl">Value Area High (VAH):</span>
+                                <span class="val res" id="mpVah">$0.00</span>
+                            </div>
+                            <div class="level-row">
+                                <span class="lbl">Value Area Low (VAL):</span>
+                                <span class="val sup" id="mpVal">$0.00</span>
+                            </div>
+                            <div class="level-row">
+                                <span class="lbl">Value Area Status:</span>
+                                <span class="val" id="mpZone" style="font-size: 0.7rem; color: #10b981;">Inside Value Area</span>
+                            </div>
+                        </div>
+
+                        <!-- Smart Money Concepts (SMC/ICT) -->
+                        <div class="levels-card" style="margin-top: 0.5rem;">
+                            <h5 class="levels-title" style="color: #c084fc;">Smart Money Concepts (SMC/ICT)</h5>
+                            <div class="level-row">
+                                <span class="lbl">Liquidity Sweeps:</span>
+                                <span class="val" id="smcSweep" style="color: #c084fc; font-size: 0.7rem;">None Detected</span>
+                            </div>
+                            <div class="level-row">
+                                <span class="lbl">Fair Value Gaps (FVG):</span>
+                                <span class="val" id="smcFvg" style="font-size: 0.7rem;">0 Zones</span>
+                            </div>
+                            <div class="level-row">
+                                <span class="lbl">Episodic Pivot (EP):</span>
+                                <span class="val" id="epStatus" style="font-size: 0.7rem; color: #f59e0b;">No Catalyst Gap</span>
+                            </div>
+                        </div>
+
+                        <!-- In-Trade Execution & Psychology Cockpit -->
+                        <div class="levels-card" style="margin-top: 0.5rem; border-color: rgba(16, 185, 129, 0.35);">
+                            <h5 class="levels-title" style="color: #10b981;">In-Trade Psychology & Risk</h5>
+                            <div class="level-row">
+                                <span class="lbl">Risk-Reward Ratio:</span>
+                                <span class="val" id="psychRr" style="color: #10b981; font-weight: 700;">1 : 2.0</span>
+                            </div>
+                            <div class="level-row">
+                                <span class="lbl">Pos Sizing (1% Risk / $100k):</span>
+                                <span class="val" id="psychSize">$1,000 Risk</span>
+                            </div>
+                            <div class="level-row">
+                                <span class="lbl">Recommended Share Count:</span>
+                                <span class="val" id="psychShares">0 Shares</span>
+                            </div>
+                            <div class="level-row">
+                                <span class="lbl">FOMO Risk Warning:</span>
+                                <span class="val" id="psychFomo" style="font-size: 0.7rem; color: #10b981;">SAFE (Near Value)</span>
+                            </div>
+                            <div style="margin-top: 0.45rem; padding-top: 0.45rem; border-top: 1px solid var(--border-color); font-size: 0.67rem; color: var(--text-muted); line-height: 1.4;">
+                                <div>[✓] Plan Predefined &nbsp; [✓] SL Set in System</div>
+                                <div>[✓] Position Sized &nbsp; [✓] Emotional Neutrality</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Bottom Section: Scanner Results Table -->
-            <section class="results-section card">
-                <div class="results-header">
-                    <div class="results-title-group">
-                        <h3>Satisfied Stocks</h3>
-                        <span class="count-pill" id="matchCountBadge">0 Stocks Found</span>
+            <!-- Bottom Section: Tabs for Scanner Results & Strategy Backtester -->
+            <section class="results-section card" style="padding: 1.25rem;">
+                <div class="panel-tabs-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                    <div class="tab-buttons-group" style="display: flex; gap: 0.5rem;">
+                        <button class="panel-tab-btn active" id="btnTabScanner" onclick="switchBottomTab('scanner')">
+                            <span>📊</span> Satisfied Stocks
+                        </button>
+                        <button class="panel-tab-btn" id="btnTabBacktest" onclick="switchBottomTab('backtest')">
+                            <span>🧪</span> Strategy Backtester
+                        </button>
                     </div>
 
-                    <div class="results-actions">
+                    <div id="scannerActionsGroup" class="results-actions">
+                        <span class="count-pill" id="matchCountBadge">0 Stocks Found</span>
                         <input type="text" id="tableFilterInput" class="table-search" placeholder="Filter results..." />
                         <button id="btnCopySymbols" class="btn-action">
                             <span>📋</span> Copy Symbols
@@ -1518,34 +1721,152 @@ body.dark-theme {
                     </div>
                 </div>
 
-                <!-- Table Content -->
-                <div class="table-responsive">
-                    <table class="results-table" id="resultsTable">
-                        <thead>
-                            <tr>
-                                <th>Symbol</th>
-                                <th>Price</th>
-                                <th>Change %</th>
-                                <th>RSI(21)</th>
-                                <th>EMA Squeeze %</th>
-                                <th>Candle Pattern</th>
-                                <th>Recent Peak (HH)</th>
-                                <th>Recent Trough (HL)</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsTableBody">
-                            <tr class="empty-row">
-                                <td colspan="10">
-                                    <div class="empty-state">
-                                        <span class="empty-icon">📊</span>
-                                        <p>Click <strong>"Run Full Scanner"</strong> to scan stocks matching HH + HL, RSI(21) > 50, EMA Compression, and Bullish Pinbar/Doji above EMAs.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- PANE 1: Scanner Results Table -->
+                <div id="paneScannerResults">
+                    <div class="table-responsive">
+                        <table class="results-table" id="resultsTable">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Company / Sector</th>
+                                    <th>Price</th>
+                                    <th>Change %</th>
+                                    <th>RSI(21)</th>
+                                    <th>EMA Squeeze %</th>
+                                    <th>Candle Pattern</th>
+                                    <th>Status / Badges</th>
+                                    <th>Recent Peak (HH)</th>
+                                    <th>Recent Trough (HL)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                <tr class="empty-row">
+                                    <td colspan="11">
+                                        <div class="empty-state">
+                                            <span class="empty-icon">📊</span>
+                                            <p>Click <strong>"Run Full Scanner"</strong> to scan across 5,000+ Cash Segment stocks with Sector/Industry classifications, Circuit filters, and Episodic Pivots.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PANE 2: Interactive Strategy Backtester Cockpit -->
+                <div id="paneBacktester" style="display: none;">
+                    <!-- Backtest Setup Row -->
+                    <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) 120px; gap: 0.75rem; align-items: flex-end;">
+                            <div>
+                                <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Backtest Ticker</label>
+                                <input type="text" id="btSymbolInput" class="form-control" style="font-family: var(--font-mono); font-weight: 700; text-transform: uppercase;" value="NVDA" />
+                            </div>
+                            <div>
+                                <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Strategy Engine</label>
+                                <select id="btStrategySelect" class="form-control" style="font-size: 0.75rem;">
+                                    <option value="master" selected>🌟 AlphaPulse Master Setup</option>
+                                    <option value="episodic_pivot">🚀 Episodic Pivot (Gap &ge; 3.5% + RVOL &ge; 2x)</option>
+                                    <option value="smc_sweep">⚡ SMC / ICT Liquidity Sweep</option>
+                                    <option value="ema_squeeze">Coiling EMA 10/20/50 Squeeze</option>
+                                    <option value="rsi_trend">RSI(21) &gt; 50 Trend Following</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Historical Range</label>
+                                <select id="btRangeSelect" class="form-control" style="font-size: 0.75rem;">
+                                    <option value="6mo">6 Months</option>
+                                    <option value="1y" selected>1 Year</option>
+                                    <option value="2y">2 Years</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Risk : Reward (R:R)</label>
+                                <select id="btRrSelect" class="form-control" style="font-size: 0.75rem;">
+                                    <option value="1.5">1 : 1.5</option>
+                                    <option value="2.0" selected>1 : 2.0</option>
+                                    <option value="2.5">1 : 2.5</option>
+                                    <option value="3.0">1 : 3.0</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Initial Capital</label>
+                                <input type="number" id="btCapitalInput" class="form-control" style="font-size: 0.75rem;" value="100000" step="10000" />
+                            </div>
+                            <div>
+                                <button id="btnRunBacktest" class="btn-primary-sm" style="width: 100%; height: 38px; display: flex; align-items: center; justify-content: center; gap: 0.35rem; background: var(--cyan-accent); color: #0b0f19; font-weight: 700;">
+                                    <span>🚀</span> Run Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance KPI Scorecards -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem;">
+                        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem; text-align: center;">
+                            <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase;">Win Rate</div>
+                            <div id="btWinRate" style="font-size: 1.3rem; font-weight: 800; color: var(--bullish-green); font-family: var(--font-mono);">--%</div>
+                            <div id="btWinCount" style="font-size: 0.65rem; color: var(--text-muted);">0W / 0L</div>
+                        </div>
+                        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem; text-align: center;">
+                            <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase;">Profit Factor</div>
+                            <div id="btProfitFactor" style="font-size: 1.3rem; font-weight: 800; color: #60a5fa; font-family: var(--font-mono);">--</div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted);">Gross P / Gross L</div>
+                        </div>
+                        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem; text-align: center;">
+                            <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase;">Total Return</div>
+                            <div id="btTotalReturn" style="font-size: 1.3rem; font-weight: 800; color: var(--bullish-green); font-family: var(--font-mono);">--%</div>
+                            <div id="btNetProfit" style="font-size: 0.65rem; color: var(--text-muted);">+$0.00</div>
+                        </div>
+                        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem; text-align: center;">
+                            <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase;">Max Drawdown</div>
+                            <div id="btMaxDrawdown" style="font-size: 1.3rem; font-weight: 800; color: var(--bearish-red); font-family: var(--font-mono);">--%</div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted);">Peak-to-Trough</div>
+                        </div>
+                        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem; text-align: center;">
+                            <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase;">Total Trades</div>
+                            <div id="btTotalTrades" style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); font-family: var(--font-mono);">0</div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted);">Simulated Bars</div>
+                        </div>
+                        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem; text-align: center;">
+                            <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase;">Avg Win / Loss</div>
+                            <div id="btAvgWinLoss" style="font-size: 1.05rem; font-weight: 700; color: #f59e0b; font-family: var(--font-mono);">-- / --</div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted);">Per Trade %</div>
+                        </div>
+                    </div>
+
+                    <!-- Trade Log Table -->
+                    <h5 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.5rem;">Historical Trade Execution Log</h5>
+                    <div class="table-responsive">
+                        <table class="results-table" id="btTradeLogTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Entry Date</th>
+                                    <th>Exit Date</th>
+                                    <th>Entry Price</th>
+                                    <th>Exit Price</th>
+                                    <th>Stop Loss</th>
+                                    <th>Target</th>
+                                    <th>Outcome</th>
+                                    <th>Exit Reason</th>
+                                    <th>PnL ($)</th>
+                                    <th>PnL (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="btTradeLogBody">
+                                <tr class="empty-row">
+                                    <td colspan="11">
+                                        <div class="empty-state">
+                                            <span class="empty-icon">🧪</span>
+                                            <p>Select parameters and click <strong>"Run Test"</strong> to backtest this strategy against historical market data.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
         </main>
@@ -1571,6 +1892,10 @@ const state = {
     requireRsi: true,
     requireEmaCompression: true,
     requirePinbarDoji: true,
+    filterCircuits: true,
+    requireEpisodicPivot: false,
+    requireLiquiditySweep: false,
+    selectedSector: "",
     isScanning: false,
     autoRefresh: true,
     autoRefreshTimer: null,
@@ -1925,7 +2250,27 @@ function renderChartData(data, isSilentRefresh = false) {
     changeEl.className = `price-change ${change >= 0 ? "positive" : "negative"}`;
 
     document.getElementById("activeExchange").innerText = data.meta.exchange || (state.activeSymbol.endsWith(".NS") ? "NSE" : "US");
-    document.getElementById("activeShortName").innerText = data.meta.shortName || state.activeSymbol;
+    document.getElementById("activeShortName").innerText = data.company_name || data.meta.shortName || state.activeSymbol;
+    
+    // Sector, Industry, Circuit badges
+    const secBadge = document.getElementById("activeSectorBadge");
+    if (secBadge) secBadge.innerText = data.sector || "Equities";
+    const indBadge = document.getElementById("activeIndustryBadge");
+    if (indBadge) indBadge.innerText = data.industry || "Common Stock";
+    const circBadge = document.getElementById("activeCircuitBadge");
+    if (circBadge) {
+        if (data.is_circuit_locked) {
+            circBadge.innerText = "CIRCUIT LOCKED 🔴";
+            circBadge.className = "circuit-status-tag locked";
+        } else {
+            circBadge.innerText = "NORMAL TRADING 🟢";
+            circBadge.className = "circuit-status-tag active";
+        }
+    }
+    const btInput = document.getElementById("btSymbolInput");
+    if (btInput && (!btInput.value || btInput.value === "NVDA")) {
+        btInput.value = state.activeSymbol;
+    }
 
     // Trend badge
     const trendEl = document.getElementById("activeTrendBadge");
@@ -2032,6 +2377,79 @@ function renderDiagnosis(a, meta) {
     document.getElementById("lvlStopLoss").innerText = `${currency}${a.suggested_stop_loss}`;
     document.getElementById("lvlVolume").innerText = (a.volume_avg_20 || 0).toLocaleString();
     document.getElementById("lvl52w").innerText = `${currency}${a.low_52w} - ${currency}${a.high_52w}`;
+
+    // Market Profile
+    const mp = a.market_profile || {};
+    const elPoc = document.getElementById("mpPoc");
+    if (elPoc) elPoc.innerText = `${currency}${mp.poc || a.price}`;
+    const elVah = document.getElementById("mpVah");
+    if (elVah) elVah.innerText = `${currency}${mp.vah || a.recent_high}`;
+    const elVal = document.getElementById("mpVal");
+    if (elVal) elVal.innerText = `${currency}${mp.val || a.recent_low}`;
+    const elZone = document.getElementById("mpZone");
+    if (elZone) {
+        if (a.price > (mp.vah || 999999)) {
+            elZone.innerText = "Above VAH (Bullish Extension)";
+            elZone.style.color = "var(--bullish-green)";
+        } else if (a.price < (mp.val || 0)) {
+            elZone.innerText = "Below VAL (Discount Zone)";
+            elZone.style.color = "var(--bearish-red)";
+        } else {
+            elZone.innerText = "Inside Value Area (Fair Value)";
+            elZone.style.color = "#60a5fa";
+        }
+    }
+
+    // Smart Money Concepts
+    const sweeps = a.liquidity_sweeps || [];
+    const elSweep = document.getElementById("smcSweep");
+    if (elSweep) {
+        if (sweeps.length > 0) {
+            const sw = sweeps[0];
+            elSweep.innerText = `${sw.type} (${currency}${sw.level})`;
+            elSweep.style.color = "#c084fc";
+        } else {
+            elSweep.innerText = "No Institutional Sweep";
+            elSweep.style.color = "var(--text-muted)";
+        }
+    }
+    const fvgs = a.fair_value_gaps || [];
+    const elFvg = document.getElementById("smcFvg");
+    if (elFvg) elFvg.innerText = `${fvgs.length} Imbalance Zone${fvgs.length === 1 ? '' : 's'}`;
+
+    // Episodic Pivot
+    const ep = a.episodic_pivot || {};
+    const elEp = document.getElementById("epStatus");
+    if (elEp) {
+        if (ep.is_episodic_pivot) {
+            elEp.innerText = `ACTIVE EP (+${ep.gap_pct}% / ${ep.rvol}x Vol)`;
+            elEp.style.color = "#f59e0b";
+        } else {
+            elEp.innerText = "Standard Opening";
+            elEp.style.color = "var(--text-muted)";
+        }
+    }
+
+    // In-Trade Psychology & Risk
+    const psych = a.trade_psychology || {};
+    const elRr = document.getElementById("psychRr");
+    if (elRr) elRr.innerText = `1 : ${psych.risk_reward_ratio || 2.0}`;
+    const elSize = document.getElementById("psychSize");
+    if (elSize) elSize.innerText = `${currency}${(psych.position_risk_amount || 1000).toLocaleString()}`;
+    const elShares = document.getElementById("psychShares");
+    if (elShares) elShares.innerText = `${psych.recommended_shares || 0} Shares`;
+    const elFomo = document.getElementById("psychFomo");
+    if (elFomo) {
+        const fomoLvl = psych.fomo_risk_level || "SAFE";
+        elFomo.innerText = fomoLvl;
+        if (fomoLvl.includes("HIGH") || fomoLvl.includes("EXTENDED")) {
+            elFomo.style.color = "var(--bearish-red)";
+        } else if (fomoLvl.includes("MODERATE")) {
+            elFomo.style.color = "#f59e0b";
+        } else {
+            elFomo.style.color = "var(--bullish-green)";
+        }
+    }
 }
 
 /**
@@ -2278,7 +2696,70 @@ function setupEventListeners() {
                 state.requireRsi = false;
                 state.requireEmaCompression = true;
                 state.requirePinbarDoji = true;
+            } else if (val === "episodic") {
+                document.getElementById("chkHhHl").checked = false;
+                document.getElementById("chkRsi").checked = true;
+                document.getElementById("chkEmaCompression").checked = false;
+                document.getElementById("chkPinbarDoji").checked = false;
+                document.getElementById("chkEpisodicPivot").checked = true;
+                state.requireHhHl = false;
+                state.requireRsi = true;
+                state.requireEmaCompression = false;
+                state.requirePinbarDoji = false;
+                state.requireEpisodicPivot = true;
+            } else if (val === "smc") {
+                document.getElementById("chkHhHl").checked = true;
+                document.getElementById("chkRsi").checked = true;
+                document.getElementById("chkEmaCompression").checked = false;
+                document.getElementById("chkPinbarDoji").checked = false;
+                document.getElementById("chkLiquiditySweep").checked = true;
+                state.requireHhHl = true;
+                state.requireRsi = true;
+                state.requireEmaCompression = false;
+                state.requirePinbarDoji = false;
+                state.requireLiquiditySweep = true;
             }
+        });
+    }
+
+    // Sector select listener
+    const sectorSel = document.getElementById("sectorSelect");
+    if (sectorSel) {
+        sectorSel.addEventListener("change", (e) => {
+            state.selectedSector = e.target.value;
+        });
+    }
+
+    // Advanced Checkboxes
+    const chkCirc = document.getElementById("chkFilterCircuits");
+    if (chkCirc) chkCirc.addEventListener("change", (e) => state.filterCircuits = e.target.checked);
+
+    const chkEp = document.getElementById("chkEpisodicPivot");
+    if (chkEp) chkEp.addEventListener("change", (e) => state.requireEpisodicPivot = e.target.checked);
+
+    const chkSmc = document.getElementById("chkLiquiditySweep");
+    if (chkSmc) chkSmc.addEventListener("change", (e) => state.requireLiquiditySweep = e.target.checked);
+
+    // Volume toggle pill listener
+    const btnVol = document.getElementById("toggleVolume");
+    if (btnVol) {
+        btnVol.addEventListener("click", function() {
+            state.indicators.volume = !state.indicators.volume;
+            this.classList.toggle("active");
+            if (volumeSeries) {
+                volumeSeries.applyOptions({ visible: state.indicators.volume });
+            }
+        });
+    }
+
+    // Backtest Run Button
+    const btnBt = document.getElementById("btnRunBacktest");
+    if (btnBt) btnBt.addEventListener("click", runBacktest);
+
+    const btSymInput = document.getElementById("btSymbolInput");
+    if (btSymInput) {
+        btSymInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") runBacktest();
         });
     }
 
@@ -2389,6 +2870,11 @@ function startScan() {
         </tr>
     `;
 
+    const filterCircuits = document.getElementById("chkFilterCircuits") ? document.getElementById("chkFilterCircuits").checked : true;
+    const reqEp = document.getElementById("chkEpisodicPivot") ? document.getElementById("chkEpisodicPivot").checked : false;
+    const reqSmc = document.getElementById("chkLiquiditySweep") ? document.getElementById("chkLiquiditySweep").checked : false;
+    const sectorVal = document.getElementById("sectorSelect") ? document.getElementById("sectorSelect").value : "";
+
     const params = new URLSearchParams({
         universe: universe,
         timeframe: state.activeTimeframe,
@@ -2399,8 +2885,12 @@ function startScan() {
         require_rsi: state.requireRsi,
         require_ema_compression: state.requireEmaCompression,
         require_pinbar_doji: state.requirePinbarDoji,
-        max_ema_spread_pct: state.maxEmaSpread
+        max_ema_spread_pct: state.maxEmaSpread,
+        filter_circuits: filterCircuits,
+        require_episodic_pivot: reqEp,
+        require_liquidity_sweep: reqSmc
     });
+    if (sectorVal) params.append("sector", sectorVal);
     if (universe === "custom" && customSymbols) {
         params.append("custom_symbols", customSymbols);
     }
@@ -2482,18 +2972,41 @@ function addMatchToTable(stock) {
     const patClass = stock.has_pinbar_or_doji ? "badge-pattern" : "sub-text";
     const patText = stock.candle_pattern || "Standard";
 
+    let badges = [];
+    if (stock.is_circuit_locked) {
+        badges.push('<span style="font-size:0.65rem; background:rgba(239,68,68,0.2); color:#ef4444; padding:2px 5px; border-radius:3px; font-weight:700;">LOCKED 🔴</span>');
+    } else {
+        badges.push('<span style="font-size:0.65rem; background:rgba(16,185,129,0.15); color:#10b981; padding:2px 5px; border-radius:3px; font-weight:700;">ACTIVE 🟢</span>');
+    }
+    if (stock.episodic_pivot && stock.episodic_pivot.is_episodic_pivot) {
+        badges.push('<span class="badge-ep">EP 🚀</span>');
+    }
+    if (stock.liquidity_sweeps && stock.liquidity_sweeps.length > 0) {
+        badges.push('<span class="badge-smc">SMC ⚡</span>');
+    }
+
+    const companyName = stock.company_name || stock.symbol;
+    const sector = stock.sector || "Equities";
+
     tr.innerHTML = `
         <td class="ticker-cell" onclick="loadStockChart('${stock.symbol}')">${stock.symbol}</td>
+        <td>
+            <div style="font-weight:600; font-size:0.75rem; color:var(--text-primary); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${companyName}</div>
+            <div style="font-size:0.68rem; color:var(--text-muted);">${sector}</div>
+        </td>
         <td class="mono-cell">${currency}${stock.price.toFixed(2)}</td>
         <td class="mono-cell ${changeClass}">${sign}${stock.change_pct.toFixed(2)}%</td>
         <td class="mono-cell" style="color: #10b981; font-weight: 700;">${stock.rsi_21.toFixed(1)}</td>
         <td class="mono-cell">${squeezeBadge}</td>
         <td><span class="${patClass}">${patText}</span></td>
+        <td><div style="display:flex; flex-direction:column; gap:2px;">${badges.join('')}</div></td>
         <td class="mono-cell">${currency}${stock.recent_high} <span style="color:#10b981; font-size:0.7rem;">(HH)</span></td>
         <td class="mono-cell">${currency}${stock.recent_low} <span style="color:#06b6d4; font-size:0.7rem;">(HL)</span></td>
-        <td><span class="status-badge-match">✓ ALL RULES MET</span></td>
         <td>
-            <button class="btn-view-chart" onclick="loadStockChart('${stock.symbol}')">View Chart</button>
+            <div style="display:flex; gap:4px;">
+                <button class="btn-view-chart" onclick="loadStockChart('${stock.symbol}')">Chart</button>
+                <button class="btn-view-chart" style="border-color:#a855f7; color:#c084fc; background:rgba(168,85,247,0.15);" onclick="quickRunBacktest('${stock.symbol}')">Backtest</button>
+            </div>
         </td>
     `;
     tbody.appendChild(tr);
@@ -2563,7 +3076,177 @@ function exportCsv() {
  * Show Toast Notification
  */
 function showToast(msg) {
-    const toast = document.getElementById("toast");
+    const toast
+
+/**
+ * Switch Bottom Panel Tab between Scanner Results and Strategy Backtester
+ */
+function switchBottomTab(tab) {
+    const paneScanner = document.getElementById("paneScannerResults");
+    const paneBt = document.getElementById("paneBacktester");
+    const btnTabScanner = document.getElementById("btnTabScanner");
+    const btnTabBacktest = document.getElementById("btnTabBacktest");
+    const scannerActions = document.getElementById("scannerActionsGroup");
+
+    if (tab === "scanner") {
+        paneScanner.style.display = "block";
+        paneBt.style.display = "none";
+        btnTabScanner.classList.add("active");
+        btnTabBacktest.classList.remove("active");
+        if (scannerActions) scannerActions.style.display = "flex";
+    } else {
+        paneScanner.style.display = "none";
+        paneBt.style.display = "block";
+        btnTabBacktest.classList.add("active");
+        btnTabScanner.classList.remove("active");
+        if (scannerActions) scannerActions.style.display = "none";
+
+        // Auto-fill current active symbol
+        const btInput = document.getElementById("btSymbolInput");
+        if (btInput && (!btInput.value || btInput.value === "NVDA")) {
+            btInput.value = state.activeSymbol;
+        }
+    }
+}
+
+/**
+ * Execute Strategy Backtest via POST /api/backtest
+ */
+async function runBacktest() {
+    const sym = (document.getElementById("btSymbolInput").value || state.activeSymbol).trim().toUpperCase();
+    const strategy = document.getElementById("btStrategySelect").value;
+    const range = document.getElementById("btRangeSelect").value;
+    const rr = parseFloat(document.getElementById("btRrSelect").value);
+    const capital = parseFloat(document.getElementById("btCapitalInput").value) || 100000;
+
+    const btn = document.getElementById("btnRunBacktest");
+    btn.disabled = true;
+    btn.innerText = "⏳ Testing...";
+
+    const tbody = document.getElementById("btTradeLogBody");
+    tbody.innerHTML = `
+        <tr class="empty-row">
+            <td colspan="11">
+                <div class="empty-state">
+                    <span class="empty-icon">⏳</span>
+                    <p>Executing bar-by-bar backtest simulation for ${sym}...</p>
+                </div>
+            </td>
+        </tr>
+    `;
+
+    try {
+        const resp = await fetch("/api/backtest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                symbol: sym,
+                timeframe: state.activeTimeframe,
+                data_range: range,
+                strategy: strategy,
+                risk_reward: rr,
+                initial_capital: capital,
+                risk_per_trade_pct: 1.0
+            })
+        });
+
+        if (!resp.ok) {
+            const err = await resp.json();
+            throw new Error(err.detail || "Backtest failed");
+        }
+
+        const data = await resp.json();
+        renderBacktestResults(data);
+        showToast(`Backtest complete! Win Rate: ${data.win_rate_pct}% on ${data.total_trades} trades.`);
+    } catch (e) {
+        showToast(`Backtest error: ${e.message}`);
+        tbody.innerHTML = `
+            <tr class="empty-row">
+                <td colspan="11">
+                    <div class="empty-state">
+                        <span class="empty-icon">⚠️</span>
+                        <p style="color:var(--bearish-red);">${e.message}</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = "<span>🚀</span> Run Test";
+    }
+}
+
+/**
+ * 1-Click Quick Backtest from results table or chart
+ */
+function quickRunBacktest(symbol) {
+    switchBottomTab("backtest");
+    const btInput = document.getElementById("btSymbolInput");
+    if (btInput) btInput.value = symbol;
+    runBacktest();
+}
+
+/**
+ * Render Backtest Scorecards & Trade Log
+ */
+function renderBacktestResults(data) {
+    document.getElementById("btWinRate").innerText = `${data.win_rate_pct}%`;
+    document.getElementById("btWinCount").innerText = `${data.win_count}W / ${data.loss_count}L`;
+    document.getElementById("btProfitFactor").innerText = data.profit_factor >= 99 ? '∞ (No Losses)' : data.profit_factor.toFixed(2);
+    
+    const retEl = document.getElementById("btTotalReturn");
+    const sign = data.total_return_pct >= 0 ? "+" : "";
+    retEl.innerText = `${sign}${data.total_return_pct}%`;
+    retEl.style.color = data.total_return_pct >= 0 ? "var(--bullish-green)" : "var(--bearish-red)";
+    
+    const netEl = document.getElementById("btNetProfit");
+    const signNet = data.net_profit >= 0 ? "+$" : "-$";
+    netEl.innerText = `${signNet}${Math.abs(data.net_profit).toLocaleString()}`;
+    
+    document.getElementById("btMaxDrawdown").innerText = `-${data.max_drawdown_pct}%`;
+    document.getElementById("btTotalTrades").innerText = data.total_trades;
+    document.getElementById("btAvgWinLoss").innerText = `+${data.avg_win_pct}% / -${data.avg_loss_pct}%`;
+
+    const tbody = document.getElementById("btTradeLogBody");
+    if (!data.trades || data.trades.length === 0) {
+        tbody.innerHTML = `
+            <tr class="empty-row">
+                <td colspan="11">
+                    <div class="empty-state">
+                        <span class="empty-icon">🔍</span>
+                        <p>No historical trades triggered the strict criteria during this period.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = "";
+    data.trades.forEach(t => {
+        const tr = document.createElement("tr");
+        const isWin = t.outcome === "WIN";
+        const outcomeBadge = `<span style="font-size:0.7rem; font-weight:700; padding:2px 6px; border-radius:3px; background:${isWin ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}; color:${isWin ? 'var(--bullish-green)' : 'var(--bearish-red)'};">${t.outcome}</span>`;
+        const pnlSign = t.pnl_dollars >= 0 ? "+" : "";
+        const pnlClass = isWin ? "positive" : "negative";
+
+        tr.innerHTML = `
+            <td class="mono-cell">${t.trade_num}</td>
+            <td class="mono-cell">${formatChartTime(t.entry_time, '1d')}</td>
+            <td class="mono-cell">${formatChartTime(t.exit_time, '1d')}</td>
+            <td class="mono-cell">$${t.entry_price.toFixed(2)}</td>
+            <td class="mono-cell">$${t.exit_price.toFixed(2)}</td>
+            <td class="mono-cell" style="color:var(--bearish-red);">$${t.stop_loss.toFixed(2)}</td>
+            <td class="mono-cell" style="color:var(--bullish-green);">$${t.target_price.toFixed(2)}</td>
+            <td>${outcomeBadge}</td>
+            <td style="font-size:0.75rem; color:var(--text-muted);">${t.exit_reason}</td>
+            <td class="mono-cell ${pnlClass}">${pnlSign}$${Math.abs(t.pnl_dollars).toFixed(2)}</td>
+            <td class="mono-cell ${pnlClass}">${pnlSign}${t.pnl_pct.toFixed(2)}%</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+ = document.getElementById("toast");
     toast.innerText = msg;
     toast.classList.add("show");
     setTimeout(() => {
