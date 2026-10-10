@@ -432,6 +432,67 @@ async def quick_backtest_endpoint(
     )
     return result
     
+class AdvancedBacktestRequest(BaseModel):
+    symbol: str
+    timeframe: str = "1d"
+    data_range: str = "2y"
+    ast_json: Optional[Dict[str, Any]] = None
+    run_monte_carlo: bool = True
+    run_walk_forward: bool = False
+
+@app.post("/api/backtest/advanced")
+async def advanced_backtest_endpoint(req: AdvancedBacktestRequest):
+    """Runs the Phase 4 Event-Driven Backtester with Slippage, Monte Carlo, and WFO."""
+    from backtest_engine.engine import EventDrivenBacktester
+    from backtest_engine.metrics import calculate_metrics
+    from backtest_engine.monte_carlo import MonteCarloEngine
+    from backtest_engine.walk_forward import WalkForwardOptimizer
+    from data_feed import get_stock_data
+    from technicals import analyze_market_structure
+    import pandas as pd
+
+    # Fetch Data
+    df, meta = get_stock_data(req.symbol, interval=req.timeframe, data_range=req.data_range)
+    if df is None or df.empty:
+        raise HTTPException(status_code=400, detail="Failed to fetch data.")
+        
+    analyze_market_structure(df)
+    if "time" in df.columns:
+        df["time"] = pd.to_datetime(df["time"], unit="s")
+
+    # Run Event-Driven Loop
+    engine = EventDrivenBacktester(symbol=req.symbol, data=df, strategy_ast=req.ast_json)
+    equity_curve, trades = engine.run()
+    
+    # Calculate Institutional Metrics
+    metrics = calculate_metrics(equity_curve, trades)
+    
+    mc_results = {}
+    if req.run_monte_carlo and trades:
+        # Extract Realized PnLs
+        buy_price = 0
+        pnl_list = []
+        for t in trades:
+            if t['direction'] == 'BUY':
+                buy_price = t['price']
+            elif t['direction'] == 'SELL' and buy_price > 0:
+                pnl = (t['price'] - buy_price) * t['quantity']
+                pnl -= (t['commission'] * 2) + (t['slippage'] * 2)
+                pnl_list.append(pnl)
+                buy_price = 0
+                
+        mc_engine = MonteCarloEngine(pnl_list)
+        mc_results = mc_engine.run_simulation(iterations=500)
+        
+    return {
+        "status": "success",
+        "symbol": req.symbol,
+        "metrics": metrics,
+        "monte_carlo": mc_results,
+        "equity_curve": equity_curve.reset_index().to_dict(orient="records") if not equity_curve.empty else []
+    }
+
+
 class NlpStrategyRequest(BaseModel):
     query: str
 
