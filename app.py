@@ -431,6 +431,74 @@ async def quick_backtest_endpoint(
         risk_reward=risk_reward
     )
     return result
+    
+class NlpStrategyRequest(BaseModel):
+    query: str
+
+@app.post("/api/strategy/parse")
+async def parse_nlp_strategy(req: NlpStrategyRequest):
+    """Translates plain English query to Visual Scanner AST JSON."""
+    from scanner_engine.nlp_parser import NLPParser
+    ast = NLPParser.parse_query(req.query)
+    return {"query": req.query, "ast": ast}
+
+
+class HistoricalExportRequest(BaseModel):
+    universe: str
+    custom_symbols: Optional[str] = None
+    ast_json: Dict[str, Any]
+    years: int = 1
+    format: str = "parquet"
+    strategy_name: str = "custom_strategy"
+
+@app.post("/api/export/scan")
+async def export_historical_scan(req: HistoricalExportRequest):
+    """Runs a visual scanner strategy over 1-10 years and exports results."""
+    from scanner_engine.historical_export import HistoricalScannerEngine
+    from stock_lists import UNIVERSES
+
+    if req.universe == "custom" and req.custom_symbols:
+        symbols = [s.strip().upper() for s in req.custom_symbols.replace("\n", ",").split(",") if s.strip()]
+    elif req.universe in UNIVERSES:
+        symbols = UNIVERSES[req.universe]["symbols"]
+    else:
+        raise HTTPException(status_code=400, detail="Invalid universe.")
+
+    # Restrict symbol count in Demo to prevent massive memory usage
+    symbols = symbols[:30]
+
+    engine = HistoricalScannerEngine(export_dir="exports")
+    df = engine.run_historical_scan(
+        symbols=symbols,
+        ast_json=req.ast_json,
+        years=req.years
+    )
+    
+    if df.empty:
+        return {"status": "success", "message": "No historical signals met the criteria.", "download_url": None, "count": 0}
+
+    filepath = engine.export_results(df, strategy_name=req.strategy_name, format_type=req.format)
+    # Expose generic path for downloading
+    download_url = f"/api/download?file={filepath.replace('exports/', '')}"
+    return {
+        "status": "success",
+        "message": f"Successfully exported {len(df)} historical signals.",
+        "download_url": download_url,
+        "count": len(df)
+    }
+
+from fastapi.responses import FileResponse
+import os
+
+@app.get("/api/download")
+async def download_export(file: str):
+    """Allows downloading the Parquet/CSV generated exports."""
+    # Security: Ensure it stays inside exports directory
+    clean_file = os.path.basename(file)
+    path = os.path.join("exports", clean_file)
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(path, filename=clean_file)
 
 
 if __name__ == "__main__":
