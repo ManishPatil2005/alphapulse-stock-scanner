@@ -376,7 +376,14 @@ async def get_chart_data(
         "liquidity_sweeps": analysis.get("liquidity_sweeps", []),
         "episodic_pivot": analysis.get("episodic_pivot", {}),
         "trade_psychology": analysis.get("trade_psychology", {}),
-        "is_circuit_locked": analysis.get("is_circuit_locked", False)
+        "is_circuit_locked": analysis.get("is_circuit_locked", False),
+        "orderflow": {
+            "poc": analysis.get("market_profile", {}).get("poc", 0.0),
+            "vah": analysis.get("market_profile", {}).get("vah", 0.0),
+            "val": analysis.get("market_profile", {}).get("val", 0.0),
+            "profile_shape": analysis.get("market_profile", {}).get("profile_shape", "D_SHAPE"),
+            "auction_location": analysis.get("market_profile", {}).get("location", "INSIDE_VALUE_AREA")
+        }
     }
 
 

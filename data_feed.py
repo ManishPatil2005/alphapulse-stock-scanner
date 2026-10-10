@@ -83,10 +83,67 @@ def get_stock_data(
 
     # 3. Leader fetches from upstream
     try:
-        # Attempt 1: Direct Yahoo v8 API
+        # Priority 1: Institutional Provider Layer (Delta Exchange for Crypto/Deriv, Angel One for Equities)
+        if any(term in symbol for term in ("USDT", "BTC", "ETH", "SOL", "XRP", "PERP")):
+            try:
+                import asyncio
+                from providers.delta_exchange import DeltaExchangeProvider
+                from services.normalizer import PriceNormalizer
+                delta_p = DeltaExchangeProvider()
+                
+                async def _get_delta():
+                    await delta_p.initialize()
+                    bars = await delta_p.get_candles(symbol, timeframe="D", count=150)
+                    await delta_p.disconnect()
+                    return bars
+
+                try:
+                    loop = asyncio.get_event_loop()
+                    if loop.is_running():
+                        import concurrent.futures
+                        with concurrent.futures.ThreadPoolExecutor() as pool:
+                            bars = pool.submit(asyncio.run, _get_delta()).result()
+                    else:
+                        bars = loop.run_until_complete(_get_delta())
+                except Exception:
+                    bars = asyncio.run(_get_delta())
+
+                if bars:
+                    clean_bars, diag = PriceNormalizer.validate_and_normalize_candles(bars)
+                    if clean_bars:
+                        records = []
+                        for b in clean_bars:
+                            # Convert timestamp to epoch seconds
+                            try:
+                                t_epoch = int(pd.to_datetime(b.timestamp).timestamp())
+                            except Exception:
+                                t_epoch = int(time.time())
+                            records.append({
+                                "time": t_epoch,
+                                "open": b.open,
+                                "high": b.high,
+                                "low": b.low,
+                                "close": b.close,
+                                "volume": b.volume
+                            })
+                        df = pd.DataFrame(records).drop_duplicates(subset=["time"]).sort_values("time").reset_index(drop=True)
+                        meta = {
+                            "symbol": symbol,
+                            "currency": "$",
+                            "exchange": "DELTA",
+                            "shortName": symbol,
+                            "regularMarketPrice": float(df["close"].iloc[-1])
+                        }
+                        with _CACHE_LOCK:
+                            _CACHE[cache_key] = (time.time(), df, meta)
+                        return df.copy(), meta
+            except Exception as e:
+                logger.warning(f"Institutional Delta feed fetch failed for {symbol}: {e}")
+
+        # Priority 2: Direct Yahoo v8 API
         df, meta = _fetch_from_yahoo_v8(symbol, interval=interval, data_range=data_range)
 
-        # Attempt 2: Fallback to yfinance if Direct API failed or returned empty
+        # Priority 3: Fallback to yfinance if Direct API failed or returned empty
         if df is None or len(df) == 0:
             df, meta = _fetch_from_yfinance(symbol, interval=interval, data_range=data_range)
 
