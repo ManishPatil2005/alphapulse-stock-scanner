@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: alphapulse_api
+    ports:
+      - "8000:8000"
+    environment:
+      - ANGEL_SMARTAPI_KEY=${ANGEL_SMARTAPI_KEY}
+      - ANGEL_CLIENT_ID=${ANGEL_CLIENT_ID}
+      - ANGEL_PASSWORD=${ANGEL_PASSWORD}
+      - ANGEL_TOTP_SECRET=${ANGEL_TOTP_SECRET}
+      - DELTA_EXCHANGE_API_KEY=${DELTA_EXCHANGE_API_KEY}
+      - DELTA_EXCHANGE_SECRET=${DELTA_EXCHANGE_SECRET}
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/auth/me"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - alphapulse_net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: alphapulse_prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - alphapulse_net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: alphapulse_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - alphapulse_net
+    depends_on:
+      - prometheus
+
+networks:
+  alphapulse_net:
+    driver: bridge

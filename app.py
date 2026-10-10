@@ -666,6 +666,37 @@ async def get_system_telemetry(user = Depends(require_roles([Role.ADMIN]))):
     }
 
 
+@app.get("/metrics")
+async def prometheus_metrics():
+    """Prometheus exposition format for scraping."""
+    from admin.telemetry import get_telemetry_metrics
+    from fastapi.responses import PlainTextResponse
+    
+    metrics = get_telemetry_metrics()
+    
+    lines = [
+        "# HELP alphapulse_http_requests_total The total number of HTTP requests.",
+        "# TYPE alphapulse_http_requests_total counter",
+        f"alphapulse_http_requests_total {metrics['total_requests']}",
+        
+        "# HELP alphapulse_http_errors_total The total number of HTTP errors.",
+        "# TYPE alphapulse_http_errors_total counter",
+        f"alphapulse_http_errors_total {metrics['errors']}",
+        
+        "# HELP alphapulse_avg_response_time_ms Average response time in ms.",
+        "# TYPE alphapulse_avg_response_time_ms gauge",
+        f"alphapulse_avg_response_time_ms {metrics['avg_response_time_ms']}",
+    ]
+    
+    # Per endpoint metrics
+    lines.append("# HELP alphapulse_endpoint_hits_total Endpoint hit counts.")
+    lines.append("# TYPE alphapulse_endpoint_hits_total counter")
+    for path, data in metrics['endpoints'].items():
+        lines.append(f'alphapulse_endpoint_hits_total{{path="{path}"}} {data["hits"]}')
+        
+    return PlainTextResponse("\n".join(lines) + "\n")
+
+
 if __name__ == "__main__":
     import uvicorn
     import webbrowser

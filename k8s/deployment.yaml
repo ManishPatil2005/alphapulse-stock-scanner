@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alphapulse-api
+  labels:
+    app: alphapulse
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: alphapulse
+  template:
+    metadata:
+      labels:
+        app: alphapulse
+    spec:
+      containers:
+      - name: alphapulse-api
+        image: alphapulse/api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1024Mi
+        livenessProbe:
+          httpGet:
+            path: /api/auth/me
+            port: 8000
+            httpHeaders:
+            - name: Authorization
+              value: "Bearer token_retail_123"
+          initialDelaySeconds: 10
+          periodSeconds: 15
+        envFrom:
+        - secretRef:
+            name: alphapulse-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alphapulse-service
+spec:
+  type: ClusterIP
+  selector:
+    app: alphapulse
+  ports:
+  - port: 80
+    targetPort: 8000
