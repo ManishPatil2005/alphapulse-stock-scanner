@@ -17,12 +17,15 @@ import time
 import asyncio
 import threading
 from typing import Optional, List, Dict, Any, Tuple
-from fastapi import FastAPI, Query, HTTPException, Request
+from fastapi import FastAPI, Query, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel
+from datetime import datetime
+
+from auth.security import get_current_user, require_roles, Role
 
 from stock_lists import UNIVERSES, SECTOR_MAP, STOCK_METADATA_MAP
 from data_feed import get_stock_data
@@ -629,6 +632,38 @@ async def get_institutional_rotation():
     tracker = InstitutionalRotationTracker(symbols)
     rotation = tracker.calculate_flows()
     return {"status": "success", "rotation": rotation}
+
+
+from admin.telemetry import TelemetryMiddleware
+app.add_middleware(TelemetryMiddleware)
+
+@app.get("/api/auth/me")
+async def get_current_user_profile(user = Depends(get_current_user)):
+    """Returns the authenticated user's profile and their billing limits."""
+    from auth.billing import get_user_limits
+    limits = get_user_limits(user)
+    return {
+        "status": "success",
+        "user": {
+            "id": user.user_id,
+            "email": user.email,
+            "role": user.role.value,
+            "organization": user.organization
+        },
+        "billing_limits": limits
+    }
+
+@app.get("/api/admin/telemetry")
+async def get_system_telemetry(user = Depends(require_roles([Role.ADMIN]))):
+    """Admin-only endpoint to view live system metrics."""
+    from admin.telemetry import get_telemetry_metrics
+    metrics = get_telemetry_metrics()
+    return {
+        "status": "success",
+        "timestamp": datetime.utcnow().isoformat(),
+        "requested_by": user.email,
+        "metrics": metrics
+    }
 
 
 if __name__ == "__main__":
