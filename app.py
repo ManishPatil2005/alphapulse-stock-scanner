@@ -562,6 +562,44 @@ async def download_export(file: str):
     return FileResponse(path, filename=clean_file)
 
 
+class PsychologyRequest(BaseModel):
+    trades: List[Dict[str, Any]]
+    order_modifications: Optional[List[Dict[str, Any]]] = []
+
+@app.get("/api/learning/modules")
+async def get_education_modules():
+    """Returns all Auction Theory education modules."""
+    from learning_engine.education import get_all_modules
+    return {"status": "success", "modules": get_all_modules()}
+
+@app.post("/api/psychology/analyze")
+async def analyze_psychology(req: PsychologyRequest):
+    """Analyzes a batch of trades for behavioral anti-patterns."""
+    from learning_engine.psychology import PsychologyCockpit
+    from datetime import datetime
+    
+    # Pre-process timestamps since JSON sends them as strings
+    trades_clean = []
+    for t in req.trades:
+        # Avoid mutating the original dict in a weird way, create a copy
+        t_copy = dict(t)
+        if isinstance(t_copy.get('timestamp'), str):
+            t_copy['timestamp'] = datetime.fromisoformat(t_copy['timestamp'].replace('Z', '+00:00'))
+        trades_clean.append(t_copy)
+        
+    mods_clean = []
+    for m in req.order_modifications:
+        m_copy = dict(m)
+        if isinstance(m_copy.get('timestamp'), str):
+            m_copy['timestamp'] = datetime.fromisoformat(m_copy['timestamp'].replace('Z', '+00:00'))
+        mods_clean.append(m_copy)
+
+    cockpit = PsychologyCockpit()
+    result = cockpit.analyze_session(trades_clean, mods_clean)
+    
+    return {"status": "success", "analysis": result}
+
+
 if __name__ == "__main__":
     import uvicorn
     import webbrowser
