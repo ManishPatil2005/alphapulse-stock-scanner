@@ -600,6 +600,37 @@ async def analyze_psychology(req: PsychologyRequest):
     return {"status": "success", "analysis": result}
 
 
+@app.get("/api/heatmap/sectors")
+async def get_sector_heatmap():
+    """Returns the D3 Treemap JSON for Market Sectors & Industries."""
+    from heatmap_engine.sectors import SectorHeatmapEngine
+    from heatmap_engine.data_map import SECTOR_MAP
+    symbols = list(SECTOR_MAP.keys())
+    engine = SectorHeatmapEngine(symbols)
+    tree = engine.generate_heatmap()
+    return {"status": "success", "heatmap": tree}
+
+@app.get("/api/heatmap/breadth")
+async def get_market_breadth():
+    """Returns Advance/Decline and EMA Breadth."""
+    from heatmap_engine.breadth import MarketBreadthEngine
+    from heatmap_engine.data_map import SECTOR_MAP
+    symbols = list(SECTOR_MAP.keys())
+    engine = MarketBreadthEngine(symbols)
+    breadth = engine.calculate_breadth()
+    return {"status": "success", "breadth": breadth}
+
+@app.get("/api/heatmap/rotation")
+async def get_institutional_rotation():
+    """Returns Capital Flows between Risk-On and Risk-Off sectors."""
+    from heatmap_engine.rotation import InstitutionalRotationTracker
+    from heatmap_engine.data_map import SECTOR_MAP
+    symbols = list(SECTOR_MAP.keys())
+    tracker = InstitutionalRotationTracker(symbols)
+    rotation = tracker.calculate_flows()
+    return {"status": "success", "rotation": rotation}
+
+
 if __name__ == "__main__":
     import uvicorn
     import webbrowser
