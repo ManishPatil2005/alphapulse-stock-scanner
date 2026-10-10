@@ -40,6 +40,14 @@ def compute_ema(series: pd.Series, period: int) -> pd.Series:
     """Computes Exponential Moving Average."""
     return series.ewm(span=period, adjust=False).mean()
 
+def compute_macd(close: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9) -> Tuple[pd.Series, pd.Series, pd.Series]:
+    """Computes MACD, Signal, and Histogram."""
+    ema_fast = compute_ema(close, fast)
+    ema_slow = compute_ema(close, slow)
+    macd_line = ema_fast - ema_slow
+    signal_line = compute_ema(macd_line, signal)
+    histogram = macd_line - signal_line
+    return macd_line, signal_line, histogram
 
 def compute_atr(high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14) -> pd.Series:
     """Computes Average True Range."""
@@ -400,6 +408,12 @@ def analyze_market_structure(
     df['rsi_21'] = compute_rsi(df['close'], period=rsi_period)
     df['ema_10'] = compute_ema(df['close'], 10)
     df['ema_20'] = compute_ema(df['close'], 20)
+    
+    macd, signal, hist = compute_macd(df['close'])
+    df['macd'] = macd
+    df['macd_signal'] = signal
+    df['macd_hist'] = hist
+    
     df['ema_50'] = compute_ema(df['close'], 50)
     df['ema_200'] = compute_ema(df['close'], 200) if len(df) >= 200 else pd.Series(np.nan, index=df.index)
     df['atr_14'] = compute_atr(df['high'], df['low'], df['close'], 14)

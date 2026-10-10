@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaPulse Screens</title>
+    <style>
+        :root {
+            --bg-color: #0b0e14;
+            --header-bg: #11141c;
+            --panel-bg: #151923;
+            --border-col: #232836;
+            --text-main: #f0f2f5;
+            --text-muted: #8b96aa;
+            --accent: #8b5cf6;
+            --accent-hover: #7c3aed;
+        }
+        body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; height: 60px; border-bottom: 1px solid var(--border-col); background: var(--header-bg); }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo { color: #0ea5e9; font-weight: bold; font-size: 20px; cursor: pointer; }
+        .search-container { position: relative; }
+        .search-container input { background: #1a1e29; border: 1px solid var(--border-col); color: white; padding: 6px 12px 6px 30px; border-radius: 4px; width: 200px; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; }
+        .nav-links a.active { color: white; font-weight: bold; }
+        .nav-links a.premium { color: var(--accent); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
+        .search-box { background: var(--panel-bg); border-radius: 8px; padding: 20px; margin-bottom: 30px; border: 1px solid var(--border-col); }
+        .search-box h2 { margin-top: 0; font-size: 16px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .search-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 15px; }
+        .search-box p a { color: var(--accent); text-decoration: none; }
+        .search-input-group { display: flex; gap: 10px; }
+        .search-input-group input { flex: 1; background: #0b0e14; border: 1px solid var(--border-col); color: white; padding: 12px 15px; border-radius: 6px; font-size: 14px; }
+        .search-input-group button { background: var(--accent); color: white; border: none; padding: 0 25px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .search-input-group button:hover { background: var(--accent-hover); }
+        
+        .columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .col-card { background: var(--panel-bg); border: 1px solid var(--border-col); border-radius: 8px; overflow: hidden; }
+        .col-header { padding: 15px 20px; font-weight: bold; border-bottom: 1px solid var(--border-col); display: flex; justify-content: space-between; align-items: center; }
+        .col-card:nth-child(2) .col-header { color: #d8b4fe; }
+        .col-list { list-style: none; padding: 0; margin: 0; }
+        .col-list li { border-bottom: 1px solid var(--border-col); }
+        .col-list li:last-child { border-bottom: none; }
+        .col-list a { display: block; padding: 12px 20px; color: var(--text-muted); text-decoration: none; font-size: 13px; transition: 0.2s; border-left: 2px solid transparent; }
+        .col-list a:hover { background: rgba(255,255,255,0.02); color: white; border-left: 2px solid var(--accent); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">AlphaPulse</div>
+            <div class="search-container">
+                <input type="text" placeholder="Chart Search...">
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="/terminal">Atlas</a>
+            <a href="#" class="active">Screens</a>
+            <a href="/terminal">Charts</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="#" class="premium">Premium</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="search-box">
+            <h2>SEARCH SCREENERS</h2>
+            <p>Search over 150,000+ scans or <a href="/dashboard">create your own</a> customized screeners.</p>
+            <div class="search-input-group">
+                <input type="text" placeholder="search term eg: RSI, Breakout, Uptrend, Short term..">
+                <button>Search</button>
+            </div>
+        </div>
+        <div class="columns">
+            <div class="col-card">
+                <div class="col-header" style="border-left: 4px solid #3b82f6;">Fundamental Scans</div>
+                <ul class="col-list">
+                    <li><a href="#">Profit jump by 200%</a></li>
+                    <li><a href="#">Large cap stocks</a></li>
+                    <li><a href="#">Stocks below Book value - Undervalued</a></li>
+                    <li><a href="#">Low debt companies</a></li>
+                    <li><a href="#">Mid cap stocks</a></li>
+                    <li><a href="#">Sales jump by 200%</a></li>
+                    <li><a href="#">Top stocks with the lowest Price Earning Ratios (PE)</a></li>
+                    <li><a href="#">Highest Earning per share - EPS Stocks</a></li>
+                    <li><a href="#">Penny Stocks - Multi Bagger</a></li>
+                </ul>
+            </div>
+            <div class="col-card">
+                <div class="col-header" style="border-left: 4px solid #a855f7;">Top Loved ^</div>
+                <ul class="col-list">
+                    <li><a href="#">Short term breakouts</a></li>
+                    <li><a href="#">NKS BEST BUY STOCKS FOR INTRADAY</a></li>
+                    <li><a href="#">Potential breakouts</a></li>
+                    <li><a href="#">Buy 100% accuracy - Morning scanner scan at 9:30</a></li>
+                    <li><a href="#">BOSS SCANNER FOR BTST</a></li>
+                    <li><a href="#">FNO stocks Bullish Trend scanner (Moving average + ADX + MACD)</a></li>
+                    <li><a href="#">Strong stocks</a></li>
+                    <li><a href="#">PERFECT SELL (SHORT)</a></li>
+                    <li><a href="#">Daily RSI Oversold/Overbought scan</a></li>
+                </ul>
+            </div>
+            <div class="col-card">
+                <div class="col-header" style="border-left: 4px solid #ef4444;">Candlestick Patterns Scan</div>
+                <ul class="col-list">
+                    <li><a href="#">Short term breakouts</a></li>
+                    <li><a href="#">Doji - daily</a></li>
+                    <li><a href="#">Tweezer Bottom 15min-Timeframe Scan</a></li>
+                    <li><a href="#">Bullish marubozu for 15 min</a></li>
+                    <li><a href="#">Tweezer Top 15-Timeframe Scan</a></li>
+                    <li><a href="#">Dark cloud cover 15min timeframe</a></li>
+                    <li><a href="#">Dragonfly Doji - 15min</a></li>
+                    <li><a href="#">Bearish harami for 15min-timeframe</a></li>
+                    <li><a href="#">Piercing pattern 15min timeframe</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

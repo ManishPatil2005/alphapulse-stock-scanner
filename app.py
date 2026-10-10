@@ -122,6 +122,31 @@ async def serve_index(request: Request):
     response.headers["Expires"] = "0"
     return response
 
+@app.get("/dashboard", response_class=HTMLResponse)
+async def serve_unified_dashboard(request: Request):
+    """Serves the unified Phase 8 Institutional Dashboard UI."""
+    try:
+        response = templates.TemplateResponse(request=request, name="dashboard.html", context={"request": request})
+    except TypeError:
+        response = templates.TemplateResponse("dashboard.html", {"request": request})
+    return response
+
+@app.get("/screener", response_class=HTMLResponse)
+async def serve_screener(request: Request):
+    """Serves the Screener Interface matching Chartink style."""
+    try:
+        return templates.TemplateResponse(request=request, name="screener.html", context={"request": request})
+    except TypeError:
+        return templates.TemplateResponse("screener.html", {"request": request})
+
+@app.get("/terminal", response_class=HTMLResponse)
+async def serve_terminal(request: Request):
+    """Serves the Advanced Trading Terminal with TPO/MACD/RSI."""
+    try:
+        return templates.TemplateResponse(request=request, name="terminal.html", context={"request": request})
+    except TypeError:
+        return templates.TemplateResponse("terminal.html", {"request": request})
+
 
 @app.get("/api/search")
 async def search_endpoint(q: str = Query("", description="Symbol or company name prefix")):
@@ -353,6 +378,20 @@ async def get_chart_data(
             ema_50_series.append({"time": t, "value": round(float(row["ema_50"]), 2)})
         if "ema_200" in df.columns and not row.isna()["ema_200"]:
             ema_200_series.append({"time": t, "value": round(float(row["ema_200"]), 2)})
+            
+    # MACD series
+    macd_series = []
+    macd_signal_series = []
+    macd_hist_series = []
+    for i in range(len(df)):
+        row = df.iloc[i]
+        t = int(row["time"])
+        if "macd" in df.columns and not row.isna()["macd"]:
+            macd_series.append({"time": t, "value": round(float(row["macd"]), 2)})
+            macd_signal_series.append({"time": t, "value": round(float(row["macd_signal"]), 2)})
+            hist_val = round(float(row["macd_hist"]), 2)
+            hist_color = "rgba(16, 185, 129, 0.7)" if hist_val >= 0 else "rgba(239, 68, 68, 0.7)"
+            macd_hist_series.append({"time": t, "value": hist_val, "color": hist_color})
 
     meta_entry = STOCK_METADATA_MAP.get(symbol, {})
     company_name = meta_entry.get("name", symbol)
@@ -369,6 +408,9 @@ async def get_chart_data(
         "candles": candles,
         "volumes": volumes,
         "rsi": rsi_series,
+        "macd": macd_series,
+        "macd_signal": macd_signal_series,
+        "macd_hist": macd_hist_series,
         "ema_10": ema_10_series,
         "ema_20": ema_20_series,
         "ema_50": ema_50_series,
