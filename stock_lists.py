@@ -73,6 +73,15 @@ NIFTY_NEXT_50 = [
 # Market Indices
 MARKET_INDICES = ["^GSPC", "^IXIC", "^DJI", "^NSEI", "^NSEBANK", "^BSESN", "^CNXIT", "^VIX", "BTC-USD", "ETH-USD"]
 
+# Crypto (Delta Exchange & Spot)
+CRYPTO = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT", "AVAXUSDT", "DOGEUSDT"]
+
+# Forex
+FOREX = ["EURUSD=X", "GBPUSD=X", "USDJPY=X", "USDINR=X", "AUDUSD=X"]
+
+# MCX Commodities
+MCX = ["GOLD.MCX", "SILVER.MCX", "CRUDEOIL.MCX", "NATURALGAS.MCX", "COPPER.MCX"]
+
 # Load 5,000+ Cash Segment Equities from cash_stocks_db.json
 import json
 from pathlib import Path
@@ -155,5 +164,20 @@ UNIVERSES = {
         "name": "Global & Indian Market Indices",
         "market": "INDEX",
         "symbols": MARKET_INDICES
+    },
+    "crypto": {
+        "name": "Crypto (Delta Exchange)",
+        "market": "CRYPTO",
+        "symbols": CRYPTO
+    },
+    "forex": {
+        "name": "Forex",
+        "market": "FOREX",
+        "symbols": FOREX
+    },
+    "mcx": {
+        "name": "MCX Commodities",
+        "market": "MCX",
+        "symbols": MCX
     }
 }

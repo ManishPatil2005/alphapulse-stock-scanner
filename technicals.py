@@ -9,6 +9,52 @@ import numpy as np
 import pandas as pd
 from typing import Dict, Any, List, Optional, Tuple
 
+def compute_ema(series: pd.Series, period: int) -> pd.Series:
+    return series.ewm(span=period, adjust=False).mean()
+
+def compute_sma(series: pd.Series, period: int) -> pd.Series:
+    return series.rolling(window=period).mean()
+
+def compute_vwap(df: pd.DataFrame) -> pd.Series:
+    q = df['volume']
+    p = (df['high'] + df['low'] + df['close']) / 3
+    return (p * q).cumsum() / q.cumsum()
+
+def compute_macd(close: pd.Series, fast: int=12, slow: int=26, signal: int=9):
+    macd = compute_ema(close, fast) - compute_ema(close, slow)
+    macd_sig = compute_ema(macd, signal)
+    macd_hist = macd - macd_sig
+    return macd, macd_sig, macd_hist
+
+def compute_bollinger_bands(close: pd.Series, period: int=20, std_dev: float=2.0):
+    sma = compute_sma(close, period)
+    std = close.rolling(window=period).std()
+    upper = sma + (std * std_dev)
+    lower = sma - (std * std_dev)
+    return upper, sma, lower
+
+def compute_supertrend(df: pd.DataFrame, period: int=10, multiplier: float=3.0):
+    hl2 = (df['high'] + df['low']) / 2
+    atr = compute_atr(df, period) if 'atr_14' not in df.columns else df['atr_14'] # rough approx
+    
+    final_upperband = hl2 + (multiplier * atr)
+    final_lowerband = hl2 - (multiplier * atr)
+    
+    supertrend = pd.Series(0.0, index=df.index)
+    
+    for i in range(1, len(df)):
+        if df['close'].iloc[i] > final_upperband.iloc[i-1]:
+            supertrend.iloc[i] = 1 # Bullish
+        elif df['close'].iloc[i] < final_lowerband.iloc[i-1]:
+            supertrend.iloc[i] = -1 # Bearish
+        else:
+            supertrend.iloc[i] = supertrend.iloc[i-1]
+            if supertrend.iloc[i] == 1 and final_lowerband.iloc[i] < final_lowerband.iloc[i-1]:
+                final_lowerband.iloc[i] = final_lowerband.iloc[i-1]
+            if supertrend.iloc[i] == -1 and final_upperband.iloc[i] > final_upperband.iloc[i-1]:
+                final_upperband.iloc[i] = final_upperband.iloc[i-1]
+                
+    return supertrend
 
 def compute_rsi(close_series: pd.Series, period: int = 21) -> pd.Series:
     """Computes Relative Strength Index (RSI) using Wilder's Smoothing."""
@@ -40,14 +86,6 @@ def compute_ema(series: pd.Series, period: int) -> pd.Series:
     """Computes Exponential Moving Average."""
     return series.ewm(span=period, adjust=False).mean()
 
-def compute_macd(close: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9) -> Tuple[pd.Series, pd.Series, pd.Series]:
-    """Computes MACD, Signal, and Histogram."""
-    ema_fast = compute_ema(close, fast)
-    ema_slow = compute_ema(close, slow)
-    macd_line = ema_fast - ema_slow
-    signal_line = compute_ema(macd_line, signal)
-    histogram = macd_line - signal_line
-    return macd_line, signal_line, histogram
 
 def compute_atr(high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14) -> pd.Series:
     """Computes Average True Range."""
@@ -408,15 +446,12 @@ def analyze_market_structure(
     df['rsi_21'] = compute_rsi(df['close'], period=rsi_period)
     df['ema_10'] = compute_ema(df['close'], 10)
     df['ema_20'] = compute_ema(df['close'], 20)
-    
-    macd, signal, hist = compute_macd(df['close'])
-    df['macd'] = macd
-    df['macd_signal'] = signal
-    df['macd_hist'] = hist
-    
     df['ema_50'] = compute_ema(df['close'], 50)
     df['ema_200'] = compute_ema(df['close'], 200) if len(df) >= 200 else pd.Series(np.nan, index=df.index)
     df['atr_14'] = compute_atr(df['high'], df['low'], df['close'], 14)
+    df['vwap'] = compute_vwap(df)
+    df['macd'], df['macd_signal'], df['macd_hist'] = compute_macd(df['close'])
+    df['bb_upper'], df['bb_mid'], df['bb_lower'] = compute_bollinger_bands(df['close'])
 
     latest = df.iloc[-1]
     prev_close = df.iloc[-2]['close'] if len(df) >= 2 else latest['close']
@@ -606,6 +641,19 @@ def analyze_market_structure(
     # 52-week High / Low
     high_52w = float(df['high'].max())
     low_52w = float(df['low'].min())
+    
+    # --- Institutional & Probabilistic Context (Dalton / ICT) ---
+    prof_shape = market_profile.get('profile_shape', 'D_SHAPE')
+    auc_loc = market_profile.get('auction_location', 'INSIDE_VALUE_AREA')
+    
+    if "OUTSIDE" in auc_loc:
+        context_msg = f"According to Jim Dalton's Market Profile, we have an Initiative Drive opening outside value, suggesting high conviction. The profile shape is {prof_shape}. Look for continuation or swift rejection."
+    elif sweep_ok:
+        context_msg = f"SMC / ICT Analysis: Recent liquidity sweep detected. Potential stop run and reversal. Orderflow indicates absorption."
+    elif has_ema_compression:
+        context_msg = "Price is compressing (coiling). Orderflow is building. Await expansion/breakout rather than forcing a position here."
+    else:
+        context_msg = f"Market Auction Theory suggests fair value balancing inside value area. VPOC is {market_profile.get('poc', 'N/A')}. This is an accumulation/distribution zone, not a directional breakout zone."
 
     # Generate Chart Markers for TradingView Lightweight Charts
     markers = []
@@ -706,6 +754,7 @@ def analyze_market_structure(
         'ema_50': round(float(latest['ema_50']), 2) if not np.isnan(latest['ema_50']) else None,
         'ema_200': round(float(latest['ema_200']), 2) if not np.isnan(latest['ema_200']) else None,
         'markers': markers,
+        'institutional_context': context_msg,
         'trade_psychology': {
             'risk_reward_ratio': 2.0,
             'fomo_risk': fomo_risk,

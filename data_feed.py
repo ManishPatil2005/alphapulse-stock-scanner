@@ -83,18 +83,30 @@ def get_stock_data(
 
     # 3. Leader fetches from upstream
     try:
-        # Priority 1: Institutional Provider Layer (Delta Exchange for Crypto/Deriv, Angel One for Equities)
-        if any(term in symbol for term in ("USDT", "BTC", "ETH", "SOL", "XRP", "PERP")):
+        # Priority 1: Institutional Provider Layer (Delta Exchange for Crypto, Angel One for Indian Equities)
+        is_crypto = any(term in symbol for term in ("USDT", "BTC", "ETH", "SOL", "XRP", "PERP"))
+        is_indian = symbol.endswith(".NS") or symbol.endswith(".BO") or symbol.endswith(".MCX")
+        
+        if is_crypto or is_indian:
             try:
                 import asyncio
-                from providers.delta_exchange import DeltaExchangeProvider
                 from services.normalizer import PriceNormalizer
-                delta_p = DeltaExchangeProvider()
                 
-                async def _get_delta():
-                    await delta_p.initialize()
-                    bars = await delta_p.get_candles(symbol, timeframe="D", count=150)
-                    await delta_p.disconnect()
+                async def _get_inst_data():
+                    if is_crypto:
+                        from providers.delta_exchange import DeltaExchangeProvider
+                        provider = DeltaExchangeProvider()
+                    else:
+                        from providers.angel_one import AngelOneProvider
+                        provider = AngelOneProvider()
+                        
+                    await provider.initialize()
+                    # Map timeframe "1d" to "D"
+                    tf_map = {"1d": "D", "1wk": "1W", "1mo": "1M"}
+                    mapped_tf = tf_map.get(interval, "D")
+                    bars = await provider.get_candles(symbol, timeframe=mapped_tf, count=150)
+                    if hasattr(provider, "disconnect"):
+                        await provider.disconnect()
                     return bars
 
                 try:
@@ -102,18 +114,17 @@ def get_stock_data(
                     if loop.is_running():
                         import concurrent.futures
                         with concurrent.futures.ThreadPoolExecutor() as pool:
-                            bars = pool.submit(asyncio.run, _get_delta()).result()
+                            bars = pool.submit(asyncio.run, _get_inst_data()).result()
                     else:
-                        bars = loop.run_until_complete(_get_delta())
+                        bars = loop.run_until_complete(_get_inst_data())
                 except Exception:
-                    bars = asyncio.run(_get_delta())
+                    bars = asyncio.run(_get_inst_data())
 
                 if bars:
                     clean_bars, diag = PriceNormalizer.validate_and_normalize_candles(bars)
                     if clean_bars:
                         records = []
                         for b in clean_bars:
-                            # Convert timestamp to epoch seconds
                             try:
                                 t_epoch = int(pd.to_datetime(b.timestamp).timestamp())
                             except Exception:
@@ -129,8 +140,8 @@ def get_stock_data(
                         df = pd.DataFrame(records).drop_duplicates(subset=["time"]).sort_values("time").reset_index(drop=True)
                         meta = {
                             "symbol": symbol,
-                            "currency": "$",
-                            "exchange": "DELTA",
+                            "currency": "$" if is_crypto else "₹",
+                            "exchange": "DELTA" if is_crypto else "NSE/BSE",
                             "shortName": symbol,
                             "regularMarketPrice": float(df["close"].iloc[-1])
                         }
@@ -138,16 +149,65 @@ def get_stock_data(
                             _CACHE[cache_key] = (time.time(), df, meta)
                         return df.copy(), meta
             except Exception as e:
-                logger.warning(f"Institutional Delta feed fetch failed for {symbol}: {e}")
+                logger.warning(f"Institutional feed fetch failed for {symbol}: {e}")
+
+        # Map MCX commodity symbols for liquid market feeds if fallback needed
+        lookup_symbol = symbol
+        MCX_MAP = {
+            "GOLD.MCX": "GC=F",
+            "SILVER.MCX": "SI=F",
+            "CRUDEOIL.MCX": "CL=F",
+            "NATURALGAS.MCX": "NG=F",
+            "COPPER.MCX": "HG=F",
+        }
+        if lookup_symbol in MCX_MAP:
+            lookup_symbol = MCX_MAP[lookup_symbol]
+
+        # Smart symbol aliases and resolution for Indices, F&O, BSE codes, and Plain Tickers
+        up_sym = lookup_symbol.upper()
+        if up_sym in ("NIFTY", "NIFTY50", "NIFTY 50", "NIFTY-FUT", "NIFTY-I"):
+            lookup_symbol = "^NSEI"
+        elif up_sym in ("BANKNIFTY", "BANK NIFTY", "BANKNIFTY-FUT", "BANKNIFTY-I"):
+            lookup_symbol = "^NSEBANK"
+        elif up_sym in ("SENSEX", "BSESN"):
+            lookup_symbol = "^BSESN"
+        elif lookup_symbol.isdigit() and len(lookup_symbol) == 6:
+            lookup_symbol = f"{lookup_symbol}.BO"
+        elif "-FUT" in up_sym:
+            base_sym = up_sym.replace("-FUT", "").replace("-I", "").strip()
+            lookup_symbol = f"{base_sym}.NS"
+        elif not ("." in lookup_symbol or "^" in lookup_symbol or "=" in lookup_symbol or "-" in lookup_symbol):
+            try:
+                from stock_lists import STOCK_METADATA_MAP
+                if f"{up_sym}.NS" in STOCK_METADATA_MAP:
+                    lookup_symbol = f"{up_sym}.NS"
+                elif f"{up_sym}.BO" in STOCK_METADATA_MAP:
+                    lookup_symbol = f"{up_sym}.BO"
+            except Exception:
+                pass
 
         # Priority 2: Direct Yahoo v8 API
-        df, meta = _fetch_from_yahoo_v8(symbol, interval=interval, data_range=data_range)
+        df, meta = _fetch_from_yahoo_v8(lookup_symbol, interval=interval, data_range=data_range)
 
         # Priority 3: Fallback to yfinance if Direct API failed or returned empty
         if df is None or len(df) == 0:
-            df, meta = _fetch_from_yfinance(symbol, interval=interval, data_range=data_range)
+            df, meta = _fetch_from_yfinance(lookup_symbol, interval=interval, data_range=data_range)
+
+        # Priority 4: Try with .NS suffix if clean equity symbol without exchange was requested
+        if (df is None or len(df) == 0) and ("." not in lookup_symbol and "^" not in lookup_symbol):
+            ns_candidate = f"{lookup_symbol}.NS"
+            df, meta = _fetch_from_yahoo_v8(ns_candidate, interval=interval, data_range=data_range)
+            if df is None or len(df) == 0:
+                df, meta = _fetch_from_yfinance(ns_candidate, interval=interval, data_range=data_range)
+            if df is not None and len(df) > 0:
+                lookup_symbol = ns_candidate
 
         if df is not None and len(df) > 0:
+            if meta:
+                meta["symbol"] = symbol
+                if symbol.endswith(".MCX"):
+                    meta["exchange"] = "MCX"
+                    meta["currency"] = "₹"
             # Guarantee strictly monotonic, duplicate-free data for charts
             df = df.drop_duplicates(subset=["time"]).sort_values("time").reset_index(drop=True)
 

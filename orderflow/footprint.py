@@ -24,8 +24,10 @@ class FootprintLevel:
     bid_vol: float
     ask_vol: float
     delta: float
+    total_vol: float = 0.0
     is_ask_imbalance: bool = False
     is_bid_imbalance: bool = False
+    is_poc: bool = False
 
 
 @dataclass
@@ -40,6 +42,10 @@ class FootprintBar:
     cum_delta: float
     min_delta: float
     max_delta: float
+    delta_pct: float = 0.0
+    poc_price: float = 0.0
+    unfinished_high: bool = False
+    unfinished_low: bool = False
     levels: List[FootprintLevel] = field(default_factory=list)
     stacked_buy_imbalances: List[float] = field(default_factory=list)
     stacked_sell_imbalances: List[float] = field(default_factory=list)
@@ -67,18 +73,22 @@ class FootprintEngine:
         if df is None or len(df) == 0:
             return []
 
-        median_price = df["close"].median()
+        avg_range = float((df["high"] - df["low"]).mean()) if len(df) > 0 else 1.0
         if tick_size is None:
-            if median_price > 10000:
-                tick_size = 10.0
-            elif median_price > 2000:
-                tick_size = 2.0
-            elif median_price > 500:
-                tick_size = 0.5
-            elif median_price > 100:
-                tick_size = 0.1
+            # Dynamically target ~20 price levels per bar for ultra-fast, responsive footprint rendering
+            raw_step = max(0.0001, avg_range / 20.0)
+            if raw_step > 50:
+                tick_size = round(raw_step / 10.0) * 10.0
+            elif raw_step > 5:
+                tick_size = round(raw_step)
+            elif raw_step > 1:
+                tick_size = round(raw_step * 2.0) / 2.0
+            elif raw_step > 0.1:
+                tick_size = round(raw_step * 10.0) / 10.0
+            elif raw_step > 0.01:
+                tick_size = round(raw_step * 100.0) / 100.0
             else:
-                tick_size = 0.05
+                tick_size = max(0.0001, round(raw_step * 10000.0) / 10000.0)
 
         running_cvd = 0.0
         footprint_bars: List[FootprintBar] = []
@@ -92,7 +102,6 @@ class FootprintEngine:
             ts = str(row.get("time", idx))
 
             # Compute delta bias based on candle body & wick dynamics
-            # Bullish body implies net aggressive buying (Ask volume > Bid volume)
             candle_range = max(0.01, h - l)
             body_range = c - o
             bullish_ratio = 0.5 + (body_range / candle_range) * 0.4
@@ -112,19 +121,27 @@ class FootprintEngine:
             curr = l
             for step_i in range(steps):
                 p_level = round(curr, 2)
-                # Skew distribution towards high/close for up candles, low/close for down candles
                 skew = (p_level - l) / candle_range
                 step_ask = vol_per_step * (0.2 + 0.8 * skew if c >= o else 0.8 - 0.6 * skew)
                 step_bid = vol_per_step - step_ask
                 delta_level = round(step_ask - step_bid, 1)
+                tot_lvl = round(step_ask + step_bid, 1)
 
                 levels.append(FootprintLevel(
                     price=p_level,
                     bid_vol=round(max(0.0, step_bid), 1),
                     ask_vol=round(max(0.0, step_ask), 1),
-                    delta=delta_level
+                    delta=delta_level,
+                    total_vol=tot_lvl
                 ))
                 curr += tick_size
+
+            # Find POC of this bar (highest volume level)
+            bar_poc_price = o
+            if levels:
+                poc_lvl = max(levels, key=lambda lvl: lvl.total_vol)
+                poc_lvl.is_poc = True
+                bar_poc_price = poc_lvl.price
 
             # Evaluate diagonal stacked imbalances
             stacked_buys: List[float] = []
@@ -162,7 +179,7 @@ class FootprintEngine:
                 else:
                     consecutive_sells = 0
 
-            # Absorption detection: High volume candle at extremes with minimal net body progression
+            # Absorption detection
             is_abs = False
             abs_note = None
             if idx > 10:
@@ -173,6 +190,11 @@ class FootprintEngine:
                         abs_note = "Passive Buyer Absorption: Heavy aggressive selling absorbed near bar low with price failing to break lower."
                     else:
                         abs_note = "Passive Seller Absorption: Heavy aggressive buying absorbed near bar high with price failing to expand higher."
+
+            # Unfinished auction detection
+            unfin_high = levels[-1].ask_vol > 0 if levels else False
+            unfin_low = levels[0].bid_vol > 0 if levels else False
+            delta_pct = round((abs(bar_delta) / max(1.0, vol)) * 100, 2)
 
             footprint_bars.append(FootprintBar(
                 timestamp=ts,
@@ -185,6 +207,10 @@ class FootprintEngine:
                 cum_delta=running_cvd,
                 min_delta=round(min(0.0, bar_delta), 1),
                 max_delta=round(max(0.0, bar_delta), 1),
+                delta_pct=delta_pct,
+                poc_price=bar_poc_price,
+                unfinished_high=unfin_high,
+                unfinished_low=unfin_low,
                 levels=levels,
                 stacked_buy_imbalances=stacked_buys,
                 stacked_sell_imbalances=stacked_sells,

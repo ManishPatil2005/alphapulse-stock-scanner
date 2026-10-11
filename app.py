@@ -33,6 +33,9 @@ from technicals import analyze_market_structure
 from scanner import run_batch_scan, stream_scan, scan_single_stock
 from ticker_search import search_tickers
 from backtester import run_strategy_backtest
+from dataclasses import asdict
+from orderflow.footprint import FootprintEngine
+from orderflow.market_profile import MarketProfileEngine
 
 app = FastAPI(
     title="AlphaPulse Stock Scanner & Trading Terminal",
@@ -121,31 +124,6 @@ async def serve_index(request: Request):
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     return response
-
-@app.get("/dashboard", response_class=HTMLResponse)
-async def serve_unified_dashboard(request: Request):
-    """Serves the unified Phase 8 Institutional Dashboard UI."""
-    try:
-        response = templates.TemplateResponse(request=request, name="dashboard.html", context={"request": request})
-    except TypeError:
-        response = templates.TemplateResponse("dashboard.html", {"request": request})
-    return response
-
-@app.get("/screener", response_class=HTMLResponse)
-async def serve_screener(request: Request):
-    """Serves the Screener Interface matching Chartink style."""
-    try:
-        return templates.TemplateResponse(request=request, name="screener.html", context={"request": request})
-    except TypeError:
-        return templates.TemplateResponse("screener.html", {"request": request})
-
-@app.get("/terminal", response_class=HTMLResponse)
-async def serve_terminal(request: Request):
-    """Serves the Advanced Trading Terminal with TPO/MACD/RSI."""
-    try:
-        return templates.TemplateResponse(request=request, name="terminal.html", context={"request": request})
-    except TypeError:
-        return templates.TemplateResponse("terminal.html", {"request": request})
 
 
 @app.get("/api/search")
@@ -349,6 +327,11 @@ async def get_chart_data(
     ema_20_series = []
     ema_50_series = []
     ema_200_series = []
+    vwap_series = []
+    bb_upper_series = []
+    bb_lower_series = []
+    macd_series = []
+    macd_hist_series = []
 
     for i in range(len(df)):
         row = df.iloc[i]
@@ -379,19 +362,113 @@ async def get_chart_data(
         if "ema_200" in df.columns and not row.isna()["ema_200"]:
             ema_200_series.append({"time": t, "value": round(float(row["ema_200"]), 2)})
             
-    # MACD series
-    macd_series = []
-    macd_signal_series = []
-    macd_hist_series = []
-    for i in range(len(df)):
-        row = df.iloc[i]
-        t = int(row["time"])
+        if "vwap" in df.columns and not row.isna()["vwap"]:
+            vwap_series.append({"time": t, "value": round(float(row["vwap"]), 2)})
+        if "bb_upper" in df.columns and not row.isna()["bb_upper"]:
+            bb_upper_series.append({"time": t, "value": round(float(row["bb_upper"]), 2)})
+            bb_lower_series.append({"time": t, "value": round(float(row["bb_lower"]), 2)})
         if "macd" in df.columns and not row.isna()["macd"]:
             macd_series.append({"time": t, "value": round(float(row["macd"]), 2)})
-            macd_signal_series.append({"time": t, "value": round(float(row["macd_signal"]), 2)})
-            hist_val = round(float(row["macd_hist"]), 2)
-            hist_color = "rgba(16, 185, 129, 0.7)" if hist_val >= 0 else "rgba(239, 68, 68, 0.7)"
-            macd_hist_series.append({"time": t, "value": hist_val, "color": hist_color})
+            macd_hist_series.append({"time": t, "value": round(float(row["macd_hist"]), 2)})
+
+    # Compute Institutional Orderflow (Footprint Matrix, CVD, Stacked Imbalances, Dalton TPO)
+    footprint_bars = []
+    cvd_series = []
+    cvd_divergences = []
+    market_profile_data = {}
+    
+    try:
+        fe = FootprintEngine(imbalance_ratio=3.0, stack_min_levels=3)
+        raw_fp = fe.build_footprint_series(df)
+        
+        for idx, fb in enumerate(raw_fp):
+            t_val = int(df.iloc[idx]["time"]) if "time" in df.columns else idx
+            cvd_series.append({
+                "time": t_val,
+                "value": round(float(fb.cum_delta), 1),
+                "delta": round(float(fb.bar_delta), 1),
+                "color": "#10b981" if fb.bar_delta >= 0 else "#ef4444"
+            })
+            
+            # Detect delta divergences (Absorption vs Trapped Traders)
+            if idx >= 5:
+                prev_high = max(df["high"].iloc[max(0, idx-5):idx])
+                curr_high = df["high"].iloc[idx]
+                prev_cvd = max(raw_fp[j].cum_delta for j in range(max(0, idx-5), idx))
+                curr_cvd = fb.cum_delta
+                if curr_high > prev_high and curr_cvd < prev_cvd:
+                    cvd_divergences.append({
+                        "time": t_val,
+                        "type": "BEARISH_ABSORPTION",
+                        "price": float(curr_high),
+                        "note": "Trapped Buyers: Price broke higher but CVD lagged."
+                    })
+                prev_low = min(df["low"].iloc[max(0, idx-5):idx])
+                curr_low = df["low"].iloc[idx]
+                prev_cvd_low = min(raw_fp[j].cum_delta for j in range(max(0, idx-5), idx))
+                if curr_low < prev_low and curr_cvd > prev_cvd_low:
+                    cvd_divergences.append({
+                        "time": t_val,
+                        "type": "BULLISH_ABSORPTION",
+                        "price": float(curr_low),
+                        "note": "Passive Buyer Absorption: Price tested low but aggressive selling was absorbed."
+                    })
+
+        # Granular footprint ladder for recent 25 bars
+        recent_fp = raw_fp[-25:] if len(raw_fp) > 25 else raw_fp
+        for fb in recent_fp:
+            footprint_bars.append(asdict(fb))
+    except Exception as e:
+        logger.warning(f"Error computing footprint: {e}")
+
+    try:
+        mpe = MarketProfileEngine()
+        raw_mp = mpe.calculate_profile(df, symbol=symbol)
+        if raw_mp:
+            market_profile_data = asdict(raw_mp)
+    except Exception as e:
+        logger.warning(f"Error computing market profile: {e}")
+
+    orderflow_payload = {
+        "poc": market_profile_data.get("poc") or analysis.get("market_profile", {}).get("poc", 0.0),
+        "vah": market_profile_data.get("vah") or analysis.get("market_profile", {}).get("vah", 0.0),
+        "val": market_profile_data.get("val") or analysis.get("market_profile", {}).get("val", 0.0),
+        "ib_high": market_profile_data.get("ib_high", 0.0),
+        "ib_low": market_profile_data.get("ib_low", 0.0),
+        "ib_range": market_profile_data.get("ib_range", 0.0),
+        "profile_shape": market_profile_data.get("profile_shape", "D_SHAPE"),
+        "auction_location": analysis.get("market_profile", {}).get("location", "INSIDE_VALUE_AREA"),
+        "single_prints": market_profile_data.get("single_prints", []),
+        "poor_high": market_profile_data.get("poor_high", False),
+        "poor_low": market_profile_data.get("poor_low", False),
+        "excess_high": market_profile_data.get("excess_high", False),
+        "excess_low": market_profile_data.get("excess_low", False),
+        "rotation_factor": market_profile_data.get("rotation_factor", 0),
+        "vpoc": market_profile_data.get("vpoc", 0.0),
+        "day_high": market_profile_data.get("day_high", 0.0),
+        "day_low": market_profile_data.get("day_low", 0.0),
+        "prev_day_high": market_profile_data.get("prev_day_high", 0.0),
+        "prev_day_low": market_profile_data.get("prev_day_low", 0.0),
+        "prev_day_close": market_profile_data.get("prev_day_close", 0.0),
+        "open_price": market_profile_data.get("open_price", 0.0),
+        "vwap": market_profile_data.get("vwap", 0.0),
+        "opening_range": market_profile_data.get("opening_range", 0.0),
+        "total_volume": market_profile_data.get("total_volume", 0.0),
+        "buy_volume": market_profile_data.get("buy_volume", 0.0),
+        "sell_volume": market_profile_data.get("sell_volume", 0.0),
+        "buy_trades": market_profile_data.get("buy_trades", 0),
+        "sell_trades": market_profile_data.get("sell_trades", 0),
+        "volume_profile": market_profile_data.get("volume_profile", []),
+        "developing_poc": market_profile_data.get("developing_poc", []),
+        "tpo_distribution": market_profile_data.get("tpo_distribution", []),
+        "auction_context": market_profile_data.get("auction_context", {}),
+        "cvd_series": cvd_series,
+        "cvd_divergences": cvd_divergences,
+        "footprint_bars": footprint_bars,
+        "current_cvd": cvd_series[-1]["value"] if cvd_series else 0.0,
+        "current_delta": cvd_series[-1]["delta"] if cvd_series else 0.0,
+        "recent_absorptions": [b for b in footprint_bars if b.get("is_absorption")]
+    }
 
     meta_entry = STOCK_METADATA_MAP.get(symbol, {})
     company_name = meta_entry.get("name", symbol)
@@ -408,13 +485,15 @@ async def get_chart_data(
         "candles": candles,
         "volumes": volumes,
         "rsi": rsi_series,
-        "macd": macd_series,
-        "macd_signal": macd_signal_series,
-        "macd_hist": macd_hist_series,
         "ema_10": ema_10_series,
         "ema_20": ema_20_series,
         "ema_50": ema_50_series,
         "ema_200": ema_200_series,
+        "vwap": vwap_series,
+        "bb_upper": bb_upper_series,
+        "bb_lower": bb_lower_series,
+        "macd": macd_series,
+        "macd_hist": macd_hist_series,
         "markers": analysis.get("markers", []),
         "market_profile": analysis.get("market_profile", {}),
         "fair_value_gaps": analysis.get("fair_value_gaps", []),
@@ -422,13 +501,81 @@ async def get_chart_data(
         "episodic_pivot": analysis.get("episodic_pivot", {}),
         "trade_psychology": analysis.get("trade_psychology", {}),
         "is_circuit_locked": analysis.get("is_circuit_locked", False),
-        "orderflow": {
-            "poc": analysis.get("market_profile", {}).get("poc", 0.0),
-            "vah": analysis.get("market_profile", {}).get("vah", 0.0),
-            "val": analysis.get("market_profile", {}).get("val", 0.0),
-            "profile_shape": analysis.get("market_profile", {}).get("profile_shape", "D_SHAPE"),
-            "auction_location": analysis.get("market_profile", {}).get("location", "INSIDE_VALUE_AREA")
-        }
+        "orderflow": orderflow_payload
+    }
+
+
+@app.get("/api/orderflow/{symbol}")
+async def get_orderflow_endpoint(symbol: str, timeframe: str = "1d", range_param: str = "3mo"):
+    """
+    Dedicated Institutional Orderflow endpoint returning:
+    - Bid x Ask Footprint Matrix per candle
+    - Cumulative Volume Delta (CVD) series
+    - Stacked Imbalances & Delta Divergences
+    - James Dalton Market Profile (TPO distribution, POC, VAH, VAL, Single Prints, Day Type)
+    """
+    symbol = symbol.strip().upper()
+    df, meta = get_stock_data(symbol, interval=timeframe, data_range=range_param)
+    if df is None or len(df) == 0:
+        raise HTTPException(status_code=404, detail=f"No data for {symbol}")
+        
+    fe = FootprintEngine(imbalance_ratio=3.0, stack_min_levels=3)
+    raw_fp = fe.build_footprint_series(df)
+    
+    cvd_series = []
+    for idx, fb in enumerate(raw_fp):
+        t_val = int(df.iloc[idx]["time"]) if "time" in df.columns else idx
+        cvd_series.append({
+            "time": t_val,
+            "value": round(float(fb.cum_delta), 1),
+            "delta": round(float(fb.bar_delta), 1),
+            "color": "#10b981" if fb.bar_delta >= 0 else "#ef4444"
+        })
+
+    recent_fp = [asdict(b) for b in (raw_fp[-30:] if len(raw_fp) > 30 else raw_fp)]
+    mpe = MarketProfileEngine()
+    raw_mp = mpe.calculate_profile(df, symbol=symbol)
+    mp_dict = asdict(raw_mp) if raw_mp else {}
+
+    return {
+        "symbol": symbol,
+        "poc": mp_dict.get("poc", 0.0),
+        "vah": mp_dict.get("vah", 0.0),
+        "val": mp_dict.get("val", 0.0),
+        "ib_high": mp_dict.get("ib_high", 0.0),
+        "ib_low": mp_dict.get("ib_low", 0.0),
+        "ib_range": mp_dict.get("ib_range", 0.0),
+        "profile_shape": mp_dict.get("profile_shape", "D_SHAPE"),
+        "tpo_distribution": mp_dict.get("tpo_distribution", []),
+        "single_prints": mp_dict.get("single_prints", []),
+        "poor_high": mp_dict.get("poor_high", False),
+        "poor_low": mp_dict.get("poor_low", False),
+        "excess_high": mp_dict.get("excess_high", False),
+        "excess_low": mp_dict.get("excess_low", False),
+        "rotation_factor": mp_dict.get("rotation_factor", 0),
+        "vpoc": mp_dict.get("vpoc", 0.0),
+        "day_high": mp_dict.get("day_high", 0.0),
+        "day_low": mp_dict.get("day_low", 0.0),
+        "prev_day_high": mp_dict.get("prev_day_high", 0.0),
+        "prev_day_low": mp_dict.get("prev_day_low", 0.0),
+        "prev_day_close": mp_dict.get("prev_day_close", 0.0),
+        "open_price": mp_dict.get("open_price", 0.0),
+        "vwap": mp_dict.get("vwap", 0.0),
+        "opening_range": mp_dict.get("opening_range", 0.0),
+        "total_volume": mp_dict.get("total_volume", 0.0),
+        "buy_volume": mp_dict.get("buy_volume", 0.0),
+        "sell_volume": mp_dict.get("sell_volume", 0.0),
+        "buy_trades": mp_dict.get("buy_trades", 0),
+        "sell_trades": mp_dict.get("sell_trades", 0),
+        "volume_profile": mp_dict.get("volume_profile", []),
+        "developing_poc": mp_dict.get("developing_poc", []),
+        "auction_context": mp_dict.get("auction_context", {}),
+        "cvd_series": cvd_series,
+        "footprint_bars": recent_fp,
+        "market_profile": mp_dict,
+        "current_cvd": cvd_series[-1]["value"] if cvd_series else 0.0,
+        "current_delta": cvd_series[-1]["delta"] if cvd_series else 0.0,
+        "meta": meta
     }
 
 
@@ -437,6 +584,36 @@ async def get_quick_quote(symbol: str):
     """Instant single-ticker diagnosis."""
     res = scan_single_stock(symbol)
     return res
+
+
+@app.get("/api/fno/option-chain/{symbol}")
+async def get_fno_option_chain(symbol: str, expiry: Optional[str] = None):
+    """
+    Returns full institutional option chain table for symbol with CE/PE contracts,
+    LTP, Open Interest (OI), PCR, Max Pain, and Greeks.
+    """
+    from services.fno_engine import FnoEngine
+    import data_feed
+
+    spot = 1000.0
+    try:
+        df, meta = data_feed.get_stock_data(symbol, interval="1d", data_range="1mo")
+        if df is not None and len(df) > 0:
+            spot = float(df["close"].iloc[-1])
+        elif meta and meta.get("regularMarketPrice"):
+            spot = float(meta["regularMarketPrice"])
+    except Exception:
+        pass
+
+    chain_data = FnoEngine.generate_option_chain(symbol, spot_price=spot, expiry=expiry)
+    return chain_data
+
+
+@app.get("/api/fno/expiries/{symbol}")
+async def get_fno_expiries(symbol: str):
+    """Returns available active expiry dates for F&O underlying."""
+    from services.fno_engine import FnoEngine
+    return {"symbol": symbol, "expiries": FnoEngine.get_expiry_dates()}
 
 
 @app.post("/api/backtest")

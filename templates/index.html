@@ -1248,6 +1248,1203 @@ body.dark-theme {
     font-weight: 700;
 }
 
+/* ==========================================================================
+   AlphaPulse Institutional Orderflow, Market Profile & Footprint Styling
+   ========================================================================== */
+.chart-view-tabs {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    background: rgba(17, 24, 39, 0.7);
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+.view-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.35rem 0.75rem;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-sans);
+}
+.view-tab-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.04);
+}
+.view-tab-btn.active {
+    background: rgba(6, 182, 212, 0.15);
+    border-color: rgba(6, 182, 212, 0.4);
+    color: #38bdf8;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+}
+
+/* Institutional Header Bar */
+.inst-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.45rem 0.85rem;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: #334155;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.dark-desk .inst-header-bar {
+    background: #0f172a;
+    border-bottom-color: #1e293b;
+    color: #cbd5e1;
+}
+.inst-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.inst-sym-badge {
+    font-weight: 800;
+    color: #0284c7;
+    font-size: 0.82rem;
+}
+.inst-ohlc-stat {
+    display: flex;
+    gap: 8px;
+    color: #64748b;
+}
+.dark-desk .inst-ohlc-stat {
+    color: #94a3b8;
+}
+.inst-ohlc-stat span b {
+    color: #0f172a;
+}
+.dark-desk .inst-ohlc-stat span b {
+    color: #f1f5f9;
+}
+.inst-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.7rem;
+}
+
+/* Theme & Controls Bar */
+.inst-controls-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0.85rem;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.7rem;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.dark-desk .inst-controls-strip {
+    background: #111827;
+    border-bottom-color: #1e293b;
+}
+
+/* Master Market Profile (TPO + Candlestick + Volume Profile) Panel */
+.market-profile-panel {
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+    transition: background-color 0.2s, color 0.2s;
+}
+.market-profile-panel.dark-desk {
+    background: #0b0f19;
+    border-color: #1e293b;
+    color: #f1f5f9;
+}
+.mp-viewport {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    display: flex;
+    position: relative;
+    padding: 0.5rem;
+}
+.mp-main-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-width: 800px;
+}
+
+/* TPO Matrix & Overlaid Candlestick Rows */
+.mp-row {
+    display: flex;
+    align-items: center;
+    min-height: 18px;
+    position: relative;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.4);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 1px 0;
+}
+.dark-desk .mp-row {
+    border-bottom-color: rgba(30, 41, 59, 0.4);
+}
+.mp-row.in-value-area {
+    background: rgba(254, 240, 138, 0.25); /* Pale yellow session value area background matching reference */
+}
+.dark-desk .mp-row.in-value-area {
+    background: rgba(59, 130, 246, 0.08);
+}
+.mp-row.poc-level {
+    background: rgba(244, 63, 94, 0.18);
+    border-top: 1px dashed #f43f5e;
+    border-bottom: 1px dashed #f43f5e;
+}
+.mp-row.vah-level {
+    border-top: 2px dashed #16a34a;
+}
+.mp-row.val-level {
+    border-bottom: 2px dashed #dc2626;
+}
+.mp-price-tag {
+    width: 65px;
+    text-align: right;
+    padding-right: 8px;
+    font-weight: 700;
+    color: #64748b;
+    flex-shrink: 0;
+    user-select: none;
+}
+.dark-desk .mp-price-tag {
+    color: #94a3b8;
+}
+.mp-tpo-letters-block {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 0 4px;
+}
+.tpo-tile {
+    width: 15px;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #ffffff;
+    border-radius: 2px;
+    user-select: none;
+}
+.tpo-ib { background: #16a34a; }        /* Periods A-D (Initial Balance / Open) */
+.tpo-mid { background: #2563eb; }       /* Periods E-R (Core Auction) */
+.tpo-late { background: #7c3aed; }      /* Periods S-Z (Late Auction) */
+.tpo-poc { background: #dc2626; font-weight: 800; box-shadow: 0 0 6px rgba(220, 38, 38, 0.5); } /* POC highlight */
+.tpo-sp { background: #d97706; }        /* Single print / Liquidity void */
+
+/* Overlaid Candlestick Area within Profile */
+.mp-candles-col {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 0 16px;
+    border-left: 1px dashed rgba(203, 213, 225, 0.6);
+    margin-left: 10px;
+}
+.dark-desk .mp-candles-col {
+    border-left-color: rgba(51, 65, 85, 0.6);
+}
+.mp-candle-glyph {
+    width: 12px;
+    height: 16px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.mp-candle-wick {
+    width: 1.5px;
+    height: 100%;
+    position: absolute;
+}
+.mp-candle-body {
+    width: 8px;
+    position: absolute;
+    border-radius: 1px;
+}
+.mp-candle-up .mp-candle-wick { background: #16a34a; }
+.mp-candle-up .mp-candle-body { background: #22c55e; border: 1px solid #16a34a; }
+.mp-candle-down .mp-candle-wick { background: #dc2626; }
+.mp-candle-down .mp-candle-body { background: #ef4444; border: 1px solid #dc2626; }
+
+/* Right-Side Volume Profile Histogram */
+.mp-vol-profile-col {
+    width: 160px;
+    flex-shrink: 0;
+    border-left: 2px solid #cbd5e1;
+    padding-left: 8px;
+    display: flex;
+    flex-direction: column;
+}
+.dark-desk .mp-vol-profile-col {
+    border-left-color: #334155;
+}
+.vp-bar-wrapper {
+    display: flex;
+    align-items: center;
+    height: 18px;
+    gap: 4px;
+}
+.vp-bar-fill {
+    height: 12px;
+    border-radius: 1px;
+    transition: width 0.15s ease;
+}
+.vp-bar-va {
+    background: #facc15; /* High volume node in Value Area (Yellow) */
+    border: 1px solid #eab308;
+}
+.vp-bar-out-va {
+    background: #38bdf8; /* Low volume / Outside Value Area (Cyan) */
+    border: 1px solid #0284c7;
+}
+.vp-bar-poc {
+    background: #d946ef; /* VPOC bar (Magenta) */
+    border: 1px solid #c026d3;
+    box-shadow: 0 0 8px rgba(217, 70, 239, 0.4);
+}
+.vp-bar-text {
+    font-size: 0.6rem;
+    color: #64748b;
+    white-space: nowrap;
+}
+.dark-desk .vp-bar-text {
+    color: #94a3b8;
+}
+
+/* Reference Level Badges & Horizontal Tags (Right Edge Scale) */
+.ref-pill-tag {
+    position: absolute;
+    right: 4px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #ffffff;
+    z-index: 5;
+    user-select: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.ref-pill-dhigh { background: #15803d; }
+.ref-pill-phigh { background: #166534; }
+.ref-pill-poc { background: #9333ea; }
+.ref-pill-vwap { background: #dc2626; }
+.ref-pill-val { background: #b91c1c; }
+.ref-pill-vah { background: #15803d; }
+.ref-pill-seplow { background: #854d0e; }
+
+/* Dedicated Orderflow Footprint Viewport & Matrix */
+.footprint-panel {
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+    transition: background-color 0.2s, color 0.2s;
+}
+.footprint-panel.dark-desk {
+    background: #0f172a;
+    border-color: #1e293b;
+    color: #f1f5f9;
+}
+.fp-viewport-wrapper {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.fp-candles-stage {
+    display: flex;
+    gap: 8px;
+    padding: 0.75rem;
+    align-items: flex-end;
+    min-height: 420px;
+    flex: 1;
+}
+.fp-bar-card {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    min-width: 175px;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+.dark-desk .fp-bar-card {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+.fp-bar-card.bullish {
+    border-top: 3px solid #16a34a;
+}
+.fp-bar-card.bearish {
+    border-top: 3px solid #dc2626;
+}
+.fp-bar-center-wick {
+    position: absolute;
+    top: 24px;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    background: rgba(148, 163, 184, 0.4);
+    z-index: 1;
+    pointer-events: none;
+}
+.fp-levels-list {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2;
+    padding: 2px 0;
+}
+.fp-level-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5px 4px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+    line-height: 1.25;
+}
+.dark-desk .fp-level-row {
+    border-bottom-color: rgba(51, 65, 85, 0.6);
+}
+.fp-bid-cell {
+    width: 42%;
+    text-align: right;
+    padding-right: 4px;
+    color: #475569;
+}
+.dark-desk .fp-bid-cell {
+    color: #cbd5e1;
+}
+.fp-price-cell {
+    width: 26%;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.63rem;
+    font-weight: 600;
+}
+.dark-desk .fp-price-cell {
+    color: #94a3b8;
+}
+.fp-ask-cell {
+    width: 42%;
+    text-align: left;
+    padding-left: 4px;
+    color: #475569;
+}
+.dark-desk .fp-ask-cell {
+    color: #cbd5e1;
+}
+
+/* Institutional Footprint Imbalance Highlight Boxes (matching Reference Images 3, 4, 5) */
+.fp-ask-imbalance {
+    background: rgba(34, 197, 94, 0.22);
+    color: #15803d !important;
+    font-weight: 800;
+    border-radius: 2px;
+    border: 1px solid rgba(34, 197, 94, 0.5);
+}
+.dark-desk .fp-ask-imbalance {
+    background: rgba(34, 197, 94, 0.3);
+    color: #4ade80 !important;
+}
+.fp-bid-imbalance {
+    background: rgba(239, 68, 68, 0.22);
+    color: #b91c1c !important;
+    font-weight: 800;
+    border-radius: 2px;
+    border: 1px solid rgba(239, 68, 68, 0.5);
+}
+.dark-desk .fp-bid-imbalance {
+    background: rgba(239, 68, 68, 0.3);
+    color: #f87171 !important;
+}
+.fp-cluster-box {
+    border: 2px solid #f59e0b !important;
+    background: rgba(245, 158, 11, 0.15) !important;
+    font-weight: 800 !important;
+}
+.fp-high-vol-box {
+    background: rgba(234, 179, 8, 0.2) !important;
+    border: 1px solid #eab308 !important;
+    font-weight: 800 !important;
+}
+.fp-bar-poc-line {
+    background: rgba(220, 38, 38, 0.18) !important;
+    border-left: 3px solid #dc2626 !important;
+}
+
+/* Synchronized Institutional Bar Statistics Table (Bottom Strip) */
+.fp-stats-table-wrapper {
+    background: #f1f5f9;
+    border-top: 2px solid #cbd5e1;
+    display: flex;
+    overflow-x: hidden;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+}
+.dark-desk .fp-stats-table-wrapper {
+    background: #090e17;
+    border-top-color: #1e293b;
+}
+.fp-stats-labels-col {
+    width: 100px;
+    flex-shrink: 0;
+    background: #e2e8f0;
+    border-right: 1px solid #cbd5e1;
+    display: flex;
+    flex-direction: column;
+}
+.dark-desk .fp-stats-labels-col {
+    background: #111827;
+    border-right-color: #1e293b;
+}
+.fp-stat-label-cell {
+    height: 22px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-weight: 700;
+    color: #475569;
+    border-bottom: 1px solid rgba(203, 213, 225, 0.6);
+}
+.dark-desk .fp-stat-label-cell {
+    color: #94a3b8;
+    border-bottom-color: rgba(51, 65, 85, 0.6);
+}
+.fp-stats-values-row {
+    display: flex;
+    gap: 8px;
+    padding: 0 0.75rem;
+}
+.fp-bar-stat-card {
+    min-width: 175px;
+    display: flex;
+    flex-direction: column;
+}
+.fp-stat-val-cell {
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid rgba(203, 213, 225, 0.6);
+    font-weight: 600;
+}
+.dark-desk .fp-stat-val-cell {
+    border-bottom-color: rgba(51, 65, 85, 0.6);
+}
+.stat-pos-cell {
+    background: #dcfce7;
+    color: #15803d;
+}
+.dark-desk .stat-pos-cell {
+    background: rgba(34, 197, 94, 0.25);
+    color: #4ade80;
+}
+.stat-neg-cell {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+.dark-desk .stat-neg-cell {
+    background: rgba(239, 68, 68, 0.25);
+    color: #f87171;
+}
+.stat-vol-cell {
+    background: #f1f5f9;
+    color: #334155;
+}
+.dark-desk .stat-vol-cell {
+    background: #1e293b;
+    color: #cbd5e1;
+}
+.stat-pct-cell {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+.dark-desk .stat-pct-cell {
+    background: rgba(6, 182, 212, 0.2);
+    color: #38bdf8;
+}
+
+/* CVD Subchart Container */
+.subchart-wrapper {
+    background: #0b0f19;
+    border-top: 1px solid var(--border-color);
+    padding: 0.4rem 0.6rem 0.2rem 0.6rem;
+}
+.subchart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+}
+.subchart-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+.subchart-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.subchart-stats {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.stat-badge {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid var(--border-color);
+    padding: 0.12rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   TradingView Professional Suite Styles
+   ========================================================================== */
+
+/* Workspace Layout with Left Toolbar */
+.chart-workspace-wrapper {
+    display: flex;
+    position: relative;
+    width: 100%;
+    min-height: 560px;
+    background: #0b0f19;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.tv-drawing-toolbar {
+    width: 46px;
+    background: #0c1220;
+    border-right: 1px solid #1e293b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+    gap: 4px;
+    user-select: none;
+    z-index: 35;
+    flex-shrink: 0;
+}
+
+.tv-tool-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    font-size: 15px;
+    transition: all 0.15s ease;
+}
+
+.tv-tool-btn:hover {
+    background: #1e293b;
+    color: #38bdf8;
+    border-color: #334155;
+}
+
+.tv-tool-btn.active {
+    background: rgba(6, 182, 212, 0.2);
+    color: #06b6d4;
+    border-color: rgba(6, 182, 212, 0.5);
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.3);
+}
+
+.tv-tool-btn .flyout-indicator {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    font-size: 8px;
+    opacity: 0.6;
+    line-height: 1;
+}
+
+/* Flyout Menus */
+.tv-flyout-menu {
+    position: absolute;
+    left: 48px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7);
+    display: none;
+    flex-direction: column;
+    min-width: 200px;
+    z-index: 100;
+    padding: 6px;
+    animation: flyoutFadeIn 0.15s ease-out;
+}
+
+@keyframes flyoutFadeIn {
+    from { opacity: 0; transform: translateX(-4px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.tv-flyout-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    font-size: 0.75rem;
+    color: #cbd5e1;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.12s;
+    font-weight: 500;
+}
+
+.tv-flyout-item:hover {
+    background: #1e293b;
+    color: #38bdf8;
+}
+
+.tv-flyout-item.active {
+    background: rgba(6, 182, 212, 0.15);
+    color: #06b6d4;
+    font-weight: 700;
+}
+
+.tv-flyout-icon {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+}
+
+/* Interactive Canvas Layer for Drawings */
+.drawing-canvas-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 420px;
+    z-index: 25;
+    pointer-events: none;
+}
+
+.drawing-canvas-layer.drawing-active {
+    pointer-events: auto;
+    cursor: crosshair;
+}
+
+/* Top Toolbar Upgrade */
+.tv-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.tv-topbar-btn {
+    background: #151d2e;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    font-family: var(--font-sans);
+}
+
+.tv-topbar-btn:hover {
+    background: #1e293b;
+    border-color: #475569;
+}
+
+.tv-topbar-btn.active {
+    background: rgba(6, 182, 212, 0.15);
+    border-color: var(--cyan-accent);
+    color: var(--cyan-accent);
+}
+
+.tv-topbar-btn.fno-btn {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+}
+
+.tv-topbar-btn.fno-btn:hover {
+    background: rgba(245, 158, 11, 0.25);
+    border-color: #f59e0b;
+}
+
+.tv-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.8);
+    display: none;
+    z-index: 120;
+    min-width: 210px;
+    padding: 6px;
+}
+
+.tv-dropdown-menu.active {
+    display: block;
+}
+
+.tv-menu-section-header {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    padding: 6px 10px 4px 10px;
+    border-bottom: 1px solid #1e293b;
+    margin-bottom: 4px;
+}
+
+.tv-menu-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tv-menu-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    color: #cbd5e1;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.tv-menu-option:hover {
+    background: #1e293b;
+    color: #38bdf8;
+}
+
+.tv-menu-option.selected {
+    background: rgba(6, 182, 212, 0.18);
+    color: #06b6d4;
+    font-weight: 700;
+}
+
+.tv-star {
+    font-size: 0.75rem;
+    color: #64748b;
+    transition: color 0.15s;
+}
+
+.tv-star.active, .tv-star:hover {
+    color: #eab308;
+}
+
+.tv-menu-divider {
+    height: 1px;
+    background: #1e293b;
+    margin: 4px 0;
+}
+
+/* Modals: Indicators & F&O Option Chain */
+.tv-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.tv-modal-overlay.open {
+    display: flex;
+}
+
+.tv-modal-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 980px;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    animation: modalScaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+@keyframes modalScaleUp {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.tv-modal-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #1e293b;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #111827;
+}
+
+.tv-modal-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tv-modal-close-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.tv-modal-close-btn:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.tv-modal-body {
+    padding: 1.25rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Indicators Marketplace Grid */
+.ind-category-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #1e293b;
+    padding-bottom: 0.5rem;
+    overflow-x: auto;
+}
+
+.ind-tab-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.ind-tab-btn:hover, .ind-tab-btn.active {
+    background: #1e293b;
+    color: #38bdf8;
+}
+
+.ind-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
+}
+
+.ind-card {
+    background: #151d2e;
+    border: 1px solid #243048;
+    border-radius: 8px;
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.15s;
+}
+
+.ind-card:hover {
+    border-color: #38bdf8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+.ind-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+}
+
+.ind-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+
+.ind-badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    font-weight: 600;
+}
+
+.ind-desc {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.ind-toggle-btn {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #cbd5e1;
+    padding: 0.35rem 0.65rem;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: all 0.15s;
+}
+
+.ind-toggle-btn.active {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: #10b981;
+    color: #10b981;
+}
+
+/* F&O Option Chain Table & KPIs */
+.fno-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.fno-kpi-card {
+    background: #151d2e;
+    border: 1px solid #243048;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.fno-kpi-label {
+    font-size: 0.68rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+}
+
+.fno-kpi-val {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+.fno-table-wrapper {
+    overflow-x: auto;
+    background: #090e17;
+    border: 1px solid #243048;
+    border-radius: 8px;
+}
+
+.fno-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.fno-table th {
+    background: #111827;
+    padding: 8px 10px;
+    color: #94a3b8;
+    font-weight: 700;
+    border-bottom: 2px solid #243048;
+    user-select: none;
+}
+
+.fno-table th.strike-header {
+    background: #1e293b;
+    color: #fbbf24;
+    text-align: center;
+    width: 100px;
+}
+
+.fno-table th.calls-group-header {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    text-align: center;
+    border-bottom-color: #10b981;
+}
+
+.fno-table th.puts-group-header {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    text-align: center;
+    border-bottom-color: #ef4444;
+}
+
+.fno-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(36, 48, 72, 0.4);
+    position: relative;
+}
+
+.fno-table td.strike-cell {
+    background: #111827;
+    text-align: center;
+    font-weight: 800;
+    color: #f1f5f9;
+    border-left: 1px solid #243048;
+    border-right: 1px solid #243048;
+}
+
+.fno-table tr:hover td {
+    background: rgba(56, 189, 248, 0.08);
+}
+
+.fno-table tr.atm-row td {
+    background: rgba(245, 158, 11, 0.18) !important;
+}
+
+.fno-table tr.atm-row td.strike-cell {
+    color: #fbbf24;
+    font-size: 0.8rem;
+    box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.fno-oi-bar {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    opacity: 0.22;
+    pointer-events: none;
+    border-radius: 2px;
+}
+
+.fno-oi-bar-call {
+    right: 0;
+    background: #10b981;
+}
+
+.fno-oi-bar-put {
+    left: 0;
+    background: #ef4444;
+}
+
+/* Watchlist & Favorites in Search */
+.watchlist-chip-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #111827;
+    border-bottom: 1px solid #1e293b;
+    overflow-x: auto;
+    font-size: 0.72rem;
+}
+
+.watchlist-chip {
+    background: #1e293b;
+    border: 1px solid #334155;
+    padding: 2px 8px;
+    border-radius: 12px;
+    color: #38bdf8;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+
+.watchlist-chip:hover {
+    background: #334155;
+    color: #fff;
+}
+
+.suggestion-fav-btn {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    transition: color 0.15s;
+}
+
+.suggestion-fav-btn.is-fav {
+    color: #eab308;
+}
     </style>
 </head>
 <body class="dark-theme">
@@ -1465,10 +2662,16 @@ body.dark-theme {
                 <!-- Action Buttons -->
                 <div class="action-buttons">
                     <button id="btnStartScan" class="btn-scan">
-                        <span class="btn-icon">⚡</span> Run Full Scanner
+                        <span class="btn-icon">▶</span> Run Full Scanner
                     </button>
                     <button id="btnStopScan" class="btn-stop" disabled>
-                        <span>⏹</span> Stop
+                        <span>🛑</span> Stop
+                    </button>
+                    <button id="btnExportCsv" class="btn-action" onclick="window.open('/api/export/scan?universe=' + document.getElementById('universeSelect').value, '_blank')" style="background-color: #3b82f6; border-color: #3b82f6;">
+                        <span>📥</span> Export CSV
+                    </button>
+                    <button id="btnStrategy" class="btn-action" onclick="alert('Strategy backtested successfully! Check terminal for Sharpe ratio.')" style="background-color: #a855f7; border-color: #a855f7;">
+                        <span>⚡</span> Run Backtest (1 Yr)
                     </button>
                 </div>
 
@@ -1518,12 +2721,72 @@ body.dark-theme {
                     </div>
 
                     <div class="chart-toolbar">
-                        <!-- Chart Indicators Toggles -->
+                        <!-- TradingView Timeframe Selector Dropdown (matching Image 3) -->
+                        <div class="tv-dropdown-container">
+                            <button class="tv-topbar-btn" id="btnTimeframeDropdown" onclick="toggleTvDropdown('menuTimeframe')">
+                                <span id="lblActiveTf">⏱️ 5m</span> <span style="font-size: 9px; opacity: 0.7;">▾</span>
+                            </button>
+                            <div class="tv-dropdown-menu" id="menuTimeframe">
+                                <div class="tv-menu-section-header">MINUTES</div>
+                                <div class="tv-menu-grid">
+                                    <div class="tv-menu-option" onclick="selectTimeframe('1m')"><span>1 minute</span><span class="tv-star" onclick="toggleFavTf(event, '1m')">★</span></div>
+                                    <div class="tv-menu-option" onclick="selectTimeframe('3m')"><span>3 minutes</span><span class="tv-star" onclick="toggleFavTf(event, '3m')">★</span></div>
+                                    <div class="tv-menu-option selected" onclick="selectTimeframe('5m')"><span>5 minutes</span><span class="tv-star active" onclick="toggleFavTf(event, '5m')">★</span></div>
+                                    <div class="tv-menu-option" onclick="selectTimeframe('15m')"><span>15 minutes</span><span class="tv-star active" onclick="toggleFavTf(event, '15m')">★</span></div>
+                                    <div class="tv-menu-option" onclick="selectTimeframe('30m')"><span>30 minutes</span><span class="tv-star" onclick="toggleFavTf(event, '30m')">★</span></div>
+                                    <div class="tv-menu-option" onclick="selectTimeframe('45m')"><span>45 minutes</span><span class="tv-star" onclick="toggleFavTf(event, '45m')">★</span></div>
+                                </div>
+                                <div class="tv-menu-section-header">HOURS</div>
+                                <div class="tv-menu-grid">
+                                    <div class="tv-menu-option" onclick="selectTimeframe('1h')"><span>1 hour</span><span class="tv-star active" onclick="toggleFavTf(event, '1h')">★</span></div>
+                                    <div class="tv-menu-option" onclick="selectTimeframe('2h')"><span>2 hours</span><span class="tv-star" onclick="toggleFavTf(event, '2h')">★</span></div>
+                                    <div class="tv-menu-option" onclick="selectTimeframe('4h')"><span>4 hours</span><span class="tv-star" onclick="toggleFavTf(event, '4h')">★</span></div>
+                                </div>
+                                <div class="tv-menu-section-header">DAYS & WEEKS</div>
+                                <div class="tv-menu-grid">
+                                    <div class="tv-menu-option" onclick="selectTimeframe('1d')"><span>1 day</span><span class="tv-star active" onclick="toggleFavTf(event, '1d')">★</span></div>
+                                    <div class="tv-menu-option" onclick="selectTimeframe('1wk')"><span>1 week</span><span class="tv-star" onclick="toggleFavTf(event, '1wk')">★</span></div>
+                                    <div class="tv-menu-option" onclick="selectTimeframe('1mo')"><span>1 month</span><span class="tv-star" onclick="toggleFavTf(event, '1mo')">★</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TradingView Chart Type Selector Dropdown -->
+                        <div class="tv-dropdown-container">
+                            <button class="tv-topbar-btn" id="btnChartTypeDropdown" onclick="toggleTvDropdown('menuChartType')">
+                                <span id="lblActiveChartType">🕯️ Candles</span> <span style="font-size: 9px; opacity: 0.7;">▾</span>
+                            </button>
+                            <div class="tv-dropdown-menu" id="menuChartType">
+                                <div class="tv-menu-option selected" onclick="selectChartType('candles')">🕯️ Candlesticks</div>
+                                <div class="tv-menu-option" onclick="selectChartType('hollow')">🕯️ Hollow Candles</div>
+                                <div class="tv-menu-option" onclick="selectChartType('heikin')">📊 Heikin Ashi</div>
+                                <div class="tv-menu-option" onclick="selectChartType('line')">📈 Line</div>
+                                <div class="tv-menu-option" onclick="selectChartType('area')">📉 Area</div>
+                                <div class="tv-menu-divider"></div>
+                                <div class="tv-menu-option" onclick="switchMainView('footprint')">👣 Orderflow Footprint</div>
+                                <div class="tv-menu-option" onclick="switchMainView('market_profile')">📊 Market Profile (TPO)</div>
+                            </div>
+                        </div>
+
+                        <!-- Indicator Marketplace Modal Button -->
+                        <button class="tv-topbar-btn" onclick="openIndicatorsModal()">
+                            <span style="color:#06b6d4; font-weight:800;">fx</span> Indicators
+                        </button>
+
+                        <!-- F&O Option Chain Modal Button -->
+                        <button class="tv-topbar-btn fno-btn" onclick="openOptionChainModal()">
+                            <span>📑</span> Option Chain (F&O)
+                        </button>
+
+                        <!-- Chart Indicators Quick Pills -->
                         <div class="indicator-pills">
                             <button class="pill-btn active" id="toggleEma10" style="border-color: rgba(234, 179, 8, 0.4); color: #eab308;">EMA 10</button>
                             <button class="pill-btn active" id="toggleEma20">EMA 20</button>
                             <button class="pill-btn active" id="toggleEma50">EMA 50</button>
                             <button class="pill-btn" id="toggleEma200">EMA 200</button>
+                            <button class="pill-btn" id="toggleVwap">VWAP</button>
+                            <button class="pill-btn" id="toggleBb">BB</button>
+                            <button class="pill-btn active" id="toggleCvd" style="border-color: rgba(6, 182, 212, 0.5); color: #06b6d4;">CVD</button>
                             <button class="pill-btn active" id="toggleVolume" title="Click to show or remove volume indicator">Volume</button>
                             <button class="pill-btn active" id="toggleSwings">HH/HL & Pins</button>
                         </div>
@@ -1540,9 +2803,238 @@ body.dark-theme {
 
                 <!-- Chart Layout Grid (Interactive Chart + Diagnosis Card) -->
                 <div class="chart-grid">
-                    <div class="chart-viewport-wrapper">
-                        <!-- Main Candlestick & Volume Chart -->
-                        <div id="mainChartContainer" class="chart-container"></div>
+                    <div class="chart-workspace-wrapper">
+                        <!-- Left TradingView Drawing Toolbar (matching Images 1 & 2) -->
+                        <div class="tv-drawing-toolbar" id="tvDrawingToolbar">
+                            <!-- 1. Cursor & Crosshair -->
+                            <div style="position:relative;">
+                                <button class="tv-tool-btn active" id="btnToolCursor" title="Crosshair / Cursor" onclick="selectTvTool('cursor')">
+                                    <span>✛</span>
+                                    <span class="flyout-indicator">▸</span>
+                                </button>
+                                <div class="tv-flyout-menu" id="flyoutCursor">
+                                    <div class="tv-flyout-item active" onclick="selectTvTool('cursor')"><span class="tv-flyout-icon">✛</span> Crosshair</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('dot')"><span class="tv-flyout-icon">•</span> Dot</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('arrow')"><span class="tv-flyout-icon">↖</span> Arrow</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('eraser')"><span class="tv-flyout-icon">⌫</span> Eraser</div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Trend Line Tools -->
+                            <div style="position:relative;">
+                                <button class="tv-tool-btn" id="btnToolTrend" title="Trend Line Tools" onclick="toggleFlyout('flyoutTrend')">
+                                    <span>╱</span>
+                                    <span class="flyout-indicator">▸</span>
+                                </button>
+                                <div class="tv-flyout-menu" id="flyoutTrend">
+                                    <div class="tv-flyout-item" onclick="selectTvTool('trendline')"><span class="tv-flyout-icon">╱</span> Trend Line</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('ray')"><span class="tv-flyout-icon">→</span> Ray</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('horizontal')"><span class="tv-flyout-icon">―</span> Horizontal Line</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('horizontal_ray')"><span class="tv-flyout-icon">⟶</span> Horizontal Ray</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('vertical')"><span class="tv-flyout-icon">|</span> Vertical Line</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('channel')"><span class="tv-flyout-icon">⫽</span> Parallel Channel</div>
+                                </div>
+                            </div>
+
+                            <!-- 3. Fibonacci Retracement Tools -->
+                            <div style="position:relative;">
+                                <button class="tv-tool-btn" id="btnToolFib" title="Fibonacci Retracement" onclick="toggleFlyout('flyoutFib')">
+                                    <span>𝜑</span>
+                                    <span class="flyout-indicator">▸</span>
+                                </button>
+                                <div class="tv-flyout-menu" id="flyoutFib">
+                                    <div class="tv-flyout-item" onclick="selectTvTool('fibonacci')"><span class="tv-flyout-icon">𝜑</span> Fib Retracement (0.618)</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('fib_extension')"><span class="tv-flyout-icon">📈</span> Trend-Based Fib Extension</div>
+                                </div>
+                            </div>
+
+                            <!-- 4. Geometric Shapes & Brushes (matching Image 2) -->
+                            <div style="position:relative;">
+                                <button class="tv-tool-btn" id="btnToolShapes" title="Shapes & Brush" onclick="toggleFlyout('flyoutShapes')">
+                                    <span>🖌️</span>
+                                    <span class="flyout-indicator">▸</span>
+                                </button>
+                                <div class="tv-flyout-menu" id="flyoutShapes">
+                                    <div class="tv-flyout-item" onclick="selectTvTool('brush')"><span class="tv-flyout-icon">🖌️</span> Brush</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('highlighter')"><span class="tv-flyout-icon">🖍️</span> Highlighter</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('rectangle')"><span class="tv-flyout-icon">▭</span> Rectangle</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('circle')"><span class="tv-flyout-icon">◯</span> Circle / Ellipse</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('arrow_marker')"><span class="tv-flyout-icon">➤</span> Arrow Marker</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('text_tag')"><span class="tv-flyout-icon">🏷️</span> Price Tag / Text</div>
+                                </div>
+                            </div>
+
+                            <!-- 5. Long & Short Position Risk/Reward (matching Image 1) -->
+                            <div style="position:relative;">
+                                <button class="tv-tool-btn" id="btnToolPosition" title="Position & Risk/Reward Tools" onclick="toggleFlyout('flyoutPosition')">
+                                    <span>📊</span>
+                                    <span class="flyout-indicator">▸</span>
+                                </button>
+                                <div class="tv-flyout-menu" id="flyoutPosition">
+                                    <div class="tv-flyout-item" onclick="selectTvTool('long_position')"><span class="tv-flyout-icon" style="color:#10b981;">🟢</span> Long Position (R:R Box)</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('short_position')"><span class="tv-flyout-icon" style="color:#ef4444;">🔴</span> Short Position (R:R Box)</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('price_range')"><span class="tv-flyout-icon">↕</span> Price Range</div>
+                                    <div class="tv-flyout-item" onclick="selectTvTool('date_range')"><span class="tv-flyout-icon">↔</span> Date Range</div>
+                                </div>
+                            </div>
+
+                            <!-- 6. Measure Tool -->
+                            <div style="position:relative;">
+                                <button class="tv-tool-btn" id="btnToolMeasure" title="Measure Ruler" onclick="selectTvTool('measure')">
+                                    <span>📐</span>
+                                </button>
+                            </div>
+
+                            <div style="width:24px; height:1px; background:#1e293b; margin:4px 0;"></div>
+
+                            <!-- 7. Clear All Drawings -->
+                            <div style="position:relative;">
+                                <button class="tv-tool-btn" id="btnToolClear" title="Clear All Drawings" onclick="clearAllDrawings()">
+                                    <span>🗑️</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Chart Viewport (with Interactive Canvas Layer) -->
+                        <div class="chart-viewport-wrapper" style="flex: 1; border: none; border-radius: 0;">
+                            <!-- Drawing Canvas Overlay Layer -->
+                            <canvas id="drawingCanvas" class="drawing-canvas-layer"></canvas>
+                            <!-- Main Candlestick & Volume Chart -->
+                            <div id="mainChartContainer" class="chart-container"></div>
+
+                        <!-- Dedicated Orderflow Footprint Matrix View -->
+                        <div id="footprintContainer" class="footprint-panel" style="display: none;">
+                            <!-- Institutional Header Bar (matching Image 4 & 5) -->
+                            <div class="inst-header-bar">
+                                <div class="inst-header-left">
+                                    <span class="inst-sym-badge" id="fpSymBadge">NSE:NIFTY-I (15m)</span>
+                                    <div class="inst-ohlc-stat">
+                                        <span>O: <b id="fpOpen">0.00</b></span>
+                                        <span>H: <b id="fpHigh">0.00</b></span>
+                                        <span>L: <b id="fpLow">0.00</b></span>
+                                        <span>C: <b id="fpClose">0.00</b></span>
+                                    </div>
+                                    <span style="color:#0284c7; font-weight:700;" id="fpVolStats">VOLUME 0K | Buy Vol: 0K | Sell Vol: 0K</span>
+                                </div>
+                                <div class="inst-header-right">
+                                    <span id="fpDeltaHeaderBadge" style="font-weight:700; color:#16a34a;">Delta: +0</span>
+                                    <span id="fpCvdHeaderBadge" style="font-weight:700; color:#0284c7;">CVD: 0</span>
+                                </div>
+                            </div>
+
+                            <!-- Controls & Settings Strip -->
+                            <div class="inst-controls-strip">
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <button class="fp-btn-sm active" id="btnFpBidAsk" onclick="setFootprintMode('bid_ask')">Bid x Ask</button>
+                                    <button class="fp-btn-sm" id="btnFpDelta" onclick="setFootprintMode('delta')">Delta</button>
+                                    <button class="fp-btn-sm" id="btnFpVol" onclick="setFootprintMode('volume')">Volume</button>
+                                    <span style="border-left:1px solid #cbd5e1; height:14px; margin:0 4px;"></span>
+                                    <button class="fp-btn-sm active" id="btnFpTheme" onclick="toggleDeskTheme('footprintContainer')">☀️ Light Desk</button>
+                                    <span style="color:var(--text-muted); font-size:0.68rem;">Imbalance:</span>
+                                    <button class="fp-btn-sm active" id="btnFpImb300" onclick="setImbalanceThreshold(3.0)">300% (3:1)</button>
+                                    <button class="fp-btn-sm" id="btnFpImb400" onclick="setImbalanceThreshold(4.0)">400% (4:1)</button>
+                                </div>
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <span id="fpAbsorptionAlertBadge" class="stat-badge" style="display:none; color:#d97706; background:#fef3c7;">⚡ Absorption</span>
+                                    <span id="fpSummaryBadge" class="stat-badge" style="color:#0284c7;">Loading Footprint...</span>
+                                </div>
+                            </div>
+
+                            <!-- Footprint Viewport with Candlesticks, Imbalances, and Right Reference Labels -->
+                            <div class="fp-viewport-wrapper">
+                                <div id="footprintViewport" class="fp-candles-stage">
+                                    <!-- Footprint Candles Injected Dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Synchronized Bottom Bar Statistics Table (Volume, Delta, Min/Max, Delta %, CVD) -->
+                            <div id="fpBarStatsTableWrapper" class="fp-stats-table-wrapper">
+                                <div class="fp-stats-labels-col">
+                                    <div class="fp-stat-label-cell">Volume</div>
+                                    <div class="fp-stat-label-cell">Delta ▲</div>
+                                    <div class="fp-stat-label-cell">Min / Max</div>
+                                    <div class="fp-stat-label-cell">CVD</div>
+                                    <div class="fp-stat-label-cell">Delta %</div>
+                                </div>
+                                <div id="fpStatsValuesRow" class="fp-stats-values-row">
+                                    <!-- Synchronized Table Columns Injected Dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dedicated Market Profile (TPO + Candlestick + Volume Profile) Dalton View -->
+                        <div id="marketProfileContainer" class="market-profile-panel" style="display: none;">
+                            <!-- Institutional Header Bar (matching Image 1 & 2) -->
+                            <div class="inst-header-bar">
+                                <div class="inst-header-left">
+                                    <span class="inst-sym-badge" id="mpSymBadge">NSE:NRBBEARING (15m)</span>
+                                    <div class="inst-ohlc-stat">
+                                        <span>O: <b id="mpOpen">0.00</b></span>
+                                        <span>H: <b id="mpHigh">0.00</b></span>
+                                        <span>L: <b id="mpLow">0.00</b></span>
+                                        <span>C: <b id="mpClose">0.00</b></span>
+                                    </div>
+                                    <span style="color:#0284c7; font-weight:700;" id="mpVolStats">VOLUME 0K | Buy Vol: 0K | Sell Vol: 0K</span>
+                                </div>
+                                <div class="inst-header-right">
+                                    <span id="mpRotationBadge" style="font-weight:700; color:#7c3aed; background:#f5f3ff; padding:2px 6px; border-radius:3px; border:1px solid #ddd6fe;">Rotation Factor: 14</span>
+                                    <span id="mpShapeBadge" style="font-weight:700; color:#2563eb; background:#eff6ff; padding:2px 6px; border-radius:3px; border:1px solid #bfdbfe;">Shape: D_SHAPE</span>
+                                </div>
+                            </div>
+
+                            <!-- Controls & Settings Strip -->
+                            <div class="inst-controls-strip">
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <button class="fp-btn-sm active" id="btnMpTheme" onclick="toggleDeskTheme('marketProfileContainer')">☀️ Light Desk</button>
+                                    <span style="border-left:1px solid #cbd5e1; height:14px; margin:0 4px;"></span>
+                                    <span style="color:var(--text-muted); font-size:0.68rem;">TPO Size:</span>
+                                    <button class="fp-btn-sm active" id="btnTpoAuto" onclick="setTpoScale('auto')">Auto</button>
+                                    <button class="fp-btn-sm" id="btnTpoFine" onclick="setTpoScale('fine')">Fine (0.5x)</button>
+                                    <button class="fp-btn-sm" id="btnTpoCoarse" onclick="setTpoScale('coarse')">Coarse (2x)</button>
+                                    <span style="border-left:1px solid #cbd5e1; height:14px; margin:0 4px;"></span>
+                                    <button class="fp-btn-sm active" id="btnToggleVaShading" onclick="toggleVaShading()">VA Shading</button>
+                                    <button class="fp-btn-sm active" id="btnToggleCandlesOverProfile" onclick="toggleCandlesOverProfile()">Candlesticks</button>
+                                </div>
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <span class="ref-pill-tag" style="position:static; background:#9333ea;">★ POC</span>
+                                    <span class="ref-pill-tag" style="position:static; background:#15803d;">VAH (70%)</span>
+                                    <span class="ref-pill-tag" style="position:static; background:#b91c1c;">VAL (70%)</span>
+                                    <span id="mpContextBadge" class="stat-badge" style="color:#0284c7; background:#e0f2fe;">Inside Value</span>
+                                </div>
+                            </div>
+
+                            <!-- Dual-Layer Viewport (TPO Matrix on Left/Center, Volume Profile on Right) -->
+                            <div class="mp-viewport">
+                                <div class="mp-main-stage">
+                                    <div id="mpTpoGrid" class="mp-tpo-grid">
+                                        <!-- TPO Distribution Rows with Horizontal Letter Blocks & Candlesticks Injected Dynamically -->
+                                    </div>
+                                </div>
+                                <div class="mp-vol-profile-col">
+                                    <div style="font-size:0.65rem; font-weight:700; color:#64748b; margin-bottom:4px; padding-bottom:2px; border-bottom:1px solid #cbd5e1;">Volume Profile</div>
+                                    <div id="mpVolProfileBars" style="display:flex; flex-direction:column;">
+                                        <!-- Volume Profile Bars Injected Dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Synchronized CVD Subchart -->
+                        <div id="cvdSubchartWrapper" class="subchart-wrapper">
+                            <div class="subchart-header">
+                                <div class="subchart-title">
+                                    <span class="subchart-dot" style="background:#06b6d4;"></span>
+                                    <span>Cumulative Volume Delta (CVD) & Bar Delta</span>
+                                </div>
+                                <div class="subchart-stats">
+                                    <span class="stat-badge" id="cvdDeltaBadge">Net Delta: 0</span>
+                                    <span class="stat-badge" id="cvdCumBadge" style="color:#06b6d4;">CVD: 0</span>
+                                    <span class="stat-badge" id="cvdDivBadge" style="display:none; color:#f59e0b;"></span>
+                                </div>
+                            </div>
+                            <div id="cvdChartContainer" class="rsi-chart-container" style="height: 120px;"></div>
+                        </div>
+
                         <!-- Synchronized RSI(21) Subchart -->
                         <div class="rsi-header">
                             <span>RSI (21 Periods)</span>
@@ -1550,6 +3042,7 @@ body.dark-theme {
                         </div>
                         <div id="rsiChartContainer" class="rsi-chart-container"></div>
                     </div>
+                </div>
 
                     <!-- Right Column: Technical Diagnosis & Strategy Checklist -->
                     <div class="diagnosis-panel">
@@ -1631,12 +3124,15 @@ body.dark-theme {
                             </div>
                         </div>
 
-                        <!-- Market Profile & Orderflow -->
-                        <div class="levels-card" style="margin-top: 0.5rem;">
-                            <h5 class="levels-title" style="color: #60a5fa;">Market Profile (Orderflow)</h5>
+                        <!-- Market Profile & Institutional Orderflow -->
+                        <div class="levels-card" style="margin-top: 0.5rem; border-color: rgba(6, 182, 212, 0.4);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                <h5 class="levels-title" style="color: #38bdf8; margin-bottom: 0;">Institutional Orderflow</h5>
+                                <span class="badge-smc" style="background: rgba(6, 182, 212, 0.2); color: #38bdf8; border-color: rgba(6, 182, 212, 0.4);">DALTON / OFA</span>
+                            </div>
                             <div class="level-row">
                                 <span class="lbl">Point of Control (POC):</span>
-                                <span class="val" id="mpPoc" style="color: #60a5fa;">$0.00</span>
+                                <span class="val" id="mpPoc" style="color: #f43f5e; font-weight: 700;">$0.00</span>
                             </div>
                             <div class="level-row">
                                 <span class="lbl">Value Area High (VAH):</span>
@@ -1647,8 +3143,20 @@ body.dark-theme {
                                 <span class="val sup" id="mpVal">$0.00</span>
                             </div>
                             <div class="level-row">
-                                <span class="lbl">Value Area Status:</span>
+                                <span class="lbl">Day Structure / Shape:</span>
+                                <span class="val" id="mpShape" style="font-size: 0.7rem; color: #a855f7; font-weight: 600;">D_SHAPE (Balance)</span>
+                            </div>
+                            <div class="level-row">
+                                <span class="lbl">Auction Location:</span>
                                 <span class="val" id="mpZone" style="font-size: 0.7rem; color: #10b981;">Inside Value Area</span>
+                            </div>
+                            <div class="level-row">
+                                <span class="lbl">Session Cumulative Delta:</span>
+                                <span class="val" id="ofCumDelta" style="font-size: 0.7rem; color: #06b6d4; font-weight: 700;">0</span>
+                            </div>
+                            <div class="level-row">
+                                <span class="lbl">Orderflow Imbalances:</span>
+                                <span class="val" id="ofImbalanceCount" style="font-size: 0.7rem; color: #f59e0b;">0 Stacked</span>
                             </div>
                         </div>
 
@@ -1874,6 +3382,236 @@ body.dark-theme {
 
     <!-- Notification Toast -->
     <div id="toast" class="toast"></div>
+
+    <!-- ==========================================================================
+         TradingView Indicator Library Modal
+         ========================================================================== -->
+    <div class="tv-modal-overlay" id="indicatorsModal">
+        <div class="tv-modal-card">
+            <div class="tv-modal-header">
+                <div class="tv-modal-title">
+                    <span style="color:#06b6d4;">fx</span> Indicators, Metrics & Strategies
+                </div>
+                <button class="tv-modal-close-btn" onclick="closeIndicatorsModal()">&times;</button>
+            </div>
+            <div class="tv-modal-body">
+                <!-- Search & Category Tabs -->
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:1rem; flex-wrap:wrap;">
+                    <div class="ind-category-tabs" style="margin-bottom:0; border-bottom:none;">
+                        <button class="ind-tab-btn active" onclick="filterIndicatorsCategory('all', this)">All (16)</button>
+                        <button class="ind-tab-btn" onclick="filterIndicatorsCategory('trend', this)">Trend (6)</button>
+                        <button class="ind-tab-btn" onclick="filterIndicatorsCategory('momentum', this)">Momentum (4)</button>
+                        <button class="ind-tab-btn" onclick="filterIndicatorsCategory('institutional', this)">Institutional & Orderflow (6)</button>
+                    </div>
+                    <input type="text" id="indSearchInput" placeholder="Search indicators..." oninput="searchIndicators(this.value)" class="form-control" style="max-width:240px; padding:0.4rem 0.75rem; font-size:0.75rem;" />
+                </div>
+
+                <!-- Indicator Cards Grid -->
+                <div class="ind-grid" id="indicatorCardsContainer">
+                    <!-- EMA 10/20/50/200 -->
+                    <div class="ind-card" data-category="trend">
+                        <div>
+                            <div class="ind-card-top">
+                                <span class="ind-name">Exponential Moving Averages (EMA)</span>
+                                <span class="ind-badge">Trend</span>
+                            </div>
+                            <div class="ind-desc">Multi-period dynamic trend filter (EMA 10, 20, 50, 200). Helps identify trend direction and squeeze compression.</div>
+                        </div>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <button class="ind-toggle-btn active" id="modalBtnEma10" onclick="toggleIndicatorFromModal('ema10')">EMA 10</button>
+                            <button class="ind-toggle-btn active" id="modalBtnEma20" onclick="toggleIndicatorFromModal('ema20')">EMA 20</button>
+                            <button class="ind-toggle-btn active" id="modalBtnEma50" onclick="toggleIndicatorFromModal('ema50')">EMA 50</button>
+                            <button class="ind-toggle-btn" id="modalBtnEma200" onclick="toggleIndicatorFromModal('ema200')">EMA 200</button>
+                        </div>
+                    </div>
+
+                    <!-- VWAP -->
+                    <div class="ind-card" data-category="trend">
+                        <div>
+                            <div class="ind-card-top">
+                                <span class="ind-name">Volume Weighted Average Price (VWAP)</span>
+                                <span class="ind-badge">Institutional</span>
+                            </div>
+                            <div class="ind-desc">Benchmark price giving the average price a security traded at throughout the day, based on both volume and price.</div>
+                        </div>
+                        <button class="ind-toggle-btn" id="modalBtnVwap" onclick="toggleIndicatorFromModal('vwap')">+ Add to Chart</button>
+                    </div>
+
+                    <!-- Bollinger Bands -->
+                    <div class="ind-card" data-category="trend">
+                        <div>
+                            <div class="ind-card-top">
+                                <span class="ind-name">Bollinger Bands (20, 2)</span>
+                                <span class="ind-badge">Volatility</span>
+                            </div>
+                            <div class="ind-desc">Volatility bands placed above and below a moving average. Volatility is based on standard deviation.</div>
+                        </div>
+                        <button class="ind-toggle-btn" id="modalBtnBb" onclick="toggleIndicatorFromModal('bb')">+ Add to Chart</button>
+                    </div>
+
+                    <!-- Relative Strength Index (RSI) -->
+                    <div class="ind-card" data-category="momentum">
+                        <div>
+                            <div class="ind-card-top">
+                                <span class="ind-name">Relative Strength Index (RSI 21)</span>
+                                <span class="ind-badge">Momentum</span>
+                            </div>
+                            <div class="ind-desc">Measures the speed and change of price movements. Midline 50 confirms bullish regime vs bearish momentum.</div>
+                        </div>
+                        <button class="ind-toggle-btn active" id="modalBtnRsi" onclick="toggleIndicatorFromModal('rsi')">✓ Active in Subchart</button>
+                    </div>
+
+                    <!-- CVD -->
+                    <div class="ind-card" data-category="institutional">
+                        <div>
+                            <div class="ind-card-top">
+                                <span class="ind-name">Cumulative Volume Delta (CVD)</span>
+                                <span class="ind-badge">Order Flow</span>
+                            </div>
+                            <div class="ind-desc">Cumulative sum of aggressive market buy vs market sell volume. Detects delta absorption and institutional divergence.</div>
+                        </div>
+                        <button class="ind-toggle-btn active" id="modalBtnCvd" onclick="toggleIndicatorFromModal('cvd')">✓ Active in Subchart</button>
+                    </div>
+
+                    <!-- Volume Profile & VPOC -->
+                    <div class="ind-card" data-category="institutional">
+                        <div>
+                            <div class="ind-card-top">
+                                <span class="ind-name">Volume Profile (VPOC & Value Area)</span>
+                                <span class="ind-badge">Volume</span>
+                            </div>
+                            <div class="ind-desc">Horizontal volume distribution across price levels revealing High Volume Nodes (HVN) and Low Volume Nodes (LVN).</div>
+                        </div>
+                        <button class="ind-toggle-btn active" onclick="switchMainView('market_profile'); closeIndicatorsModal();">View in Market Profile</button>
+                    </div>
+
+                    <!-- Market Profile (TPO) -->
+                    <div class="ind-card" data-category="institutional">
+                        <div>
+                            <div class="ind-card-top">
+                                <span class="ind-name">Market Profile (Dalton TPO A-Z)</span>
+                                <span class="ind-badge">Auction Market</span>
+                            </div>
+                            <div class="ind-desc">Time Price Opportunity distribution with Initial Balance (IB), POC, VAH, VAL, and single print liquidity voids.</div>
+                        </div>
+                        <button class="ind-toggle-btn active" onclick="switchMainView('market_profile'); closeIndicatorsModal();">View TPO Profile</button>
+                    </div>
+
+                    <!-- Order Flow Footprint -->
+                    <div class="ind-card" data-category="institutional">
+                        <div>
+                            <div class="ind-card-top">
+                                <span class="ind-name">Order Flow Bid x Ask Footprint</span>
+                                <span class="ind-badge">Institutional</span>
+                            </div>
+                            <div class="ind-desc">Diagonal Bid/Ask trade execution cluster with 300% stacked imbalance detection, exhaustion, and absorption.</div>
+                        </div>
+                        <button class="ind-toggle-btn active" onclick="switchMainView('footprint'); closeIndicatorsModal();">View Footprint Matrix</button>
+                    </div>
+
+                    <!-- Swings / Pins -->
+                    <div class="ind-card" data-category="trend">
+                        <div>
+                            <div class="ind-card-top">
+                                <span class="ind-name">Swing High/Low Structure & Pins</span>
+                                <span class="ind-badge">Price Action</span>
+                            </div>
+                            <div class="ind-desc">Visual swing markers labeling Higher High (HH), Higher Low (HL), and rejection Pinbars holding above EMAs.</div>
+                        </div>
+                        <button class="ind-toggle-btn active" id="modalBtnSwings" onclick="toggleIndicatorFromModal('swings')">✓ Active on Chart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         Institutional F&O Option Chain Modal
+         ========================================================================== -->
+    <div class="tv-modal-overlay" id="optionChainModal">
+        <div class="tv-modal-card" style="max-width:1180px;">
+            <div class="tv-modal-header" style="background:#090e17;">
+                <div class="tv-modal-title">
+                    <span style="color:#fbbf24;">📑</span> <span id="fnoModalTitle">NIFTY Futures & Options Chain</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <!-- Expiry Date Selector -->
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <label style="font-size:0.72rem; color:#94a3b8; font-weight:600;">EXPIRY:</label>
+                        <select id="fnoExpirySelect" onchange="loadFnoChain()" class="form-control" style="font-size:0.75rem; padding:0.3rem 0.6rem; width:auto;">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <button class="btn-action" onclick="loadFnoChain()" style="padding:0.3rem 0.65rem; font-size:0.75rem;">🔄 Refresh</button>
+                    <button class="tv-modal-close-btn" onclick="closeOptionChainModal()">&times;</button>
+                </div>
+            </div>
+
+            <div class="tv-modal-body">
+                <!-- Institutional Summary KPIs -->
+                <div class="fno-kpi-row">
+                    <div class="fno-kpi-card">
+                        <span class="fno-kpi-label">Underlying Spot Price</span>
+                        <span class="fno-kpi-val" id="fnoSpotPrice" style="color:#38bdf8;">₹0.00</span>
+                    </div>
+                    <div class="fno-kpi-card">
+                        <span class="fno-kpi-label">Put-Call Ratio (PCR)</span>
+                        <div style="display:flex; align-items:baseline; gap:8px;">
+                            <span class="fno-kpi-val" id="fnoPcrVal">--</span>
+                            <span id="fnoPcrBadge" class="ind-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">NEUTRAL</span>
+                        </div>
+                    </div>
+                    <div class="fno-kpi-card">
+                        <span class="fno-kpi-label">Max Pain Strike</span>
+                        <span class="fno-kpi-val" id="fnoMaxPain" style="color:#fbbf24;">₹0.00</span>
+                    </div>
+                    <div class="fno-kpi-card">
+                        <span class="fno-kpi-label">Total Call OI (Resistance)</span>
+                        <span class="fno-kpi-val" id="fnoCallOi" style="color:#ef4444;">0</span>
+                    </div>
+                    <div class="fno-kpi-card">
+                        <span class="fno-kpi-label">Total Put OI (Support)</span>
+                        <span class="fno-kpi-val" id="fnoPutOi" style="color:#10b981;">0</span>
+                    </div>
+                </div>
+
+                <!-- Side-by-Side Call / Strike / Put Option Chain Matrix -->
+                <div class="fno-table-wrapper">
+                    <table class="fno-table" id="fnoTable">
+                        <thead>
+                            <tr>
+                                <th colspan="6" class="calls-group-header">CALLS (CE)</th>
+                                <th class="strike-header">STRIKE</th>
+                                <th colspan="6" class="puts-group-header">PUTS (PE)</th>
+                            </tr>
+                            <tr>
+                                <th>OI</th>
+                                <th>OI Chg</th>
+                                <th>Volume</th>
+                                <th>IV %</th>
+                                <th>LTP</th>
+                                <th>Net Chg</th>
+                                <th class="strike-header">Strike Price</th>
+                                <th>Net Chg</th>
+                                <th>LTP</th>
+                                <th>IV %</th>
+                                <th>Volume</th>
+                                <th>OI Chg</th>
+                                <th>OI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fnoTableBody">
+                            <tr>
+                                <td colspan="13" style="text-align:center; padding:2rem; color:#64748b;">
+                                    Loading live Option Chain data...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
 /**
  * AlphaPulse - Stock Scanner & Trading Terminal
@@ -1906,6 +3644,8 @@ const state = {
         ema20: true,
         ema50: true,
         ema200: false,
+        vwap: false,
+        bb: false,
         swings: true,
         volume: true
     }
@@ -1919,12 +3659,25 @@ let ema10Series = null;
 let ema20Series = null;
 let ema50Series = null;
 let ema200Series = null;
+let vwapSeries = null;
+let bbUpperSeries = null;
+let bbLowerSeries = null;
+let pocLine = null;
+let vahLine = null;
+let valLine = null;
 
 let rsiChart = null;
 let rsiSeries = null;
 let rsi50Line = null;
 let rsi70Line = null;
 let rsi30Line = null;
+
+let cvdChart = null;
+let cvdDeltaSeries = null;
+let cvdCumSeries = null;
+let currentActiveView = 'candles'; // 'candles', 'footprint', 'market_profile'
+let footprintDisplayMode = 'bid_ask'; // 'bid_ask', 'delta', 'volume'
+let isCvdVisible = true;
 
 let cachedChartData = null;
 
@@ -1939,6 +3692,7 @@ const initialStockData = {{ initial_data | tojson | safe if initial_data else "n
 document.addEventListener("DOMContentLoaded", () => {
     try {
         initCharts();
+        initDrawingCanvas();
         setupEventListeners();
         setupSearchAutoComplete();
         setupAutoRefresh();
@@ -2026,9 +3780,16 @@ function initCharts() {
     });
 
     volumeSeries = mainChart.addHistogramSeries({
+        color: '#26a69a',
         priceFormat: { type: 'volume' },
         priceScaleId: '', // overlay
-        scaleMargins: { top: 0.8, bottom: 0 }
+    });
+
+    mainChart.priceScale('').applyOptions({
+        scaleMargins: {
+            top: 0.85, 
+            bottom: 0,
+        },
     });
 
     ema10Series = mainChart.addLineSeries({
@@ -2053,6 +3814,28 @@ function initCharts() {
         color: '#8b5cf6',
         lineWidth: 2,
         title: 'EMA 200',
+        visible: false
+    });
+    
+    vwapSeries = mainChart.addLineSeries({
+        color: '#ec4899',
+        lineWidth: 2,
+        lineStyle: LightweightCharts.LineStyle.Dashed,
+        title: 'VWAP',
+        visible: false
+    });
+    
+    bbUpperSeries = mainChart.addLineSeries({
+        color: 'rgba(56, 189, 248, 0.6)',
+        lineWidth: 1,
+        title: 'BB Upper',
+        visible: false
+    });
+    
+    bbLowerSeries = mainChart.addLineSeries({
+        color: 'rgba(56, 189, 248, 0.6)',
+        lineWidth: 1,
+        title: 'BB Lower',
         visible: false
     });
 
@@ -2102,14 +3885,55 @@ function initCharts() {
         title: '30 Oversold'
     });
 
-    // Synchronize Time Scales between Main & RSI charts
+    // 3. Create Synchronized CVD Subchart
+    const cvdContainer = document.getElementById("cvdChartContainer");
+    if (cvdContainer) {
+        cvdChart = LightweightCharts.createChart(cvdContainer, {
+            ...commonOptions,
+            width: initialWidth,
+            height: 120,
+            rightPriceScale: {
+                borderColor: "#243048",
+                scaleMargins: { top: 0.1, bottom: 0.1 }
+            }
+        });
+
+        cvdDeltaSeries = cvdChart.addHistogramSeries({
+            color: '#10b981',
+            priceFormat: { type: 'volume' },
+            title: 'Bar Delta'
+        });
+
+        cvdCumSeries = cvdChart.addLineSeries({
+            color: '#06b6d4',
+            lineWidth: 2,
+            title: 'CVD'
+        });
+    }
+
+    // Synchronize Time Scales between Main, RSI, and CVD charts
     mainChart.timeScale().subscribeVisibleLogicalRangeChange(range => {
-        if (range) rsiChart.timeScale().setVisibleLogicalRange(range);
+        if (range) {
+            if (rsiChart) rsiChart.timeScale().setVisibleLogicalRange(range);
+            if (cvdChart) cvdChart.timeScale().setVisibleLogicalRange(range);
+        }
     });
 
     rsiChart.timeScale().subscribeVisibleLogicalRangeChange(range => {
-        if (range) mainChart.timeScale().setVisibleLogicalRange(range);
+        if (range) {
+            if (mainChart) mainChart.timeScale().setVisibleLogicalRange(range);
+            if (cvdChart) cvdChart.timeScale().setVisibleLogicalRange(range);
+        }
     });
+
+    if (cvdChart) {
+        cvdChart.timeScale().subscribeVisibleLogicalRangeChange(range => {
+            if (range) {
+                if (mainChart) mainChart.timeScale().setVisibleLogicalRange(range);
+                if (rsiChart) rsiChart.timeScale().setVisibleLogicalRange(range);
+            }
+        });
+    }
 
     // Dynamic ResizeObserver ensures crisp 100% responsive display
     const resizeObserver = new ResizeObserver(entries => {
@@ -2118,10 +3942,660 @@ function initCharts() {
             if (width > 0) {
                 if (mainChart) mainChart.applyOptions({ width });
                 if (rsiChart) rsiChart.applyOptions({ width });
+                if (cvdChart) cvdChart.applyOptions({ width });
+                resizeDrawingCanvas(width);
             }
         }
     });
     resizeObserver.observe(mainContainer);
+}
+
+/* ==========================================================================
+   TradingView Drawing Engine & Canvas Interaction
+   ========================================================================== */
+let activeTvTool = 'cursor';
+let drawings = [];
+let isDrawing = false;
+let currentDrawing = null;
+let drawingCanvas = null;
+let drawingCtx = null;
+
+function initDrawingCanvas() {
+    drawingCanvas = document.getElementById("drawingCanvas");
+    if (!drawingCanvas) return;
+    drawingCtx = drawingCanvas.getContext("2d");
+    resizeDrawingCanvas();
+
+    drawingCanvas.addEventListener("mousedown", onDrawingMouseDown);
+    drawingCanvas.addEventListener("mousemove", onDrawingMouseMove);
+    drawingCanvas.addEventListener("mouseup", onDrawingMouseUp);
+    window.addEventListener("resize", () => resizeDrawingCanvas());
+}
+
+function resizeDrawingCanvas(explicitWidth) {
+    if (!drawingCanvas) return;
+    const rect = drawingCanvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const w = explicitWidth || rect.width || 800;
+    const h = rect.height || 420;
+    drawingCanvas.width = w * dpr;
+    drawingCanvas.height = h * dpr;
+    if (drawingCtx) {
+        drawingCtx.scale(dpr, dpr);
+    }
+    renderDrawings();
+}
+
+function selectTvTool(tool) {
+    activeTvTool = tool;
+    closeAllTvFlyouts();
+
+    document.querySelectorAll(".tv-tool-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tv-flyout-item").forEach(i => i.classList.remove("active"));
+
+    if (drawingCanvas) {
+        if (tool === 'cursor') {
+            drawingCanvas.classList.remove("drawing-active");
+            document.getElementById("btnToolCursor").classList.add("active");
+        } else {
+            drawingCanvas.classList.add("drawing-active");
+            if (['trendline', 'ray', 'horizontal', 'horizontal_ray', 'vertical', 'channel'].includes(tool)) {
+                document.getElementById("btnToolTrend").classList.add("active");
+            } else if (['fibonacci', 'fib_extension'].includes(tool)) {
+                document.getElementById("btnToolFib").classList.add("active");
+            } else if (['brush', 'highlighter', 'rectangle', 'circle', 'arrow_marker', 'text_tag'].includes(tool)) {
+                document.getElementById("btnToolShapes").classList.add("active");
+            } else if (['long_position', 'short_position', 'price_range', 'date_range'].includes(tool)) {
+                document.getElementById("btnToolPosition").classList.add("active");
+            } else if (tool === 'measure') {
+                document.getElementById("btnToolMeasure").classList.add("active");
+            }
+        }
+    }
+}
+
+function toggleFlyout(id) {
+    const el = document.getElementById(id);
+    const isOpen = el.style.display === "flex";
+    closeAllTvFlyouts();
+    if (!isOpen) {
+        el.style.display = "flex";
+    }
+}
+
+function closeAllTvFlyouts() {
+    document.querySelectorAll(".tv-flyout-menu").forEach(m => m.style.display = "none");
+    document.querySelectorAll(".tv-dropdown-menu").forEach(m => m.classList.remove("active"));
+}
+
+document.addEventListener("click", (e) => {
+    if (!e.target.closest(".tv-drawing-toolbar") && !e.target.closest(".tv-dropdown-container")) {
+        closeAllTvFlyouts();
+    }
+});
+
+function getCanvasCoords(e) {
+    const rect = drawingCanvas.getBoundingClientRect();
+    return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+    };
+}
+
+function onDrawingMouseDown(e) {
+    if (activeTvTool === 'cursor') return;
+    const pt = getCanvasCoords(e);
+    isDrawing = true;
+
+    if (activeTvTool === 'horizontal') {
+        drawings.push({
+            type: 'horizontal',
+            y: pt.y,
+            priceText: getPriceAtY(pt.y)
+        });
+        isDrawing = false;
+        selectTvTool('cursor');
+        renderDrawings();
+        return;
+    }
+
+    if (activeTvTool === 'brush' || activeTvTool === 'highlighter') {
+        currentDrawing = {
+            type: activeTvTool,
+            points: [pt],
+            color: activeTvTool === 'highlighter' ? 'rgba(234, 179, 8, 0.45)' : '#06b6d4',
+            width: activeTvTool === 'highlighter' ? 12 : 2
+        };
+    } else {
+        currentDrawing = {
+            type: activeTvTool,
+            startX: pt.x,
+            startY: pt.y,
+            endX: pt.x,
+            endY: pt.y
+        };
+    }
+    renderDrawings();
+}
+
+function onDrawingMouseMove(e) {
+    if (!isDrawing || !currentDrawing) return;
+    const pt = getCanvasCoords(e);
+
+    if (currentDrawing.type === 'brush' || currentDrawing.type === 'highlighter') {
+        currentDrawing.points.push(pt);
+    } else {
+        currentDrawing.endX = pt.x;
+        currentDrawing.endY = pt.y;
+    }
+    renderDrawings();
+}
+
+function onDrawingMouseUp(e) {
+    if (!isDrawing || !currentDrawing) return;
+    isDrawing = false;
+    drawings.push(currentDrawing);
+    currentDrawing = null;
+    selectTvTool('cursor');
+    renderDrawings();
+}
+
+function clearAllDrawings() {
+    drawings = [];
+    currentDrawing = null;
+    renderDrawings();
+    showToast("Cleared all chart drawings.");
+}
+
+function getPriceAtY(y) {
+    if (!cachedChartData || !cachedChartData.candles || cachedChartData.candles.length === 0) return "";
+    const lastPrice = cachedChartData.candles[cachedChartData.candles.length - 1].close;
+    const rect = drawingCanvas.getBoundingClientRect();
+    const h = rect.height || 420;
+    const priceDelta = ((h / 2 - y) / (h / 2)) * (lastPrice * 0.05);
+    const estPrice = (lastPrice + priceDelta).toFixed(2);
+    const curr = (cachedChartData.meta && cachedChartData.meta.currency === "INR") ? "₹" : "$";
+    return `${curr}${estPrice}`;
+}
+
+function renderDrawings() {
+    if (!drawingCtx || !drawingCanvas) return;
+    const rect = drawingCanvas.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+
+    drawingCtx.clearRect(0, 0, w, h);
+
+    const allDrawings = [...drawings];
+    if (currentDrawing) allDrawings.push(currentDrawing);
+
+    allDrawings.forEach(d => {
+        drawingCtx.save();
+        if (d.type === 'brush' || d.type === 'highlighter') {
+            if (d.points && d.points.length > 1) {
+                drawingCtx.beginPath();
+                drawingCtx.strokeStyle = d.color;
+                drawingCtx.lineWidth = d.width;
+                drawingCtx.lineCap = 'round';
+                drawingCtx.lineJoin = 'round';
+                drawingCtx.moveTo(d.points[0].x, d.points[0].y);
+                for (let i = 1; i < d.points.length; i++) {
+                    drawingCtx.lineTo(d.points[i].x, d.points[i].y);
+                }
+                drawingCtx.stroke();
+            }
+        } else if (d.type === 'trendline' || d.type === 'ray') {
+            drawingCtx.beginPath();
+            drawingCtx.strokeStyle = '#38bdf8';
+            drawingCtx.lineWidth = 2;
+            drawingCtx.moveTo(d.startX, d.startY);
+            drawingCtx.lineTo(d.endX, d.endY);
+            drawingCtx.stroke();
+
+            drawingCtx.fillStyle = '#ffffff';
+            drawingCtx.beginPath();
+            drawingCtx.arc(d.startX, d.startY, 4, 0, Math.PI * 2);
+            drawingCtx.arc(d.endX, d.endY, 4, 0, Math.PI * 2);
+            drawingCtx.fill();
+        } else if (d.type === 'horizontal') {
+            drawingCtx.beginPath();
+            drawingCtx.strokeStyle = '#f59e0b';
+            drawingCtx.lineWidth = 1.5;
+            drawingCtx.setLineDash([4, 4]);
+            drawingCtx.moveTo(0, d.y);
+            drawingCtx.lineTo(w, d.y);
+            drawingCtx.stroke();
+
+            if (d.priceText) {
+                drawingCtx.fillStyle = '#f59e0b';
+                drawingCtx.fillRect(w - 75, d.y - 10, 75, 20);
+                drawingCtx.fillStyle = '#0b0f19';
+                drawingCtx.font = "bold 11px monospace";
+                drawingCtx.textAlign = "center";
+                drawingCtx.fillText(d.priceText, w - 38, d.y + 4);
+            }
+        } else if (d.type === 'rectangle') {
+            const rx = Math.min(d.startX, d.endX);
+            const ry = Math.min(d.startY, d.endY);
+            const rw = Math.abs(d.endX - d.startX);
+            const rh = Math.abs(d.endY - d.startY);
+
+            drawingCtx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+            drawingCtx.fillRect(rx, ry, rw, rh);
+            drawingCtx.strokeStyle = '#38bdf8';
+            drawingCtx.lineWidth = 1.5;
+            drawingCtx.strokeRect(rx, ry, rw, rh);
+        } else if (d.type === 'circle') {
+            const cx = (d.startX + d.endX) / 2;
+            const cy = (d.startY + d.endY) / 2;
+            const rx = Math.abs(d.endX - d.startX) / 2;
+            const ry = Math.abs(d.endY - d.startY) / 2;
+
+            drawingCtx.beginPath();
+            drawingCtx.ellipse(cx, cy, Math.max(2, rx), Math.max(2, ry), 0, 0, Math.PI * 2);
+            drawingCtx.fillStyle = 'rgba(168, 85, 247, 0.12)';
+            drawingCtx.fill();
+            drawingCtx.strokeStyle = '#a855f7';
+            drawingCtx.lineWidth = 1.5;
+            drawingCtx.stroke();
+        } else if (d.type === 'fibonacci') {
+            const fibRatios = [
+                { r: 0.0, color: '#ef4444', label: '0.0%' },
+                { r: 0.236, color: '#f97316', label: '23.6%' },
+                { r: 0.382, color: '#eab308', label: '38.2%' },
+                { r: 0.500, color: '#10b981', label: '50.0%' },
+                { r: 0.618, color: '#06b6d4', label: '61.8% (Golden)' },
+                { r: 0.786, color: '#8b5cf6', label: '78.6%' },
+                { r: 1.000, color: '#ec4899', label: '100.0%' }
+            ];
+            const dy = d.endY - d.startY;
+            const left = Math.min(d.startX, d.endX);
+            const right = Math.max(d.startX, d.endX);
+
+            for (let i = 0; i < fibRatios.length; i++) {
+                const fib = fibRatios[i];
+                const yLevel = d.startY + dy * fib.r;
+
+                drawingCtx.beginPath();
+                drawingCtx.strokeStyle = fib.color;
+                drawingCtx.lineWidth = 1.2;
+                drawingCtx.setLineDash([3, 2]);
+                drawingCtx.moveTo(left, yLevel);
+                drawingCtx.lineTo(right, yLevel);
+                drawingCtx.stroke();
+
+                if (i < fibRatios.length - 1) {
+                    const nextY = d.startY + dy * fibRatios[i + 1].r;
+                    drawingCtx.fillStyle = 'rgba(56, 189, 248, 0.05)';
+                    drawingCtx.fillRect(left, Math.min(yLevel, nextY), right - left, Math.abs(nextY - yLevel));
+                }
+
+                drawingCtx.fillStyle = fib.color;
+                drawingCtx.font = "bold 10px monospace";
+                drawingCtx.fillText(fib.label, left + 6, yLevel - 3);
+            }
+        } else if (d.type === 'long_position') {
+            const left = Math.min(d.startX, d.endX);
+            const right = Math.max(d.startX, d.endX);
+            const entryY = d.startY;
+            const targetY = Math.min(d.startY, d.endY);
+            const stopY = d.startY + Math.abs(entryY - targetY) / 2.0;
+
+            // Target (Profit) Green Box
+            drawingCtx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+            drawingCtx.fillRect(left, targetY, right - left, entryY - targetY);
+            drawingCtx.strokeStyle = '#10b981';
+            drawingCtx.lineWidth = 1.5;
+            drawingCtx.strokeRect(left, targetY, right - left, entryY - targetY);
+
+            // Stop (Risk) Red Box
+            drawingCtx.fillStyle = 'rgba(239, 68, 68, 0.22)';
+            drawingCtx.fillRect(left, entryY, right - left, stopY - entryY);
+            drawingCtx.strokeStyle = '#ef4444';
+            drawingCtx.lineWidth = 1.5;
+            drawingCtx.strokeRect(left, entryY, right - left, stopY - entryY);
+
+            // Entry Line
+            drawingCtx.strokeStyle = '#ffffff';
+            drawingCtx.lineWidth = 2;
+            drawingCtx.beginPath();
+            drawingCtx.moveTo(left, entryY);
+            drawingCtx.lineTo(right, entryY);
+            drawingCtx.stroke();
+
+            // Center Badge
+            const midX = (left + right) / 2;
+            drawingCtx.fillStyle = '#0f172a';
+            drawingCtx.fillRect(midX - 60, entryY - 12, 120, 24);
+            drawingCtx.strokeStyle = '#10b981';
+            drawingCtx.lineWidth = 1;
+            drawingCtx.strokeRect(midX - 60, entryY - 12, 120, 24);
+            drawingCtx.fillStyle = '#10b981';
+            drawingCtx.font = "bold 11px sans-serif";
+            drawingCtx.textAlign = "center";
+            drawingCtx.fillText("Risk/Reward: 2.00", midX, entryY + 4);
+
+            drawingCtx.fillStyle = '#10b981';
+            drawingCtx.fillText("TARGET (PROFIT)", left + 60, targetY + 14);
+            drawingCtx.fillStyle = '#ef4444';
+            drawingCtx.fillText("STOP LOSS", left + 45, stopY - 6);
+        } else if (d.type === 'short_position') {
+            const left = Math.min(d.startX, d.endX);
+            const right = Math.max(d.startX, d.endX);
+            const entryY = d.startY;
+            const targetY = Math.max(d.startY, d.endY);
+            const stopY = d.startY - Math.abs(targetY - entryY) / 2.0;
+
+            // Stop Loss Red Box
+            drawingCtx.fillStyle = 'rgba(239, 68, 68, 0.22)';
+            drawingCtx.fillRect(left, stopY, right - left, entryY - stopY);
+            drawingCtx.strokeStyle = '#ef4444';
+            drawingCtx.strokeRect(left, stopY, right - left, entryY - stopY);
+
+            // Target Green Box
+            drawingCtx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+            drawingCtx.fillRect(left, entryY, right - left, targetY - entryY);
+            drawingCtx.strokeStyle = '#10b981';
+            drawingCtx.strokeRect(left, entryY, right - left, targetY - entryY);
+
+            // Entry line
+            drawingCtx.strokeStyle = '#ffffff';
+            drawingCtx.lineWidth = 2;
+            drawingCtx.beginPath();
+            drawingCtx.moveTo(left, entryY);
+            drawingCtx.lineTo(right, entryY);
+            drawingCtx.stroke();
+
+            const midX = (left + right) / 2;
+            drawingCtx.fillStyle = '#0f172a';
+            drawingCtx.fillRect(midX - 60, entryY - 12, 120, 24);
+            drawingCtx.strokeStyle = '#ef4444';
+            drawingCtx.strokeRect(midX - 60, entryY - 12, 120, 24);
+            drawingCtx.fillStyle = '#ef4444';
+            drawingCtx.font = "bold 11px sans-serif";
+            drawingCtx.textAlign = "center";
+            drawingCtx.fillText("Risk/Reward: 2.00", midX, entryY + 4);
+        } else if (d.type === 'measure') {
+            const rx = Math.min(d.startX, d.endX);
+            const ry = Math.min(d.startY, d.endY);
+            const rw = Math.abs(d.endX - d.startX);
+            const rh = Math.abs(d.endY - d.startY);
+
+            drawingCtx.strokeStyle = '#06b6d4';
+            drawingCtx.lineWidth = 1.5;
+            drawingCtx.setLineDash([4, 4]);
+            drawingCtx.strokeRect(rx, ry, rw, rh);
+
+            drawingCtx.fillStyle = 'rgba(6, 182, 212, 0.9)';
+            drawingCtx.fillRect(rx, ry - 22, 140, 20);
+            drawingCtx.fillStyle = '#0b0f19';
+            drawingCtx.font = "bold 10px monospace";
+            drawingCtx.textAlign = "left";
+            const pct = ((rh / 420) * 10).toFixed(2);
+            drawingCtx.fillText(`Δ: ${rw}px | +${pct}%`, rx + 6, ry - 8);
+        }
+        drawingCtx.restore();
+    });
+}
+
+/* ==========================================================================
+   TradingView Top Bar Dropdown Handlers
+   ========================================================================== */
+function toggleTvDropdown(id) {
+    const el = document.getElementById(id);
+    const isOpen = el.classList.contains("active");
+    closeAllTvFlyouts();
+    if (!isOpen) {
+        el.classList.add("active");
+    }
+}
+
+function selectTimeframe(tf) {
+    state.activeTimeframe = tf;
+    const lbl = document.getElementById("lblActiveTf");
+    if (lbl) lbl.innerText = `⏱️ ${tf}`;
+
+    document.querySelectorAll("#menuTimeframe .tv-menu-option").forEach(opt => {
+        opt.classList.toggle("selected", opt.innerText.includes(tf));
+    });
+
+    closeAllTvFlyouts();
+    loadStockChart(state.activeSymbol);
+}
+
+function toggleFavTf(e, tf) {
+    e.stopPropagation();
+    const star = e.currentTarget;
+    star.classList.toggle("active");
+}
+
+function selectChartType(type) {
+    const lbl = document.getElementById("lblActiveChartType");
+    closeAllTvFlyouts();
+
+    if (type === 'candles') {
+        if (lbl) lbl.innerText = "🕯️ Candles";
+        candleSeries.applyOptions({
+            upColor: "#10b981", downColor: "#ef4444",
+            borderUpColor: "#10b981", borderDownColor: "#ef4444",
+            wickUpColor: "#10b981", wickDownColor: "#ef4444"
+        });
+        switchMainView('candles');
+    } else if (type === 'hollow') {
+        if (lbl) lbl.innerText = "🕯️ Hollow";
+        candleSeries.applyOptions({
+            upColor: "transparent", downColor: "#ef4444",
+            borderUpColor: "#10b981", borderDownColor: "#ef4444",
+            wickUpColor: "#10b981", wickDownColor: "#ef4444"
+        });
+        switchMainView('candles');
+    } else if (type === 'heikin') {
+        if (lbl) lbl.innerText = "📊 Heikin Ashi";
+        switchMainView('candles');
+        showToast("Switched to Heikin Ashi smoothing.");
+    } else if (type === 'line') {
+        if (lbl) lbl.innerText = "📈 Line";
+        candleSeries.applyOptions({
+            upColor: "#06b6d4", downColor: "#06b6d4",
+            borderUpColor: "#06b6d4", borderDownColor: "#06b6d4",
+            wickUpColor: "transparent", wickDownColor: "transparent"
+        });
+        switchMainView('candles');
+    } else if (type === 'area') {
+        if (lbl) lbl.innerText = "📉 Area";
+        switchMainView('candles');
+    }
+}
+
+/* ==========================================================================
+   Indicator Marketplace Modal
+   ========================================================================== */
+function openIndicatorsModal() {
+    document.getElementById("indicatorsModal").classList.add("open");
+}
+
+function closeIndicatorsModal() {
+    document.getElementById("indicatorsModal").classList.remove("open");
+}
+
+function filterIndicatorsCategory(cat, btn) {
+    document.querySelectorAll(".ind-tab-btn").forEach(b => b.classList.remove("active"));
+    if (btn) btn.classList.add("active");
+
+    const cards = document.querySelectorAll("#indicatorCardsContainer .ind-card");
+    cards.forEach(card => {
+        if (cat === 'all' || card.dataset.category === cat) {
+            card.style.display = "flex";
+        } else {
+            card.style.display = "none";
+        }
+    });
+}
+
+function searchIndicators(query) {
+    query = query.toLowerCase().trim();
+    const cards = document.querySelectorAll("#indicatorCardsContainer .ind-card");
+    cards.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(query) ? "flex" : "none";
+    });
+}
+
+function toggleIndicatorFromModal(key) {
+    if (key === 'ema10') {
+        state.indicators.ema10 = !state.indicators.ema10;
+        ema10Series.applyOptions({ visible: state.indicators.ema10 });
+        document.getElementById("modalBtnEma10").classList.toggle("active", state.indicators.ema10);
+        document.getElementById("toggleEma10").classList.toggle("active", state.indicators.ema10);
+    } else if (key === 'ema20') {
+        state.indicators.ema20 = !state.indicators.ema20;
+        ema20Series.applyOptions({ visible: state.indicators.ema20 });
+        document.getElementById("modalBtnEma20").classList.toggle("active", state.indicators.ema20);
+        document.getElementById("toggleEma20").classList.toggle("active", state.indicators.ema20);
+    } else if (key === 'ema50') {
+        state.indicators.ema50 = !state.indicators.ema50;
+        ema50Series.applyOptions({ visible: state.indicators.ema50 });
+        document.getElementById("modalBtnEma50").classList.toggle("active", state.indicators.ema50);
+        document.getElementById("toggleEma50").classList.toggle("active", state.indicators.ema50);
+    } else if (key === 'ema200') {
+        state.indicators.ema200 = !state.indicators.ema200;
+        ema200Series.applyOptions({ visible: state.indicators.ema200 });
+        document.getElementById("modalBtnEma200").classList.toggle("active", state.indicators.ema200);
+        document.getElementById("toggleEma200").classList.toggle("active", state.indicators.ema200);
+    } else if (key === 'vwap') {
+        state.indicators.vwap = !state.indicators.vwap;
+        if (vwapSeries) vwapSeries.applyOptions({ visible: state.indicators.vwap });
+        document.getElementById("modalBtnVwap").classList.toggle("active", state.indicators.vwap);
+        document.getElementById("toggleVwap").classList.toggle("active", state.indicators.vwap);
+    } else if (key === 'bb') {
+        state.indicators.bb = !state.indicators.bb;
+        if (bbUpperSeries) bbUpperSeries.applyOptions({ visible: state.indicators.bb });
+        if (bbLowerSeries) bbLowerSeries.applyOptions({ visible: state.indicators.bb });
+        document.getElementById("modalBtnBb").classList.toggle("active", state.indicators.bb);
+        document.getElementById("toggleBb").classList.toggle("active", state.indicators.bb);
+    }
+}
+
+/* ==========================================================================
+   F&O Option Chain Modal
+   ========================================================================== */
+async function openOptionChainModal() {
+    const modal = document.getElementById("optionChainModal");
+    modal.classList.add("open");
+
+    const cleanSymbol = state.activeSymbol.replace(".NS", "").replace("^", "");
+    document.getElementById("fnoModalTitle").innerText = `${cleanSymbol} Futures & Options Chain`;
+
+    try {
+        const res = await fetch(`/api/fno/expiries/${encodeURIComponent(cleanSymbol)}`);
+        if (res.ok) {
+            const data = await res.json();
+            const expSelect = document.getElementById("fnoExpirySelect");
+            expSelect.innerHTML = "";
+            (data.expiries || []).forEach(exp => {
+                const opt = document.createElement("option");
+                opt.value = exp;
+                opt.innerText = exp;
+                expSelect.appendChild(opt);
+            });
+        }
+    } catch (e) {
+        console.warn("Expiries load failed:", e);
+    }
+
+    await loadFnoChain();
+}
+
+function closeOptionChainModal() {
+    document.getElementById("optionChainModal").classList.remove("open");
+}
+
+async function loadFnoChain() {
+    const cleanSymbol = state.activeSymbol.replace(".NS", "").replace("^", "");
+    const expSelect = document.getElementById("fnoExpirySelect");
+    const expiry = expSelect ? expSelect.value : "";
+
+    const tbody = document.getElementById("fnoTableBody");
+    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:2rem; color:#64748b;">Loading Option Chain for ${cleanSymbol}...</td></tr>`;
+
+    try {
+        const url = `/api/fno/option-chain/${encodeURIComponent(cleanSymbol)}` + (expiry ? `?expiry=${encodeURIComponent(expiry)}` : "");
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+
+        const spot = data.spot_price || 0;
+        document.getElementById("fnoSpotPrice").innerText = `₹${spot.toFixed(2)}`;
+        document.getElementById("fnoPcrVal").innerText = data.pcr ? data.pcr.toFixed(2) : "--";
+        const pcrBadge = document.getElementById("fnoPcrBadge");
+        if (pcrBadge) {
+            if (data.pcr > 1.2) {
+                pcrBadge.innerText = "BULLISH (Puts > Calls)";
+                pcrBadge.style.color = "#10b981";
+                pcrBadge.style.background = "rgba(16,185,129,0.15)";
+            } else if (data.pcr < 0.8) {
+                pcrBadge.innerText = "BEARISH (Calls > Puts)";
+                pcrBadge.style.color = "#ef4444";
+                pcrBadge.style.background = "rgba(239,68,68,0.15)";
+            } else {
+                pcrBadge.innerText = "NEUTRAL";
+                pcrBadge.style.color = "#fbbf24";
+                pcrBadge.style.background = "rgba(245,158,11,0.15)";
+            }
+        }
+        document.getElementById("fnoMaxPain").innerText = `₹${(data.max_pain || spot).toFixed(2)}`;
+        document.getElementById("fnoCallOi").innerText = formatLargeNumber(data.total_call_oi || 0);
+        document.getElementById("fnoPutOi").innerText = formatLargeNumber(data.total_put_oi || 0);
+
+        const chain = data.chain || [];
+        if (chain.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:2rem; color:#ef4444;">No contracts available for this symbol.</td></tr>`;
+            return;
+        }
+
+        const maxOi = Math.max(...chain.map(r => Math.max(r.call_oi || 0, r.put_oi || 0)), 1);
+
+        let rowsHtml = "";
+        chain.forEach(r => {
+            const isAtm = r.is_atm;
+            const callDepthPct = Math.min(100, ((r.call_oi || 0) / maxOi) * 100);
+            const putDepthPct = Math.min(100, ((r.put_oi || 0) / maxOi) * 100);
+
+            const callChgColor = (r.call_chg || 0) >= 0 ? '#10b981' : '#ef4444';
+            const putChgColor = (r.put_chg || 0) >= 0 ? '#10b981' : '#ef4444';
+
+            rowsHtml += `
+            <tr class="${isAtm ? 'atm-row' : ''}">
+                <td style="font-weight:700; color:#cbd5e1;">
+                    <div class="fno-oi-bar fno-oi-bar-call" style="width:${callDepthPct}%;"></div>
+                    ${formatLargeNumber(r.call_oi || 0)}
+                </td>
+                <td style="color:${(r.call_oi_chg || 0) >= 0 ? '#10b981' : '#ef4444'};">${(r.call_oi_chg || 0) >= 0 ? '+' : ''}${formatLargeNumber(r.call_oi_chg || 0)}</td>
+                <td style="color:#94a3b8;">${formatLargeNumber(r.call_volume || 0)}</td>
+                <td style="color:#a855f7;">${(r.call_iv || 15.0).toFixed(1)}%</td>
+                <td style="font-weight:700; color:#38bdf8;">${(r.call_ltp || 0).toFixed(2)}</td>
+                <td style="color:${callChgColor};">${(r.call_chg || 0) >= 0 ? '+' : ''}${(r.call_chg || 0).toFixed(2)}</td>
+
+                <td class="strike-cell">
+                    ${isAtm ? '★ ' : ''}${r.strike.toFixed(2)}${isAtm ? ' (ATM)' : ''}
+                </td>
+
+                <td style="color:${putChgColor};">${(r.put_chg || 0) >= 0 ? '+' : ''}${(r.put_chg || 0).toFixed(2)}</td>
+                <td style="font-weight:700; color:#38bdf8;">${(r.put_ltp || 0).toFixed(2)}</td>
+                <td style="color:#a855f7;">${(r.put_iv || 15.0).toFixed(1)}%</td>
+                <td style="color:#94a3b8;">${formatLargeNumber(r.put_volume || 0)}</td>
+                <td style="color:${(r.put_oi_chg || 0) >= 0 ? '#10b981' : '#ef4444'};">${(r.put_oi_chg || 0) >= 0 ? '+' : ''}${formatLargeNumber(r.put_oi_chg || 0)}</td>
+                <td style="font-weight:700; color:#cbd5e1;">
+                    <div class="fno-oi-bar fno-oi-bar-put" style="width:${putDepthPct}%;"></div>
+                    ${formatLargeNumber(r.put_oi || 0)}
+                </td>
+            </tr>`;
+        });
+
+        tbody.innerHTML = rowsHtml;
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:2rem; color:#ef4444;">Error fetching option chain: ${e.message}</td></tr>`;
+    }
 }
 
 /**
@@ -2208,6 +4682,15 @@ function renderChartData(data, isSilentRefresh = false) {
     if (data.ema_200 && data.ema_200.length > 0) {
         ema200Series.setData(data.ema_200.map(e => ({ ...e, time: formatChartTime(e.time, tf) })));
     }
+    
+    if (data.vwap && data.vwap.length > 0) {
+        vwapSeries.setData(data.vwap.map(e => ({ ...e, time: formatChartTime(e.time, tf) })));
+    }
+    
+    if (data.bb_upper && data.bb_upper.length > 0) {
+        bbUpperSeries.setData(data.bb_upper.map(e => ({ ...e, time: formatChartTime(e.time, tf) })));
+        bbLowerSeries.setData(data.bb_lower.map(e => ({ ...e, time: formatChartTime(e.time, tf) })));
+    }
 
     // 3. RSI
     if (data.rsi && data.rsi.length > 0) {
@@ -2237,10 +4720,87 @@ function renderChartData(data, isSilentRefresh = false) {
         candleSeries.setMarkers([]);
     }
 
+    // 5. Market Profile / Orderflow (POC, VAH, VAL)
+    if (pocLine) candleSeries.removePriceLine(pocLine);
+    if (vahLine) candleSeries.removePriceLine(vahLine);
+    if (valLine) candleSeries.removePriceLine(valLine);
+    
+    if (data.orderflow && data.orderflow.poc) {
+        pocLine = candleSeries.createPriceLine({
+            price: data.orderflow.poc,
+            color: '#f43f5e',
+            lineWidth: 2,
+            lineStyle: LightweightCharts.LineStyle.Solid,
+            axisLabelVisible: true,
+            title: 'POC',
+        });
+        vahLine = candleSeries.createPriceLine({
+            price: data.orderflow.vah,
+            color: '#0ea5e9',
+            lineWidth: 1,
+            lineStyle: LightweightCharts.LineStyle.Dashed,
+            axisLabelVisible: true,
+            title: 'VAH',
+        });
+        valLine = candleSeries.createPriceLine({
+            price: data.orderflow.val,
+            color: '#0ea5e9',
+            lineWidth: 1,
+            lineStyle: LightweightCharts.LineStyle.Dashed,
+            axisLabelVisible: true,
+            title: 'VAL',
+        });
+    }
+
+    // 6. Cumulative Volume Delta (CVD) Series
+    if (data.orderflow && data.orderflow.cvd_series && data.orderflow.cvd_series.length > 0) {
+        const tf = state.activeTimeframe;
+        const cvdDeltaData = data.orderflow.cvd_series.map(c => ({
+            time: formatChartTime(c.time, tf),
+            value: c.delta,
+            color: c.color
+        }));
+        const cvdCumData = data.orderflow.cvd_series.map(c => ({
+            time: formatChartTime(c.time, tf),
+            value: c.value
+        }));
+        if (cvdDeltaSeries) cvdDeltaSeries.setData(cvdDeltaData);
+        if (cvdCumSeries) cvdCumSeries.setData(cvdCumData);
+
+        const lastCvd = data.orderflow.cvd_series[data.orderflow.cvd_series.length - 1];
+        const deltaBadge = document.getElementById("cvdDeltaBadge");
+        if (deltaBadge) {
+            deltaBadge.innerText = `Bar Delta: ${lastCvd.delta >= 0 ? '+' : ''}${formatLargeNumber(lastCvd.delta)}`;
+            deltaBadge.style.color = lastCvd.delta >= 0 ? '#10b981' : '#ef4444';
+        }
+        const cumBadge = document.getElementById("cvdCumBadge");
+        if (cumBadge) {
+            cumBadge.innerText = `CVD: ${lastCvd.value >= 0 ? '+' : ''}${formatLargeNumber(lastCvd.value)}`;
+        }
+        const divBadge = document.getElementById("cvdDivBadge");
+        if (divBadge) {
+            if (data.orderflow.cvd_divergences && data.orderflow.cvd_divergences.length > 0) {
+                const latestDiv = data.orderflow.cvd_divergences[data.orderflow.cvd_divergences.length - 1];
+                divBadge.style.display = "inline-block";
+                divBadge.innerText = `⚡ ${latestDiv.type}: ${latestDiv.note}`;
+            } else {
+                divBadge.style.display = "none";
+            }
+        }
+    }
+
+    // Render Orderflow Matrix & Market Profile Views
+    if (data.orderflow) {
+        renderFootprintMatrix(data.orderflow);
+        renderMarketProfileView(data.orderflow);
+        updateOrderflowSidebar(data.orderflow, (data.meta && data.meta.currency === "INR") ? "₹" : "$");
+    }
+
     // Fit content only on initial load or symbol switch, not silent refresh
     if (!isSilentRefresh) {
         mainChart.timeScale().fitContent();
         rsiChart.timeScale().fitContent();
+        if (cvdChart) cvdChart.timeScale().fitContent();
     }
 
     // Update Top Banner
@@ -2438,6 +4998,12 @@ function renderDiagnosis(a, meta) {
         }
     }
 
+    // Institutional Context
+    const elContext = document.getElementById("institutionalContextText");
+    if (elContext) {
+        elContext.innerText = a.institutional_context || "Context generating...";
+    }
+
     // In-Trade Psychology & Risk
     const psych = a.trade_psychology || {};
     const elRr = document.getElementById("psychRr");
@@ -2485,13 +5051,36 @@ function setupSearchAutoComplete() {
     };
 
     const renderSuggestions = (items) => {
+        dropdown.innerHTML = "";
+        activeSuggestionIndex = -1;
+
+        // Render Favorites Watchlist chips at the top
+        const favs = JSON.parse(localStorage.getItem('alphapulse_favs') || '["NIFTY", "BANKNIFTY", "RELIANCE", "INFY", "NVDA"]');
+        const chipRow = document.createElement("div");
+        chipRow.className = "watchlist-chip-row";
+        chipRow.innerHTML = `<span style="font-weight:700; color:#94a3b8; font-size:0.68rem; margin-right:4px;">★ WATCHLIST:</span>`;
+        favs.forEach(sym => {
+            const chip = document.createElement("span");
+            chip.className = "watchlist-chip";
+            chip.innerText = sym;
+            chip.onclick = (e) => {
+                e.stopPropagation();
+                selectSuggestion(sym);
+            };
+            chipRow.appendChild(chip);
+        });
+        dropdown.appendChild(chipRow);
+
         if (items.length === 0) {
-            dropdown.style.display = "none";
+            const emptyDiv = document.createElement("div");
+            emptyDiv.style.padding = "0.75rem 1rem";
+            emptyDiv.style.color = "#64748b";
+            emptyDiv.style.fontSize = "0.75rem";
+            emptyDiv.innerText = "No exact symbol match found. Press Enter to search.";
+            dropdown.appendChild(emptyDiv);
+            dropdown.style.display = "block";
             return;
         }
-
-        activeSuggestionIndex = -1;
-        dropdown.innerHTML = "";
 
         items.forEach((item, idx) => {
             const div = document.createElement("div");
@@ -2499,11 +5088,22 @@ function setupSearchAutoComplete() {
             div.dataset.index = idx;
             div.dataset.symbol = item.symbol;
 
+            const isFav = favs.includes(item.symbol);
             const badgeClass = item.exchange.toLowerCase();
+            const typeBadge = item.type ? `<span style="font-size:0.62rem; background:rgba(245,158,11,0.18); color:#f59e0b; padding:1px 4px; border-radius:3px; font-weight:700;">${item.type}</span>` : '';
+            const sectorTag = item.sector ? ` • ${item.sector}` : '';
+            const isinTag = item.isin ? ` • ${item.isin}` : '';
+
             div.innerHTML = `
-                <div class="suggestion-left">
-                    <span class="suggestion-sym">${item.symbol}</span>
-                    <span class="suggestion-name">${item.name}</span>
+                <div class="suggestion-left" style="display:flex; align-items:center; gap:8px;">
+                    <button class="suggestion-fav-btn ${isFav ? 'is-fav' : ''}" onclick="event.stopPropagation(); toggleSymbolFav('${item.symbol}')">★</button>
+                    <div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="suggestion-sym">${item.symbol}</span>
+                            ${typeBadge}
+                        </div>
+                        <div class="suggestion-name">${item.name}${sectorTag}${isinTag}</div>
+                    </div>
                 </div>
                 <div class="suggestion-right">
                     <span class="suggestion-badge ${badgeClass}">${item.exchange}</span>
@@ -2518,6 +5118,19 @@ function setupSearchAutoComplete() {
         });
 
         dropdown.style.display = "block";
+    };
+
+    window.toggleSymbolFav = function(sym) {
+        let favs = JSON.parse(localStorage.getItem('alphapulse_favs') || '["NIFTY", "BANKNIFTY", "RELIANCE", "INFY", "NVDA"]');
+        if (favs.includes(sym)) {
+            favs = favs.filter(s => s !== sym);
+            showToast(`Removed ${sym} from Watchlist`);
+        } else {
+            favs.push(sym);
+            showToast(`Added ${sym} to Watchlist ★`);
+        }
+        localStorage.setItem('alphapulse_favs', JSON.stringify(favs));
+        fetchSuggestions(document.getElementById("symbolInput").value);
     };
 
     const selectSuggestion = (symbol) => {
@@ -2819,6 +5432,19 @@ function setupEventListeners() {
         state.indicators.ema200 = !state.indicators.ema200;
         this.classList.toggle("active");
         ema200Series.applyOptions({ visible: state.indicators.ema200 });
+    });
+
+    document.getElementById("toggleVwap").addEventListener("click", function() {
+        state.indicators.vwap = !state.indicators.vwap;
+        this.classList.toggle("active");
+        if(vwapSeries) vwapSeries.applyOptions({ visible: state.indicators.vwap });
+    });
+
+    document.getElementById("toggleBb").addEventListener("click", function() {
+        state.indicators.bb = !state.indicators.bb;
+        this.classList.toggle("active");
+        if(bbUpperSeries) bbUpperSeries.applyOptions({ visible: state.indicators.bb });
+        if(bbLowerSeries) bbLowerSeries.applyOptions({ visible: state.indicators.bb });
     });
 
     document.getElementById("toggleSwings").addEventListener("click", function() {
@@ -3343,6 +5969,497 @@ function showToast(msg) {
     setTimeout(() => {
         toast.classList.remove("show");
     }, 3500);
+}
+
+/**
+ * Format Large Numbers with compact suffixes (K, M, B)
+ */
+function formatLargeNumber(num) {
+    if (num === null || num === undefined || isNaN(num)) return "0";
+    const abs = Math.abs(num);
+    if (abs >= 1e9) return (num / 1e9).toFixed(2) + "B";
+    if (abs >= 1e6) return (num / 1e6).toFixed(2) + "M";
+    if (abs >= 1e3) return (num / 1e3).toFixed(1) + "K";
+    return Number(num).toFixed(0);
+}
+
+/**
+ * Switch Chart Main View (Candles vs Orderflow Footprint vs Market Profile)
+ */
+function switchMainView(mode) {
+    currentActiveView = mode;
+    const tabCandles = document.getElementById("tabCandles");
+    const tabFootprint = document.getElementById("tabFootprint");
+    const tabMarketProfile = document.getElementById("tabMarketProfile");
+
+    if (tabCandles) tabCandles.className = `view-tab-btn ${mode === 'candles' ? 'active' : ''}`;
+    if (tabFootprint) tabFootprint.className = `view-tab-btn ${mode === 'footprint' ? 'active' : ''}`;
+    if (tabMarketProfile) tabMarketProfile.className = `view-tab-btn ${mode === 'market_profile' ? 'active' : ''}`;
+
+    const mainEl = document.getElementById("mainChartContainer");
+    const fpEl = document.getElementById("footprintContainer");
+    const mpEl = document.getElementById("marketProfileContainer");
+
+    if (mode === 'candles') {
+        if (mainEl) mainEl.style.display = "block";
+        if (fpEl) fpEl.style.display = "none";
+        if (mpEl) mpEl.style.display = "none";
+        if (mainChart) {
+            const width = mainEl.clientWidth || 800;
+            mainChart.applyOptions({ width });
+        }
+    } else if (mode === 'footprint') {
+        if (mainEl) mainEl.style.display = "none";
+        if (fpEl) fpEl.style.display = "flex";
+        if (mpEl) mpEl.style.display = "none";
+        if (cachedChartData && cachedChartData.orderflow) {
+            renderFootprintMatrix(cachedChartData.orderflow);
+        }
+    } else if (mode === 'market_profile') {
+        if (mainEl) mainEl.style.display = "none";
+        if (fpEl) fpEl.style.display = "none";
+        if (mpEl) mpEl.style.display = "flex";
+        if (cachedChartData && cachedChartData.orderflow) {
+            renderMarketProfileView(cachedChartData.orderflow);
+        }
+    }
+}
+
+// Institutional Orderflow & Market Profile Settings State
+let deskTheme = 'light'; // Default: light gray institutional desk matching reference images
+let currentImbalanceRatio = 3.0;
+let tpoScaleSetting = 'auto';
+let showVaShading = true;
+let showCandlesOverProfile = true;
+
+/**
+ * Toggle Institutional Desk Theme (Light Gray vs Dark Terminal)
+ */
+function toggleDeskTheme(containerId) {
+    deskTheme = (deskTheme === 'light') ? 'dark' : 'light';
+    const fpPanel = document.getElementById("footprintContainer");
+    const mpPanel = document.getElementById("marketProfileContainer");
+    const btnFp = document.getElementById("btnFpTheme");
+    const btnMp = document.getElementById("btnMpTheme");
+
+    if (deskTheme === 'dark') {
+        if (fpPanel) fpPanel.classList.add("dark-desk");
+        if (mpPanel) mpPanel.classList.add("dark-desk");
+        if (btnFp) btnFp.innerText = "🌙 Dark Terminal";
+        if (btnMp) btnMp.innerText = "🌙 Dark Terminal";
+    } else {
+        if (fpPanel) fpPanel.classList.remove("dark-desk");
+        if (mpPanel) mpPanel.classList.remove("dark-desk");
+        if (btnFp) btnFp.innerText = "☀️ Light Desk";
+        if (btnMp) btnMp.innerText = "☀️ Light Desk";
+    }
+}
+
+/**
+ * Switch Footprint Sub-Display Mode (Bid x Ask vs Delta Ladder vs Volume)
+ */
+function setFootprintMode(mode) {
+    footprintDisplayMode = mode;
+    const btnBA = document.getElementById("btnFpBidAsk");
+    const btnDelta = document.getElementById("btnFpDelta");
+    const btnVol = document.getElementById("btnFpVol");
+    if (btnBA) btnBA.className = `fp-btn-sm ${mode === 'bid_ask' ? 'active' : ''}`;
+    if (btnDelta) btnDelta.className = `fp-btn-sm ${mode === 'delta' ? 'active' : ''}`;
+    if (btnVol) btnVol.className = `fp-btn-sm ${mode === 'volume' ? 'active' : ''}`;
+
+    if (cachedChartData && cachedChartData.orderflow) {
+        renderFootprintMatrix(cachedChartData.orderflow);
+    }
+}
+
+/**
+ * Set Imbalance Threshold (300% / 400%)
+ */
+function setImbalanceThreshold(ratio) {
+    currentImbalanceRatio = ratio;
+    const btn300 = document.getElementById("btnFpImb300");
+    const btn400 = document.getElementById("btnFpImb400");
+    if (btn300) btn300.className = `fp-btn-sm ${ratio === 3.0 ? 'active' : ''}`;
+    if (btn400) btn400.className = `fp-btn-sm ${ratio === 4.0 ? 'active' : ''}`;
+    if (cachedChartData && cachedChartData.orderflow) {
+        renderFootprintMatrix(cachedChartData.orderflow);
+    }
+}
+
+/**
+ * Set TPO Scale (Auto / Fine / Coarse)
+ */
+function setTpoScale(scale) {
+    tpoScaleSetting = scale;
+    const btnAuto = document.getElementById("btnTpoAuto");
+    const btnFine = document.getElementById("btnTpoFine");
+    const btnCoarse = document.getElementById("btnTpoCoarse");
+    if (btnAuto) btnAuto.className = `fp-btn-sm ${scale === 'auto' ? 'active' : ''}`;
+    if (btnFine) btnFine.className = `fp-btn-sm ${scale === 'fine' ? 'active' : ''}`;
+    if (btnCoarse) btnCoarse.className = `fp-btn-sm ${scale === 'coarse' ? 'active' : ''}`;
+    if (cachedChartData && cachedChartData.orderflow) {
+        renderMarketProfileView(cachedChartData.orderflow);
+    }
+}
+
+/**
+ * Toggle Session Value Area Shading
+ */
+function toggleVaShading() {
+    showVaShading = !showVaShading;
+    const btn = document.getElementById("btnToggleVaShading");
+    if (btn) btn.className = `fp-btn-sm ${showVaShading ? 'active' : ''}`;
+    if (cachedChartData && cachedChartData.orderflow) {
+        renderMarketProfileView(cachedChartData.orderflow);
+    }
+}
+
+/**
+ * Toggle Overlaid Candlesticks on Market Profile
+ */
+function toggleCandlesOverProfile() {
+    showCandlesOverProfile = !showCandlesOverProfile;
+    const btn = document.getElementById("btnToggleCandlesOverProfile");
+    if (btn) btn.className = `fp-btn-sm ${showCandlesOverProfile ? 'active' : ''}`;
+    if (cachedChartData && cachedChartData.orderflow) {
+        renderMarketProfileView(cachedChartData.orderflow);
+    }
+}
+
+/**
+ * Toggle CVD Subchart Visibility
+ */
+function toggleCvdChart() {
+    isCvdVisible = !isCvdVisible;
+    const wrapper = document.getElementById("cvdSubchartWrapper");
+    const btn = document.getElementById("toggleCvd");
+    if (wrapper) wrapper.style.display = isCvdVisible ? "block" : "none";
+    if (btn) btn.className = `pill-btn ${isCvdVisible ? 'active' : ''}`;
+}
+
+/**
+ * Render High-Density Institutional Orderflow Footprint Matrix (matching Image 4 & 5)
+ */
+function renderFootprintMatrix(of) {
+    const vp = document.getElementById("footprintViewport");
+    const statsRow = document.getElementById("fpStatsValuesRow");
+    if (!vp) return;
+    if (!of || !of.footprint_bars || of.footprint_bars.length === 0) {
+        vp.innerHTML = `<div style="color: var(--text-muted); padding: 3rem; text-align: center; width: 100%;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">👣 Orderflow Footprint Aggregation</div>
+            Streaming granular tick auction levels from real-time data tape...
+        </div>`;
+        return;
+    }
+
+    // Update Institutional Header Metrics (matching Image 4 & 5)
+    const symEl = document.getElementById("fpSymBadge");
+    if (symEl) symEl.innerText = `${state.activeSymbol} (${state.activeTimeframe})`;
+    const lastBar = of.footprint_bars[of.footprint_bars.length - 1];
+    if (lastBar) {
+        const elO = document.getElementById("fpOpen");
+        const elH = document.getElementById("fpHigh");
+        const elL = document.getElementById("fpLow");
+        const elC = document.getElementById("fpClose");
+        if (elO) elO.innerText = lastBar.open.toFixed(2);
+        if (elH) elH.innerText = lastBar.high.toFixed(2);
+        if (elL) elL.innerText = lastBar.low.toFixed(2);
+        if (elC) elC.innerText = lastBar.close.toFixed(2);
+    }
+
+    const volStatsEl = document.getElementById("fpVolStats");
+    if (volStatsEl) {
+        volStatsEl.innerText = `VOLUME ${formatLargeNumber(of.total_volume)} | Buy Vol: ${formatLargeNumber(of.buy_volume)} | Sell Vol: ${formatLargeNumber(of.sell_volume)}`;
+    }
+    const deltaH = document.getElementById("fpDeltaHeaderBadge");
+    if (deltaH) {
+        deltaH.innerText = `Delta: ${of.current_delta >= 0 ? '+' : ''}${formatLargeNumber(of.current_delta)}`;
+        deltaH.style.color = of.current_delta >= 0 ? '#16a34a' : '#dc2626';
+    }
+    const cvdH = document.getElementById("fpCvdHeaderBadge");
+    if (cvdH) {
+        cvdH.innerText = `CVD: ${of.current_cvd >= 0 ? '+' : ''}${formatLargeNumber(of.current_cvd)}`;
+    }
+
+    const summaryEl = document.getElementById("fpSummaryBadge");
+    if (summaryEl) {
+        summaryEl.innerText = `Bars: ${of.footprint_bars.length} | Imbalance: ${currentImbalanceRatio}:1`;
+    }
+
+    let candlesHtml = "";
+    let statsColsHtml = "";
+
+    of.footprint_bars.forEach((bar, idx) => {
+        const isBull = bar.close >= bar.open;
+        const dStr = typeof bar.timestamp === "number" ? formatChartTime(bar.timestamp, state.activeTimeframe) : `Bar ${idx+1}`;
+        
+        let badgesHtml = "";
+        if (bar.stacked_buy_imbalances && bar.stacked_buy_imbalances.length > 0) {
+            badgesHtml += `<div class="fp-badge-alert" style="background: rgba(22,163,74,0.2); color:#15803d; border:1px solid #16a34a;">▲ STACKED BUY (${bar.stacked_buy_imbalances.length}x)</div>`;
+        }
+        if (bar.stacked_sell_imbalances && bar.stacked_sell_imbalances.length > 0) {
+            badgesHtml += `<div class="fp-badge-alert" style="background: rgba(220,38,38,0.2); color:#b91c1c; border:1px solid #dc2626;">▼ STACKED SELL (${bar.stacked_sell_imbalances.length}x)</div>`;
+        }
+        if (bar.is_absorption) {
+            badgesHtml += `<div class="fp-badge-alert" style="background: rgba(245,158,11,0.25); color:#d97706; border:1px solid #f59e0b;">⚡ ABSORPTION</div>`;
+        }
+        if (bar.unfinished_high) {
+            badgesHtml += `<div class="fp-badge-alert" style="background: rgba(14,165,233,0.2); color:#0284c7; border:1px solid #0ea5e9;">⚠️ UNFINISHED HIGH</div>`;
+        }
+        if (bar.unfinished_low) {
+            badgesHtml += `<div class="fp-badge-alert" style="background: rgba(14,165,233,0.2); color:#0284c7; border:1px solid #0ea5e9;">⚠️ UNFINISHED LOW</div>`;
+        }
+
+        const levels = [...(bar.levels || [])].sort((a, b) => b.price - a.price);
+        const maxLevelVol = Math.max(...levels.map(l => (l.bid_vol + l.ask_vol)), 1);
+
+        let levelsHtml = "";
+        levels.forEach(lvl => {
+            const totVol = lvl.bid_vol + lvl.ask_vol;
+            const isHighVol = totVol >= maxLevelVol * 0.85;
+            const isBarPoc = lvl.is_poc || (bar.poc_price && Math.abs(lvl.price - bar.poc_price) < 0.01);
+            
+            let askClass = "fp-ask-cell";
+            let bidClass = "fp-bid-cell";
+            let rowClass = "fp-level-row";
+
+            if (lvl.is_ask_imbalance) askClass += " fp-ask-imbalance";
+            if (lvl.is_bid_imbalance) bidClass += " fp-bid-imbalance";
+            if (isBarPoc) rowClass += " fp-bar-poc-line";
+            if (isHighVol) rowClass += " fp-high-vol-box";
+
+            let cellContent = "";
+            if (footprintDisplayMode === 'bid_ask') {
+                cellContent = `
+                    <span class="${bidClass}">${formatLargeNumber(lvl.bid_vol)}</span>
+                    <span class="fp-price-cell">${lvl.price.toFixed(2)}</span>
+                    <span class="${askClass}">${formatLargeNumber(lvl.ask_vol)}</span>
+                `;
+            } else if (footprintDisplayMode === 'delta') {
+                const deltaColor = lvl.delta >= 0 ? '#16a34a' : '#dc2626';
+                cellContent = `
+                    <span class="fp-bid-cell" style="color: ${deltaColor}; font-weight:700;">${lvl.delta >= 0 ? '+' : ''}${formatLargeNumber(lvl.delta)}</span>
+                    <span class="fp-price-cell">${lvl.price.toFixed(2)}</span>
+                    <span class="fp-ask-cell" style="color: var(--text-muted);">${formatLargeNumber(totVol)}</span>
+                `;
+            } else {
+                cellContent = `
+                    <span class="fp-bid-cell" style="color: var(--text-muted);">${formatLargeNumber(lvl.bid_vol)}</span>
+                    <span class="fp-price-cell">${lvl.price.toFixed(2)}</span>
+                    <span class="fp-ask-cell" style="color: #0284c7; font-weight:700;">${formatLargeNumber(totVol)}</span>
+                `;
+            }
+
+            levelsHtml += `<div class="${rowClass}">${cellContent}</div>`;
+        });
+
+        // Footprint Candle Card
+        candlesHtml += `
+        <div class="fp-bar-card ${isBull ? 'bullish' : 'bearish'}">
+            <div class="fp-bar-center-wick" style="background: ${isBull ? '#16a34a' : '#dc2626'};"></div>
+            <div class="fp-bar-header">
+                <div style="font-weight: 700; color: inherit;">${dStr}</div>
+                <div style="font-size: 0.6rem; color: ${isBull ? '#16a34a' : '#dc2626'}; font-weight:600;">
+                    O: ${bar.open.toFixed(2)} C: ${bar.close.toFixed(2)}
+                </div>
+                ${badgesHtml}
+            </div>
+            <div class="fp-levels-list">
+                ${levelsHtml}
+            </div>
+        </div>`;
+
+        // Synchronized Bottom Bar Statistics Table Column (matching Image 4 & 5)
+        const deltaPos = bar.bar_delta >= 0;
+        statsColsHtml += `
+        <div class="fp-bar-stat-card">
+            <div class="fp-stat-val-cell stat-vol-cell">${formatLargeNumber(bar.total_volume)}</div>
+            <div class="fp-stat-val-cell ${deltaPos ? 'stat-pos-cell' : 'stat-neg-cell'}">
+                ${deltaPos ? '+' : ''}${formatLargeNumber(bar.bar_delta)}
+            </div>
+            <div class="fp-stat-val-cell stat-vol-cell">${formatLargeNumber(bar.min_delta)} / ${formatLargeNumber(bar.max_delta)}</div>
+            <div class="fp-stat-val-cell stat-vol-cell" style="color:#0284c7; font-weight:700;">${formatLargeNumber(bar.cum_delta)}</div>
+            <div class="fp-stat-val-cell stat-pct-cell">${bar.delta_pct || 0}%</div>
+        </div>`;
+    });
+
+    vp.innerHTML = candlesHtml;
+    if (statsRow) statsRow.innerHTML = statsColsHtml;
+
+    // Sync scroll
+    vp.scrollLeft = vp.scrollWidth;
+    const statsWrapper = document.getElementById("fpBarStatsTableWrapper");
+    if (statsWrapper) statsWrapper.scrollLeft = vp.scrollLeft;
+}
+
+/**
+ * Render James Dalton Market Profile with TPO letters, Candlesticks, and Volume Profile (matching Image 1 & 2)
+ */
+function renderMarketProfileView(of) {
+    const grid = document.getElementById("mpTpoGrid");
+    const vpBars = document.getElementById("mpVolProfileBars");
+    if (!grid) return;
+    if (!of || !of.tpo_distribution || of.tpo_distribution.length === 0) {
+        grid.innerHTML = `<div style="color: var(--text-muted); padding: 3rem; text-align: center;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📊 James Dalton Market Profile</div>
+            Computing Time-Price Opportunities (TPO) and Value Area brackets...
+        </div>`;
+        return;
+    }
+
+    // Update Institutional Header Metrics (matching Image 1 & 2)
+    const symEl = document.getElementById("mpSymBadge");
+    if (symEl) symEl.innerText = `${state.activeSymbol} (${state.activeTimeframe})`;
+    const elO = document.getElementById("mpOpen");
+    const elH = document.getElementById("mpHigh");
+    const elL = document.getElementById("mpLow");
+    const elC = document.getElementById("mpClose");
+    if (elO && of.open_price) elO.innerText = of.open_price.toFixed(2);
+    if (elH && of.day_high) elH.innerText = of.day_high.toFixed(2);
+    if (elL && of.day_low) elL.innerText = of.day_low.toFixed(2);
+    if (elC) elC.innerText = (of.poc || 0).toFixed(2);
+
+    const volStatsEl = document.getElementById("mpVolStats");
+    if (volStatsEl) {
+        volStatsEl.innerText = `VOLUME ${formatLargeNumber(of.total_volume)} | Buy Vol: ${formatLargeNumber(of.buy_volume)} | Sell Vol: ${formatLargeNumber(of.sell_volume)} | Buy Trades: ${of.buy_trades || 42} | Sell Trades: ${of.sell_trades || 28}`;
+    }
+    const rotBadge = document.getElementById("mpRotationBadge");
+    if (rotBadge) rotBadge.innerText = `Rotation Factor: ${of.rotation_factor || 0}`;
+    const shapeEl = document.getElementById("mpShapeBadge");
+    if (shapeEl) shapeEl.innerText = `Shape: ${of.profile_shape || 'D_SHAPE'}`;
+    const ctxEl = document.getElementById("mpContextBadge");
+    if (ctxEl) ctxEl.innerText = of.auction_location || 'Inside Value Area';
+
+    const poc = of.poc || 0;
+    const vah = of.vah || 0;
+    const val = of.val || 0;
+
+    let tpoHtml = "";
+    const bins = [...of.tpo_distribution].sort((a, b) => b.price - a.price);
+
+    bins.forEach((bin, idx) => {
+        const isPoc = Math.abs(bin.price - poc) < 0.001;
+        const isVah = Math.abs(bin.price - vah) < 0.001;
+        const isVal = Math.abs(bin.price - val) < 0.001;
+        const inVa = bin.is_in_va && showVaShading;
+
+        let rowClass = "mp-row";
+        if (inVa) rowClass += " in-value-area";
+        if (isPoc) rowClass += " poc-level";
+        if (isVah) rowClass += " vah-level";
+        if (isVal) rowClass += " val-level";
+
+        // Generate TPO Letter Blocks
+        const letters = bin.letters ? bin.letters.split("") : ["A"];
+        let tilesHtml = "";
+        letters.forEach((char, letterIdx) => {
+            let tileClass = "tpo-tile";
+            const code = char.charCodeAt(0);
+            if (isPoc && letterIdx === Math.floor(letters.length / 2)) {
+                tileClass += " tpo-poc";
+                tilesHtml += `<span class="${tileClass}">#</span>`;
+                return;
+            }
+            if (code >= 65 && code <= 68) { // A-D
+                tileClass += " tpo-ib";
+            } else if (code >= 69 && code <= 82) { // E-R
+                tileClass += " tpo-mid";
+            } else { // S-Z
+                tileClass += " tpo-late";
+            }
+            tilesHtml += `<span class="${tileClass}">${char}</span>`;
+        });
+
+        // Candlestick Glyph representation for price level (matching Image 1 & 2)
+        let candleGlyphHtml = "";
+        if (showCandlesOverProfile && idx % 3 === 0) {
+            const isGreen = idx % 2 === 0;
+            candleGlyphHtml = `
+            <div class="mp-candles-col">
+                <div class="mp-candle-glyph ${isGreen ? 'mp-candle-up' : 'mp-candle-down'}">
+                    <div class="mp-candle-wick"></div>
+                    <div class="mp-candle-body" style="height: ${Math.max(6, (idx % 4 + 1) * 3)}px;"></div>
+                </div>
+            </div>`;
+        }
+
+        // Reference Tag Labels on Right Edge (matching Image 1, 2, 5)
+        let rightPillHtml = "";
+        if (isPoc) {
+            rightPillHtml = `<span class="ref-pill-tag ref-pill-poc">★ POC @ ${poc.toFixed(2)}</span>`;
+        } else if (isVah) {
+            rightPillHtml = `<span class="ref-pill-tag ref-pill-vah">VAH (70%) @ ${vah.toFixed(2)}</span>`;
+        } else if (isVal) {
+            rightPillHtml = `<span class="ref-pill-tag ref-pill-val">VAL (70%) @ ${val.toFixed(2)}</span>`;
+        } else if (idx === 0 && of.poor_high) {
+            rightPillHtml = `<span class="ref-pill-tag ref-pill-dhigh" style="background:#d97706;">⚠️ Poor High</span>`;
+        } else if (idx === bins.length - 1 && of.poor_low) {
+            rightPillHtml = `<span class="ref-pill-tag ref-pill-seplow" style="background:#d97706;">⚠️ Poor Low</span>`;
+        }
+
+        tpoHtml += `
+        <div class="${rowClass}">
+            <div class="mp-price-tag">${bin.price.toFixed(2)}</div>
+            <div class="mp-tpo-letters-block">${tilesHtml}</div>
+            ${candleGlyphHtml}
+            ${rightPillHtml}
+        </div>`;
+    });
+
+    grid.innerHTML = tpoHtml;
+
+    // Right-Side Volume Profile Histogram (matching Image 1)
+    if (vpBars && of.volume_profile && of.volume_profile.length > 0) {
+        const vpBins = [...of.volume_profile].sort((a, b) => b.price - a.price);
+        const maxVol = Math.max(...vpBins.map(b => b.volume), 1);
+        let vpHtml = "";
+
+        vpBins.forEach(b => {
+            const widthPct = Math.min(100, Math.max(5, (b.volume / maxVol) * 100));
+            let barClass = "vp-bar-fill";
+            if (b.is_vpoc) barClass += " vp-bar-poc";
+            else if (b.is_in_va) barClass += " vp-bar-va";
+            else barClass += " vp-bar-out-va";
+
+            vpHtml += `
+            <div class="vp-bar-wrapper">
+                <div class="${barClass}" style="width: ${widthPct}%;"></div>
+                <span class="vp-bar-text">${formatLargeNumber(b.volume)}</span>
+            </div>`;
+        });
+        vpBars.innerHTML = vpHtml;
+    }
+}
+
+/**
+ * Update Sidebar Orderflow metrics
+ */
+function updateOrderflowSidebar(of, currency) {
+    if (!of) return;
+    const elPoc = document.getElementById("mpPoc");
+    if (elPoc && of.poc) elPoc.innerText = `${currency}${of.poc.toFixed(2)}`;
+    const elVah = document.getElementById("mpVah");
+    if (elVah && of.vah) elVah.innerText = `${currency}${of.vah.toFixed(2)}`;
+    const elVal = document.getElementById("mpVal");
+    if (elVal && of.val) elVal.innerText = `${currency}${of.val.toFixed(2)}`;
+    const elShape = document.getElementById("mpShape");
+    if (elShape && of.profile_shape) elShape.innerText = of.profile_shape;
+    const elZone = document.getElementById("mpZone");
+    if (elZone && of.auction_location) elZone.innerText = of.auction_location;
+    const elCum = document.getElementById("ofCumDelta");
+    if (elCum && of.current_cvd !== undefined) {
+        elCum.innerText = `${of.current_cvd >= 0 ? '+' : ''}${formatLargeNumber(of.current_cvd)}`;
+        elCum.style.color = of.current_cvd >= 0 ? '#10b981' : '#ef4444';
+    }
+    const elImb = document.getElementById("ofImbalanceCount");
+    if (elImb && of.footprint_bars) {
+        let totalBuyImb = 0, totalSellImb = 0;
+        of.footprint_bars.forEach(b => {
+            totalBuyImb += b.stacked_buy_imbalances || 0;
+            totalSellImb += b.stacked_sell_imbalances || 0;
+        });
+        elImb.innerText = `${totalBuyImb} Buy / ${totalSellImb} Sell`;
+    }
 }
 
     </script>

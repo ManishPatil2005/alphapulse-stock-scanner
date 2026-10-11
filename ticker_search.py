@@ -132,6 +132,69 @@ TICKER_REGISTRY = [
     {"symbol": "JIOFIN.NS", "name": "Jio Financial Services Ltd", "exchange": "NSE", "country": "IN", "type": "Stock", "sector": "Financial Services", "industry": "NBFC & Broking"}
 ]
 
+# --- Major ISIN to Symbol Mapping ---
+ISIN_MAP = {
+    "INE002A01018": "RELIANCE.NS",
+    "INE040A01034": "HDFCBANK.NS",
+    "INE009A01021": "INFY.NS",
+    "INE467B01029": "TCS.NS",
+    "INE062A01020": "SBIN.NS",
+    "INE090A01021": "ICICIBANK.NS",
+    "INE154A01015": "ITC.NS",
+    "INE018A01030": "LT.NS",
+    "INE238A01034": "AXISBANK.NS",
+    "INE237A01028": "KOTAKBANK.NS",
+    "INE296A01024": "BAJFINANCE.NS",
+    "INE397D01024": "BHARTIARTL.NS",
+    "INE155A01022": "TATAMOTORS.NS",
+    "INE081A01020": "TATASTEEL.NS",
+    "INE280A01028": "TITAN.NS",
+    "INE021A01026": "ASIANPAINT.NS",
+    "INE044A01036": "SUNPHARMA.NS",
+    "INE585B01010": "MARUTI.NS",
+    "INE848E01016": "TRENT.NS",
+    "INE758T01015": "ZOMATO.NS"
+}
+
+# --- Add Major F&O Futures and Index Options into Search Index ---
+FNO_REGISTRY = [
+    # Index Futures
+    {"symbol": "NIFTY-FUT", "name": "NIFTY 50 Current Month Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Index Derivatives", "industry": "Futures"},
+    {"symbol": "BANKNIFTY-FUT", "name": "NIFTY Bank Current Month Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Index Derivatives", "industry": "Futures"},
+    {"symbol": "FINNIFTY-FUT", "name": "NIFTY Financial Services Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Index Derivatives", "industry": "Futures"},
+    {"symbol": "MIDCPNIFTY-FUT", "name": "NIFTY Midcap Select Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Index Derivatives", "industry": "Futures"},
+
+    # Stock Futures
+    {"symbol": "RELIANCE-FUT", "name": "Reliance Industries Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Stock Derivatives", "industry": "Futures"},
+    {"symbol": "HDFCBANK-FUT", "name": "HDFC Bank Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Stock Derivatives", "industry": "Futures"},
+    {"symbol": "ICICIBANK-FUT", "name": "ICICI Bank Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Stock Derivatives", "industry": "Futures"},
+    {"symbol": "INFY-FUT", "name": "Infosys Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Stock Derivatives", "industry": "Futures"},
+    {"symbol": "TCS-FUT", "name": "Tata Consultancy Services Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Stock Derivatives", "industry": "Futures"},
+    {"symbol": "SBIN-FUT", "name": "State Bank of India Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Stock Derivatives", "industry": "Futures"},
+    {"symbol": "TATAMOTORS-FUT", "name": "Tata Motors Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Stock Derivatives", "industry": "Futures"},
+    {"symbol": "BHARTIARTL-FUT", "name": "Bharti Airtel Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Stock Derivatives", "industry": "Futures"},
+    {"symbol": "LT-FUT", "name": "Larsen & Toubro Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Stock Derivatives", "industry": "Futures"},
+    {"symbol": "BAJFINANCE-FUT", "name": "Bajaj Finance Future", "exchange": "NFO", "country": "IN", "type": "Future", "sector": "Stock Derivatives", "industry": "Futures"},
+
+    # Major Liquid Index Options
+    {"symbol": "NIFTY 22600 CE", "name": "NIFTY 22600 Call Option", "exchange": "NFO", "country": "IN", "type": "Option", "sector": "Options", "industry": "Call Option"},
+    {"symbol": "NIFTY 22600 PE", "name": "NIFTY 22600 Put Option", "exchange": "NFO", "country": "IN", "type": "Option", "sector": "Options", "industry": "Put Option"},
+    {"symbol": "NIFTY 22500 CE", "name": "NIFTY 22500 Call Option", "exchange": "NFO", "country": "IN", "type": "Option", "sector": "Options", "industry": "Call Option"},
+    {"symbol": "NIFTY 22500 PE", "name": "NIFTY 22500 Put Option", "exchange": "NFO", "country": "IN", "type": "Option", "sector": "Options", "industry": "Put Option"},
+    {"symbol": "NIFTY 22700 CE", "name": "NIFTY 22700 Call Option", "exchange": "NFO", "country": "IN", "type": "Option", "sector": "Options", "industry": "Call Option"},
+    {"symbol": "NIFTY 22700 PE", "name": "NIFTY 22700 Put Option", "exchange": "NFO", "country": "IN", "type": "Option", "sector": "Options", "industry": "Put Option"},
+    {"symbol": "BANKNIFTY 48000 CE", "name": "BANKNIFTY 48000 Call Option", "exchange": "NFO", "country": "IN", "type": "Option", "sector": "Options", "industry": "Call Option"},
+    {"symbol": "BANKNIFTY 48000 PE", "name": "BANKNIFTY 48000 Put Option", "exchange": "NFO", "country": "IN", "type": "Option", "sector": "Options", "industry": "Put Option"},
+
+    # Major BSE Equities
+    {"symbol": "500325.BO", "name": "Reliance Industries Ltd (BSE)", "exchange": "BSE", "country": "IN", "type": "Stock", "sector": "Energy, Oil & Power", "industry": "Oil & Gas"},
+    {"symbol": "500180.BO", "name": "HDFC Bank Ltd (BSE)", "exchange": "BSE", "country": "IN", "type": "Stock", "sector": "Financial Services", "industry": "Private Bank"},
+    {"symbol": "532540.BO", "name": "Tata Consultancy Services Ltd (BSE)", "exchange": "BSE", "country": "IN", "type": "Stock", "sector": "Information Technology", "industry": "IT Services"},
+    {"symbol": "500209.BO", "name": "Infosys Ltd (BSE)", "exchange": "BSE", "country": "IN", "type": "Stock", "sector": "Information Technology", "industry": "IT Services"},
+    {"symbol": "500112.BO", "name": "State Bank of India (BSE)", "exchange": "BSE", "country": "IN", "type": "Stock", "sector": "Financial Services", "industry": "Public Bank"}
+]
+TICKER_REGISTRY.extend(FNO_REGISTRY)
+
 # Enrich with 5,000+ Cash Segment Equities from stock_lists
 try:
     from stock_lists import STOCK_METADATA_MAP
@@ -160,16 +223,24 @@ except Exception:
 
 def search_tickers(query: str, limit: int = 15) -> List[Dict[str, Any]]:
     """
-    High-speed substring, prefix, sector, and industry search over 5,000+ equities.
+    High-speed substring, prefix, ISIN, sector, and industry search over 5,000+ equities & F&O contracts.
     Returns matched items ranked by relevance.
     """
     q = query.strip().upper()
     if not q:
         return TICKER_REGISTRY[:limit]
 
+    # Check ISIN first
+    if q in ISIN_MAP:
+        mapped_sym = ISIN_MAP[q]
+        for item in TICKER_REGISTRY:
+            if item["symbol"] == mapped_sym:
+                return [item]
+
     exact_matches = []
     prefix_matches = []
     contain_matches = []
+    fno_matches = []
     sector_matches = []
 
     q_clean = q.replace(".NS", "").replace(".BO", "")
@@ -180,27 +251,37 @@ def search_tickers(query: str, limit: int = 15) -> List[Dict[str, Any]]:
         name = item.get("name", "").upper()
         sec = item.get("sector", "").lower()
         ind = item.get("industry", "").lower()
+        itype = item.get("type", "Stock")
         sym_clean = sym.replace(".NS", "").replace(".BO", "")
 
-        # 1. Exact symbol match
-        if sym == q or sym_clean == q_clean:
+        # 1. Exact symbol or clean symbol match
+        if sym == q or sym_clean == q_clean or (f"{q_clean}.NS" == sym):
             exact_matches.append(item)
         # 2. Prefix symbol match
         elif sym.startswith(q) or sym_clean.startswith(q_clean):
             prefix_matches.append(item)
-        # 3. Name or symbol contains query
+        # 3. F&O contract match
+        elif itype in ("Future", "Option") and (q_clean in sym or q_clean in name):
+            fno_matches.append(item)
+        # 4. Name or symbol contains query
         elif q in sym or q_clean in sym_clean or q_lower in name.lower():
             contain_matches.append(item)
-        # 4. Sector or Industry match
+        # 5. Sector or Industry match
         elif q_lower in sec or q_lower in ind:
             sector_matches.append(item)
 
-    results = exact_matches + prefix_matches + contain_matches + sector_matches
-    
+    # Deduplicate while preserving rank order
+    seen = set()
+    ordered_results = []
+    for it in exact_matches + prefix_matches + fno_matches + contain_matches + sector_matches:
+        if it["symbol"] not in seen:
+            seen.add(it["symbol"])
+            ordered_results.append(it)
+
     # If no results found in local registry, allow user-typed symbol dynamically
-    if not results:
+    if not ordered_results:
         guess_symbol = q if ("." in q or "^" in q or "-" in q) else q
-        results.append({
+        ordered_results.append({
             "symbol": guess_symbol,
             "name": f"Search '{guess_symbol}' directly",
             "exchange": "CUSTOM",
@@ -210,7 +291,7 @@ def search_tickers(query: str, limit: int = 15) -> List[Dict[str, Any]]:
             "industry": "Custom"
         })
         if not guess_symbol.endswith(".NS") and not guess_symbol.startswith("^"):
-            results.append({
+            ordered_results.append({
                 "symbol": f"{guess_symbol}.NS",
                 "name": f"Search NSE '{guess_symbol}.NS'",
                 "exchange": "NSE",
@@ -219,5 +300,15 @@ def search_tickers(query: str, limit: int = 15) -> List[Dict[str, Any]]:
                 "sector": "NSE Cash",
                 "industry": "Equities"
             })
+            ordered_results.append({
+                "symbol": f"{guess_symbol}.BO",
+                "name": f"Search BSE '{guess_symbol}.BO'",
+                "exchange": "BSE",
+                "country": "IN",
+                "type": "Stock",
+                "sector": "BSE Cash",
+                "industry": "Equities"
+            })
 
-    return results[:limit]
+    return ordered_results[:limit]
+
