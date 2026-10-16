@@ -226,13 +226,19 @@ class FnoEngine:
             call_iv = base_iv * (1.0 - 0.2 * moneyness + 0.5 * moneyness * moneyness)
             put_iv = base_iv * (1.0 + 0.3 * moneyness + 0.6 * moneyness * moneyness)
 
-            # Option pricing & Greeks
+            # Option pricing & Greeks (Delta, Gamma, Theta, Vega, Rho)
             c_price, c_delta, c_gamma, c_theta, c_vega = cls.black_scholes_price(
                 spot_price, k, t_years, call_iv, is_call=True
             )
             p_price, p_delta, p_gamma, p_theta, p_vega = cls.black_scholes_price(
                 spot_price, k, t_years, put_iv, is_call=False
             )
+
+            # Rho calculation
+            d1 = (math.log(spot_price / k) + (0.07 + 0.5 * call_iv * call_iv) * t_years) / (call_iv * math.sqrt(max(1e-6, t_years)))
+            d2 = d1 - call_iv * math.sqrt(max(1e-6, t_years))
+            c_rho = round(k * t_years * math.exp(-0.07 * t_years) * norm_cdf(d2) * 0.01, 3)
+            p_rho = round(-k * t_years * math.exp(-0.07 * t_years) * norm_cdf(-d2) * 0.01, 3)
 
             # Realistic OI distribution centered around ATM with resistance/support walls
             dist_factor = math.exp(-0.5 * (moneyness / 0.08) ** 2)
@@ -260,6 +266,21 @@ class FnoEngine:
                 loss_by_strike[exp_p] += (call_payout + put_payout)
 
             is_atm = abs(k - atm_strike) < (strike_step / 2.0)
+            c_itm = k < spot_price
+            p_itm = k > spot_price
+
+            c_chg = round(c_price * 0.035, 2)
+            p_chg = round(-p_price * 0.028, 2)
+
+            def classify_buildup(price_chg: float, oi_chg: float) -> str:
+                if price_chg >= 0 and oi_chg >= 0:
+                    return "Long Build-up"
+                elif price_chg < 0 and oi_chg >= 0:
+                    return "Short Build-up"
+                elif price_chg < 0 and oi_chg < 0:
+                    return "Long Unwinding"
+                else:
+                    return "Short Covering"
 
             chain_rows.append({
                 "strike": k,
@@ -267,7 +288,7 @@ class FnoEngine:
                 "call": {
                     "contract": f"{clean}{selected_expiry[:5]}{k}CE",
                     "ltp": c_price,
-                    "change": round(c_price * 0.035, 2),
+                    "change": c_chg,
                     "change_pct": 3.5,
                     "volume": c_vol,
                     "oi": c_oi,
@@ -276,12 +297,15 @@ class FnoEngine:
                     "delta": c_delta,
                     "theta": c_theta,
                     "gamma": c_gamma,
-                    "vega": c_vega
+                    "vega": c_vega,
+                    "rho": c_rho,
+                    "is_itm": c_itm,
+                    "buildup": classify_buildup(c_chg, c_oi_change)
                 },
                 "put": {
                     "contract": f"{clean}{selected_expiry[:5]}{k}PE",
                     "ltp": p_price,
-                    "change": round(-p_price * 0.028, 2),
+                    "change": p_chg,
                     "change_pct": -2.8,
                     "volume": p_vol,
                     "oi": p_oi,
@@ -290,7 +314,10 @@ class FnoEngine:
                     "delta": p_delta,
                     "theta": p_theta,
                     "gamma": p_gamma,
-                    "vega": p_vega
+                    "vega": p_vega,
+                    "rho": p_rho,
+                    "is_itm": p_itm,
+                    "buildup": classify_buildup(p_chg, p_oi_change)
                 }
             })
 

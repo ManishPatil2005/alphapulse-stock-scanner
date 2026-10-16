@@ -22,6 +22,8 @@ from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.gzip import GZipMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -45,6 +47,17 @@ app = FastAPI(
 
 # Enable GZip compression (reduces payload by ~80% for candlestick data)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/favicon.ico")
+async def favicon():
+    return Response(status_code=204)
 
 # Base directory for absolute asset resolution (required for Vercel serverless deployment)
 from pathlib import Path
@@ -95,6 +108,11 @@ def load_default_nvda():
             return json.load(f)
     except Exception:
         return None
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "AlphaPulse"}
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -616,6 +634,26 @@ async def get_fno_expiries(symbol: str):
     return {"symbol": symbol, "expiries": FnoEngine.get_expiry_dates()}
 
 
+@app.get("/api/market-time")
+async def get_market_time(asset_type: str = "EQUITY"):
+    """
+    Returns single authoritative exchange time, session status (OPEN/PRE_OPEN/CLOSED),
+    and time to close in IST (Asia/Kolkata).
+    """
+    from services.market_time import MarketTimeEngine
+    return MarketTimeEngine.get_session_status(asset_type.upper())
+
+
+@app.get("/api/indices/overview")
+async def get_indices_overview():
+    """
+    Returns real-time institutional overview for NIFTY 50, BANK NIFTY, FINNIFTY,
+    SENSEX, MIDCAP NIFTY, INDIA VIX, and Market Breadth (Advance/Decline).
+    """
+    from services.indices_engine import IndicesEngine
+    return IndicesEngine.get_overview()
+
+
 @app.post("/api/backtest")
 async def run_backtest_endpoint(req: BacktestRequest):
     """
@@ -944,4 +982,4 @@ if __name__ == "__main__":
     print(f"  [+] AlphaPulse Stock Scanner & Trading Terminal is LIVE!")
     print(f"  Access URL: http://127.0.0.1:{port}")
     print(f"==========================================================\n")
-    uvicorn.run(app, host="127.0.0.1", port=port, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")

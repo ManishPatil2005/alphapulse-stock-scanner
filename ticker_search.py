@@ -191,33 +191,96 @@ FNO_REGISTRY = [
     {"symbol": "500180.BO", "name": "HDFC Bank Ltd (BSE)", "exchange": "BSE", "country": "IN", "type": "Stock", "sector": "Financial Services", "industry": "Private Bank"},
     {"symbol": "532540.BO", "name": "Tata Consultancy Services Ltd (BSE)", "exchange": "BSE", "country": "IN", "type": "Stock", "sector": "Information Technology", "industry": "IT Services"},
     {"symbol": "500209.BO", "name": "Infosys Ltd (BSE)", "exchange": "BSE", "country": "IN", "type": "Stock", "sector": "Information Technology", "industry": "IT Services"},
-    {"symbol": "500112.BO", "name": "State Bank of India (BSE)", "exchange": "BSE", "country": "IN", "type": "Stock", "sector": "Financial Services", "industry": "Public Bank"}
+    {"symbol": "500112.BO", "name": "State Bank of India (BSE)", "exchange": "BSE", "country": "IN", "type": "Stock", "sector": "Financial Services", "industry": "Public Bank"},
+
+    # Commodities (MCX)
+    {"symbol": "MCX:GOLD", "name": "Gold 1KG Commodity Future", "exchange": "MCX", "country": "IN", "type": "Commodity", "sector": "Commodities", "industry": "Precious Metals"},
+    {"symbol": "MCX:SILVER", "name": "Silver 30KG Commodity Future", "exchange": "MCX", "country": "IN", "type": "Commodity", "sector": "Commodities", "industry": "Precious Metals"},
+    {"symbol": "MCX:CRUDEOIL", "name": "Crude Oil 100 BBL Future", "exchange": "MCX", "country": "IN", "type": "Commodity", "sector": "Commodities", "industry": "Energy"},
+    {"symbol": "MCX:NATURALGAS", "name": "Natural Gas 1250 MMBTU Future", "exchange": "MCX", "country": "IN", "type": "Commodity", "sector": "Commodities", "industry": "Energy"},
+    {"symbol": "MCX:COPPER", "name": "Copper 2500KG Future", "exchange": "MCX", "country": "IN", "type": "Commodity", "sector": "Commodities", "industry": "Industrial Metals"},
+
+    # Currencies & Forex
+    {"symbol": "USDINR", "name": "USD / INR Currency Pair", "exchange": "FOREX", "country": "IN", "type": "Currency", "sector": "Currencies", "industry": "Forex"},
+    {"symbol": "EURUSD", "name": "EUR / USD Currency Pair", "exchange": "FOREX", "country": "GLOBAL", "type": "Currency", "sector": "Currencies", "industry": "Forex"},
+    {"symbol": "GBPUSD", "name": "GBP / USD Currency Pair", "exchange": "FOREX", "country": "GLOBAL", "type": "Currency", "sector": "Currencies", "industry": "Forex"},
+    {"symbol": "USDJPY", "name": "USD / JPY Currency Pair", "exchange": "FOREX", "country": "GLOBAL", "type": "Currency", "sector": "Currencies", "industry": "Forex"},
+
+    # ETFs
+    {"symbol": "NIFTYBEES.NS", "name": "Nippon India ETF Nifty 50 BeES", "exchange": "NSE", "country": "IN", "type": "ETF", "sector": "Index ETF", "industry": "ETFs"},
+    {"symbol": "BANKBEES.NS", "name": "Nippon India ETF Nifty Bank BeES", "exchange": "NSE", "country": "IN", "type": "ETF", "sector": "Sectoral ETF", "industry": "ETFs"},
+    {"symbol": "GOLDBEES.NS", "name": "Nippon India ETF Gold BeES", "exchange": "NSE", "country": "IN", "type": "ETF", "sector": "Commodity ETF", "industry": "ETFs"},
+    {"symbol": "ITBEES.NS", "name": "Nippon India ETF Nifty IT BeES", "exchange": "NSE", "country": "IN", "type": "ETF", "sector": "Sectoral ETF", "industry": "ETFs"},
 ]
 TICKER_REGISTRY.extend(FNO_REGISTRY)
 
-# Enrich with 5,000+ Cash Segment Equities from stock_lists
+# Comprehensive Alias Mapping for Natural Language Search
+ALIAS_MAP = {
+    "SBI": "SBIN.NS",
+    "STATE BANK": "SBIN.NS",
+    "STATE BANK OF INDIA": "SBIN.NS",
+    "RELIANCE": "RELIANCE.NS",
+    "RIL": "RELIANCE.NS",
+    "HDFC": "HDFCBANK.NS",
+    "HDFC BANK": "HDFCBANK.NS",
+    "ICICI": "ICICIBANK.NS",
+    "ICICI BANK": "ICICIBANK.NS",
+    "TCS": "TCS.NS",
+    "INFY": "INFY.NS",
+    "INFOSYS": "INFY.NS",
+    "AIRTEL": "BHARTIARTL.NS",
+    "BHARTI": "BHARTIARTL.NS",
+    "TATA MOTORS": "TATAMOTORS.NS",
+    "L&T": "LT.NS",
+    "LARSEN": "LT.NS",
+    "NIFTY": "^NSEI",
+    "NIFTY 50": "^NSEI",
+    "NIFTY50": "^NSEI",
+    "BANKNIFTY": "^NSEBANK",
+    "BANK NIFTY": "^NSEBANK",
+    "FINNIFTY": "^NSEI",
+    "MIDCAP NIFTY": "^NSEI",
+    "SENSEX": "^BSESN",
+    "BSE SENSEX": "^BSESN",
+    "GOLD": "MCX:GOLD",
+    "SILVER": "MCX:SILVER",
+    "CRUDE": "MCX:CRUDEOIL",
+    "CRUDE OIL": "MCX:CRUDEOIL",
+    "NATURAL GAS": "MCX:NATURALGAS",
+    "NATGAS": "MCX:NATURALGAS",
+}
+
+# Enrich with full 5,150+ Cash Segment Equities from cash_stocks_db.json
 try:
-    from stock_lists import STOCK_METADATA_MAP
-    _existing_map = {x["symbol"]: x for x in TICKER_REGISTRY}
-    for sym, meta in STOCK_METADATA_MAP.items():
-        if sym in _existing_map:
-            if not _existing_map[sym].get("sector"):
-                _existing_map[sym]["sector"] = meta.get("sector", "Other")
-            if not _existing_map[sym].get("industry"):
-                _existing_map[sym]["industry"] = meta.get("industry", "General")
-        else:
-            item = {
-                "symbol": sym,
-                "name": meta.get("name", sym),
-                "exchange": "NSE" if meta.get("market") == "NSE" else "US",
-                "country": meta.get("country", "US"),
-                "type": "Stock",
-                "sector": meta.get("sector", "Other"),
-                "industry": meta.get("industry", "General")
-            }
-            _existing_map[sym] = item
-            TICKER_REGISTRY.append(item)
-except Exception:
+    import json
+    import os
+    db_file = os.path.join(os.path.dirname(__file__), "cash_stocks_db.json")
+    if os.path.exists(db_file):
+        with open(db_file, "r", encoding="utf-8") as f:
+            cash_db = json.load(f)
+            _existing_map = {x["symbol"]: x for x in TICKER_REGISTRY}
+            for stock in cash_db:
+                sym = stock.get("symbol")
+                if not sym:
+                    continue
+                if sym in _existing_map:
+                    if not _existing_map[sym].get("sector"):
+                        _existing_map[sym]["sector"] = stock.get("sector", "Other")
+                    if not _existing_map[sym].get("industry"):
+                        _existing_map[sym]["industry"] = stock.get("industry", "Equities")
+                else:
+                    item = {
+                        "symbol": sym,
+                        "name": stock.get("name", sym),
+                        "exchange": stock.get("market", "NSE"),
+                        "country": stock.get("country", "IN"),
+                        "type": "Stock",
+                        "sector": stock.get("sector", "Other"),
+                        "industry": stock.get("industry", "Equities")
+                    }
+                    _existing_map[sym] = item
+                    TICKER_REGISTRY.append(item)
+except Exception as e:
     pass
 
 
@@ -238,6 +301,14 @@ def search_tickers(query: str, limit: int = 15) -> List[Dict[str, Any]]:
                 return [item]
 
     exact_matches = []
+
+    # Check Alias Map (e.g. SBI -> SBIN.NS, RELIANCE -> RELIANCE.NS, GOLD -> MCX:GOLD)
+    if q in ALIAS_MAP:
+        alias_target = ALIAS_MAP[q]
+        for it in TICKER_REGISTRY:
+            if it["symbol"] == alias_target:
+                exact_matches.append(it)
+                break
     prefix_matches = []
     contain_matches = []
     fno_matches = []

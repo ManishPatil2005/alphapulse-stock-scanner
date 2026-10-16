@@ -2445,6 +2445,157 @@ body.dark-theme {
 .suggestion-fav-btn.is-fav {
     color: #eab308;
 }
+
+/* Real-Time Institutional Index Ticker Strip */
+.index-ticker-strip {
+    background: #0d1321;
+    border-bottom: 1px solid #1e293b;
+    padding: 0.35rem 1rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 57px;
+    z-index: 990;
+}
+.index-ticker-track {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    width: 100%;
+}
+.index-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: #151d2e;
+    border: 1px solid #243048;
+    border-radius: 6px;
+    padding: 0.25rem 0.65rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+.index-card:hover {
+    border-color: #38bdf8;
+    background: #1a243b;
+    transform: translateY(-1px);
+}
+.index-card .idx-name {
+    font-weight: 700;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+}
+.index-card .idx-val {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: #f8fafc;
+}
+.index-card .idx-chg {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.7rem;
+}
+.index-card .idx-chg.pos { color: #10b981; }
+.index-card .idx-chg.neg { color: #ef4444; }
+.index-card.breadth-card {
+    background: #111a2e;
+    border-color: #334155;
+    cursor: default;
+}
+.index-card.time-card {
+    margin-left: auto;
+    cursor: default;
+    background: #111827;
+    border-color: #1e293b;
+}
+.session-badge {
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.session-badge.open {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+.session-badge.pre_open {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+.session-badge.closed {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+/* Drawing Properties & Magnet Mode */
+.tv-tool-btn.active {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+}
+.tv-tool-btn.magnet-active {
+    background: #8b5cf6 !important;
+    color: #ffffff !important;
+}
+.tv-tool-btn.locked-active {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+}
+.drawing-props-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+.drawing-prop-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+.drawing-prop-group label {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.drawing-prop-group input, .drawing-prop-group select {
+    background: #0b0f19;
+    border: 1px solid #243048;
+    color: #f8fafc;
+    padding: 0.45rem 0.6rem;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+.calc-summary-box {
+    background: #090e17;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    text-align: center;
+}
+.calc-summary-item .label {
+    font-size: 0.65rem;
+    color: #64748b;
+    text-transform: uppercase;
+}
+.calc-summary-item .val {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
     </style>
 </head>
 <body class="dark-theme">
@@ -2497,8 +2648,53 @@ body.dark-theme {
                     <span class="rule-chk">✓</span> R4: Pinbar / Doji
                 </div>
             </div>
-        </div>
     </header>
+
+    <!-- Real-Time Institutional Indices & Market Breadth Ticker Strip -->
+    <div id="indexTickerStrip" class="index-ticker-strip">
+        <div class="index-ticker-track" id="indexTickerTrack">
+            <div class="index-card" onclick="loadStockChart('^NSEI')">
+                <span class="idx-name">NIFTY 50</span>
+                <span class="idx-val" id="idxNiftyPrice">25,280.00</span>
+                <span class="idx-chg pos" id="idxNiftyChg">+142.50 (+0.57%)</span>
+            </div>
+            <div class="index-card" onclick="loadStockChart('^NSEBANK')">
+                <span class="idx-name">BANK NIFTY</span>
+                <span class="idx-val" id="idxBankPrice">54,120.00</span>
+                <span class="idx-chg pos" id="idxBankChg">+380.20 (+0.71%)</span>
+            </div>
+            <div class="index-card" onclick="loadStockChart('^BSESN')">
+                <span class="idx-name">SENSEX</span>
+                <span class="idx-val" id="idxSensexPrice">82,950.00</span>
+                <span class="idx-chg pos" id="idxSensexChg">+450.00 (+0.55%)</span>
+            </div>
+            <div class="index-card" onclick="loadStockChart('^NSEI')">
+                <span class="idx-name">FIN NIFTY</span>
+                <span class="idx-val" id="idxFinPrice">24,890.00</span>
+                <span class="idx-chg pos" id="idxFinChg">+165.40 (+0.67%)</span>
+            </div>
+            <div class="index-card" onclick="loadStockChart('^NSEI')">
+                <span class="idx-name">MIDCAP NIFTY</span>
+                <span class="idx-val" id="idxMidPrice">13,420.00</span>
+                <span class="idx-chg pos" id="idxMidChg">+98.30 (+0.74%)</span>
+            </div>
+            <div class="index-card" onclick="loadStockChart('^VIX')">
+                <span class="idx-name">INDIA VIX</span>
+                <span class="idx-val" id="idxVixPrice">12.85</span>
+                <span class="idx-chg neg" id="idxVixChg">-0.42 (-3.16%)</span>
+            </div>
+            <div class="index-card breadth-card">
+                <span class="idx-name">MARKET BREADTH</span>
+                <span class="idx-breadth-val" id="idxBreadthVal" style="font-family:var(--font-mono); font-weight:700; color:#38bdf8;">🟢 32 Adv | 🔴 16 Dec</span>
+                <span class="idx-chg pos" id="idxSentiment">BULLISH (2.0x)</span>
+            </div>
+            <div class="index-card time-card" id="marketTimeCard">
+                <span class="idx-name">NSE (IST)</span>
+                <span class="idx-val" id="serverIstClock">--:--:--</span>
+                <span class="session-badge open" id="marketSessionBadge">LIVE</span>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Container -->
     <div class="main-layout">
@@ -2886,6 +3082,27 @@ body.dark-theme {
                             </div>
 
                             <div style="width:24px; height:1px; background:#1e293b; margin:4px 0;"></div>
+
+                            <!-- Magnet Mode (Snap-to-OHLC) -->
+                            <div style="position:relative;">
+                                <button class="tv-tool-btn" id="btnToolMagnet" title="Magnet Mode: Snap to Candle Open/High/Low/Close" onclick="toggleMagnetMode()">
+                                    <span>🧲</span>
+                                </button>
+                            </div>
+
+                            <!-- Lock / Unlock All Drawings -->
+                            <div style="position:relative;">
+                                <button class="tv-tool-btn" id="btnToolLock" title="Lock / Unlock Drawings" onclick="toggleLockDrawings()">
+                                    <span>🔓</span>
+                                </button>
+                            </div>
+
+                            <!-- Drawing Properties Modal -->
+                            <div style="position:relative;">
+                                <button class="tv-tool-btn" id="btnToolProps" title="Drawing Properties & Risk Settings" onclick="openDrawingPropsModal()">
+                                    <span>⚙️</span>
+                                </button>
+                            </div>
 
                             <!-- 7. Clear All Drawings -->
                             <div style="position:relative;">
@@ -3612,6 +3829,126 @@ body.dark-theme {
             </div>
         </div>
     </div>
+
+    <!-- Drawing Properties & Institutional Risk Management Modal -->
+    <div class="tv-modal-overlay" id="drawingPropsModal">
+        <div class="tv-modal-card" style="max-width: 560px;">
+            <div class="tv-modal-header">
+                <div class="tv-modal-title">
+                    <span style="color:#38bdf8;">⚙</span> Drawing Properties & Risk Management
+                </div>
+                <button class="tv-modal-close-btn" onclick="closeDrawingPropsModal()">&times;</button>
+            </div>
+            <div class="tv-modal-body" style="padding: 1.25rem;">
+                <input type="hidden" id="propDrawingId" value="" />
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <span class="inst-sym-badge" id="propDrawingTypeBadge">LONG POSITION</span>
+                    <div style="display:flex; gap:8px;">
+                        <button class="fp-btn-sm" onclick="duplicateCurrentDrawing()" title="Clone drawing">📋 Clone</button>
+                        <button class="fp-btn-sm" id="propBtnLock" onclick="toggleLockCurrentDrawing()" title="Lock drawing">🔓 Unlock</button>
+                        <button class="fp-btn-sm" onclick="deleteCurrentDrawing()" style="color:#ef4444;" title="Delete">🗑️ Delete</button>
+                    </div>
+                </div>
+
+                <!-- Position Parameters (For Long / Short Position) -->
+                <div id="positionPropsSection">
+                    <div class="drawing-props-grid">
+                        <div class="drawing-prop-group">
+                            <label>Entry Price</label>
+                            <input type="number" id="propEntryPrice" step="0.05" oninput="calculatePositionMetrics()" />
+                        </div>
+                        <div class="drawing-prop-group">
+                            <label>Target Price</label>
+                            <input type="number" id="propTargetPrice" step="0.05" oninput="calculatePositionMetrics()" />
+                        </div>
+                        <div class="drawing-prop-group">
+                            <label>Stop Loss Price</label>
+                            <input type="number" id="propStopLossPrice" step="0.05" oninput="calculatePositionMetrics()" />
+                        </div>
+                        <div class="drawing-prop-group">
+                            <label>Risk / Reward Ratio</label>
+                            <input type="number" id="propRiskRewardRatio" step="0.1" oninput="updateTargetFromRR()" />
+                        </div>
+                    </div>
+
+                    <div class="drawing-props-grid" style="margin-top:0.75rem;">
+                        <div class="drawing-prop-group">
+                            <label>Account Capital</label>
+                            <input type="number" id="propAccountCapital" value="100000" step="5000" oninput="calculatePositionMetrics()" />
+                        </div>
+                        <div class="drawing-prop-group">
+                            <label>Risk Per Trade (%)</label>
+                            <input type="number" id="propRiskPct" value="1.0" step="0.25" oninput="calculatePositionMetrics()" />
+                        </div>
+                    </div>
+
+                    <!-- Calculated Institutional Position Sizing Box -->
+                    <div class="calc-summary-box">
+                        <div class="calc-summary-item">
+                            <div class="label">Position Size</div>
+                            <div class="val" id="calcSharesQty" style="color:#38bdf8;">0 Shares</div>
+                        </div>
+                        <div class="calc-summary-item">
+                            <div class="label">Potential Profit</div>
+                            <div class="val" id="calcPotentialProfit" style="color:#10b981;">+₹0.00</div>
+                        </div>
+                        <div class="calc-summary-item">
+                            <div class="label">Max Risk / Loss</div>
+                            <div class="val" id="calcMaxRisk" style="color:#ef4444;">-₹0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fibonacci Customization Section -->
+                <div id="fibPropsSection" style="display:none; margin-top:0.75rem;">
+                    <div style="font-size:0.75rem; font-weight:700; color:#94a3b8; margin-bottom:0.5rem; text-transform:uppercase;">Fibonacci Retracement Levels</div>
+                    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;" id="fibLevelsContainer">
+                        <label style="font-size:0.72rem; color:#f8fafc; display:flex; align-items:center; gap:4px;"><input type="checkbox" checked value="0.0" /> 0.0%</label>
+                        <label style="font-size:0.72rem; color:#f8fafc; display:flex; align-items:center; gap:4px;"><input type="checkbox" checked value="0.236" /> 23.6%</label>
+                        <label style="font-size:0.72rem; color:#f8fafc; display:flex; align-items:center; gap:4px;"><input type="checkbox" checked value="0.382" /> 38.2%</label>
+                        <label style="font-size:0.72rem; color:#f8fafc; display:flex; align-items:center; gap:4px;"><input type="checkbox" checked value="0.5" /> 50.0%</label>
+                        <label style="font-size:0.72rem; color:#f8fafc; display:flex; align-items:center; gap:4px;"><input type="checkbox" checked value="0.618" /> 61.8%</label>
+                        <label style="font-size:0.72rem; color:#f8fafc; display:flex; align-items:center; gap:4px;"><input type="checkbox" checked value="0.786" /> 78.6%</label>
+                        <label style="font-size:0.72rem; color:#f8fafc; display:flex; align-items:center; gap:4px;"><input type="checkbox" checked value="1.0" /> 100.0%</label>
+                        <label style="font-size:0.72rem; color:#f8fafc; display:flex; align-items:center; gap:4px;"><input type="checkbox" checked value="1.618" /> 161.8%</label>
+                    </div>
+                </div>
+
+                <!-- Styling Options (Color, Width, Style) -->
+                <div class="drawing-props-grid" style="margin-top:1rem; padding-top:0.75rem; border-top:1px solid #1e293b;">
+                    <div class="drawing-prop-group">
+                        <label>Line / Accent Color</label>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <input type="color" id="propColorPicker" value="#38bdf8" style="width:36px; height:32px; padding:2px; cursor:pointer;" onchange="document.getElementById('propColorText').value = this.value" />
+                            <input type="text" id="propColorText" value="#38bdf8" style="flex:1;" oninput="document.getElementById('propColorPicker').value = this.value" />
+                        </div>
+                    </div>
+                    <div class="drawing-prop-group">
+                        <label>Line Width & Style</label>
+                        <div style="display:flex; gap:6px;">
+                            <select id="propLineWidth" style="flex:1;">
+                                <option value="1">1 px</option>
+                                <option value="2" selected>2 px</option>
+                                <option value="3">3 px</option>
+                                <option value="4">4 px</option>
+                            </select>
+                            <select id="propLineStyle" style="flex:1;">
+                                <option value="solid" selected>Solid</option>
+                                <option value="dashed">Dashed</option>
+                                <option value="dotted">Dotted</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:1.25rem;">
+                    <button class="btn-secondary-sm" onclick="closeDrawingPropsModal()">Cancel</button>
+                    <button class="btn-primary-sm" onclick="applyDrawingProps()">Apply Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
 /**
  * AlphaPulse - Stock Scanner & Trading Terminal
@@ -3696,6 +4033,21 @@ document.addEventListener("DOMContentLoaded", () => {
         setupEventListeners();
         setupSearchAutoComplete();
         setupAutoRefresh();
+        initMarketOverviewStrip();
+        loadDrawingsForCurrentSymbol();
+
+        // Wire EventBus for Unified Platform Synchronization
+        AlphaPulseEventBus.on('symbol:change', (data) => {
+            if (!data || !data.symbol) return;
+            loadStockChart(data.symbol);
+            loadDrawingsForCurrentSymbol();
+            const fpBadge = document.getElementById("fpSymBadge");
+            if (fpBadge) fpBadge.innerText = `${data.symbol} (${state.activeTimeframe})`;
+            const optModal = document.getElementById("optionChainModal");
+            if (optModal && optModal.classList.contains("open")) {
+                loadFnoChain();
+            }
+        });
 
         // If pre-seeded initial stock data exists, render immediately!
         if (initialStockData && initialStockData.candles && initialStockData.candles.length > 0) {
@@ -3917,6 +4269,15 @@ function initCharts() {
             if (rsiChart) rsiChart.timeScale().setVisibleLogicalRange(range);
             if (cvdChart) cvdChart.timeScale().setVisibleLogicalRange(range);
         }
+        if (typeof renderDrawings === "function") {
+            requestAnimationFrame(renderDrawings);
+        }
+    });
+
+    mainChart.timeScale().subscribeVisibleTimeRangeChange(() => {
+        if (typeof renderDrawings === "function") {
+            requestAnimationFrame(renderDrawings);
+        }
     });
 
     rsiChart.timeScale().subscribeVisibleLogicalRangeChange(range => {
@@ -3951,14 +4312,37 @@ function initCharts() {
 }
 
 /* ==========================================================================
-   TradingView Drawing Engine & Canvas Interaction
-   ========================================================================== */
+// ==========================================================================
+// AlphaPulse Unified Platform Event Bus
+// ==========================================================================
+const AlphaPulseEventBus = {
+    _listeners: {},
+    on(event, fn) {
+        if (!this._listeners[event]) this._listeners[event] = [];
+        this._listeners[event].push(fn);
+    },
+    emit(event, data) {
+        if (this._listeners[event]) {
+            this._listeners[event].forEach(fn => {
+                try { fn(data); } catch (err) { console.error("EventBus error:", err); }
+            });
+        }
+    }
+};
+
+// ==========================================================================
+// Institutional Drawing Engine & Canvas Interaction
+// Real Time & Price Anchoring (Zero drift on pan/zoom)
+// ==========================================================================
 let activeTvTool = 'cursor';
 let drawings = [];
 let isDrawing = false;
 let currentDrawing = null;
 let drawingCanvas = null;
 let drawingCtx = null;
+let selectedDrawingId = null;
+let isMagnetMode = false;
+let isDrawingsLocked = false;
 
 function initDrawingCanvas() {
     drawingCanvas = document.getElementById("drawingCanvas");
@@ -3969,7 +4353,22 @@ function initDrawingCanvas() {
     drawingCanvas.addEventListener("mousedown", onDrawingMouseDown);
     drawingCanvas.addEventListener("mousemove", onDrawingMouseMove);
     drawingCanvas.addEventListener("mouseup", onDrawingMouseUp);
+    drawingCanvas.addEventListener("dblclick", onDrawingDblClick);
     window.addEventListener("resize", () => resizeDrawingCanvas());
+
+    // Keyboard Shortcuts: Delete/Backspace removes selected drawing, Escape resets tool
+    document.addEventListener("keydown", (e) => {
+        if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT")) return;
+        if (e.key === "Delete" || e.key === "Backspace") {
+            if (selectedDrawingId) {
+                deleteDrawingById(selectedDrawingId);
+            }
+        } else if (e.key === "Escape") {
+            selectTvTool('cursor');
+            selectedDrawingId = null;
+            renderDrawings();
+        }
+    });
 }
 
 function resizeDrawingCanvas(explicitWidth) {
@@ -3986,6 +4385,198 @@ function resizeDrawingCanvas(explicitWidth) {
     renderDrawings();
 }
 
+// Coordinate Projections: Time & Price <-> Canvas Screen Pixels
+function timeToX(t) {
+    if (!mainChart) return null;
+    try {
+        let coord = mainChart.timeScale().timeToCoordinate(t);
+        if (coord !== null && !isNaN(coord)) return coord;
+
+        if (typeof t === "number") {
+            const d = new Date(t * 1000);
+            const str = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+            coord = mainChart.timeScale().timeToCoordinate(str);
+            if (coord !== null && !isNaN(coord)) return coord;
+        } else if (typeof t === "string" && t.includes("-")) {
+            const unix = Math.floor(new Date(t + "T00:00:00Z").getTime() / 1000);
+            coord = mainChart.timeScale().timeToCoordinate(unix);
+            if (coord !== null && !isNaN(coord)) return coord;
+        }
+    } catch (e) {}
+    return null;
+}
+
+function safeTimeToX(t, fallbackX) {
+    const x = timeToX(t);
+    if (x !== null) return x;
+    return fallbackX || 0;
+}
+
+function safePriceToY(p, fallbackY) {
+    if (!candleSeries) return fallbackY || 0;
+    try {
+        const y = candleSeries.priceToCoordinate(Number(p));
+        if (y !== null && !isNaN(y)) return y;
+    } catch (e) {}
+    return fallbackY || 0;
+}
+
+function xToTime(x) {
+    if (!mainChart) return null;
+    try {
+        const t = mainChart.timeScale().coordinateToTime(x);
+        return t;
+    } catch (e) {}
+    return null;
+}
+
+function yToPrice(y) {
+    if (!candleSeries) return null;
+    try {
+        const p = candleSeries.coordinateToPrice(y);
+        return p !== null ? Number(p) : null;
+    } catch (e) {}
+    return null;
+}
+
+// Magnet Mode: Snap to Nearest Candle Open/High/Low/Close
+function toggleMagnetMode() {
+    isMagnetMode = !isMagnetMode;
+    const btn = document.getElementById("btnToolMagnet");
+    if (btn) {
+        if (isMagnetMode) {
+            btn.classList.add("magnet-active");
+            showToast("Magnet Mode ON: Snapping to OHLC");
+        } else {
+            btn.classList.remove("magnet-active");
+            showToast("Magnet Mode OFF");
+        }
+    }
+}
+
+function snapToNearestOHLC(screenX, screenY) {
+    if (!cachedChartData || !cachedChartData.candles || cachedChartData.candles.length === 0) return null;
+    if (!candleSeries || !mainChart) return null;
+
+    const candles = cachedChartData.candles;
+    let closestCandle = null;
+    let minDistX = Infinity;
+
+    for (let i = 0; i < candles.length; i++) {
+        const c = candles[i];
+        const tf = state.activeTimeframe;
+        const cTimeFormatted = formatChartTime(c.time, tf);
+        const cx = timeToX(cTimeFormatted);
+        if (cx !== null) {
+            const dist = Math.abs(cx - screenX);
+            if (dist < minDistX) {
+                minDistX = dist;
+                closestCandle = c;
+            }
+        }
+    }
+
+    if (!closestCandle || minDistX > 50) return null;
+
+    const priceAtY = candleSeries.coordinateToPrice(screenY) || closestCandle.close;
+    const levels = [
+        { name: 'O', val: closestCandle.open },
+        { name: 'H', val: closestCandle.high },
+        { name: 'L', val: closestCandle.low },
+        { name: 'C', val: closestCandle.close }
+    ];
+
+    let closestL = levels[0];
+    let minPriceDist = Infinity;
+    for (let l of levels) {
+        const d = Math.abs(l.val - priceAtY);
+        if (d < minPriceDist) {
+            minPriceDist = d;
+            closestL = l;
+        }
+    }
+
+    const tFormatted = formatChartTime(closestCandle.time, state.activeTimeframe);
+    const snapX = timeToX(tFormatted) || screenX;
+    const snapY = candleSeries.priceToCoordinate(closestL.val) || screenY;
+
+    return {
+        time: tFormatted,
+        price: closestL.val,
+        levelName: closestL.name,
+        x: snapX,
+        y: snapY
+    };
+}
+
+// Lock / Unlock Drawings
+function toggleLockDrawings() {
+    isDrawingsLocked = !isDrawingsLocked;
+    const btn = document.getElementById("btnToolLock");
+    if (btn) {
+        if (isDrawingsLocked) {
+            btn.classList.add("locked-active");
+            btn.innerHTML = "<span>🔒</span>";
+            showToast("All drawings locked.");
+        } else {
+            btn.classList.remove("locked-active");
+            btn.innerHTML = "<span>🔓</span>";
+            showToast("Drawings unlocked.");
+        }
+    }
+    drawings.forEach(d => { d.locked = isDrawingsLocked; });
+    saveDrawingsForCurrentSymbol();
+    renderDrawings();
+}
+
+// Persistent Storage (localStorage per symbol)
+function saveDrawingsForCurrentSymbol() {
+    if (!state.activeSymbol) return;
+    try {
+        const key = `alphapulse_drawings_${state.activeSymbol.toUpperCase()}`;
+        const dataToSave = drawings.map(d => ({
+            id: d.id,
+            type: d.type,
+            startTime: d.startTime,
+            startPrice: d.startPrice,
+            endTime: d.endTime,
+            endPrice: d.endPrice,
+            color: d.color,
+            lineWidth: d.lineWidth || 2,
+            lineStyle: d.lineStyle || 'solid',
+            locked: !!d.locked,
+            entryPrice: d.entryPrice,
+            targetPrice: d.targetPrice,
+            stopLossPrice: d.stopLossPrice,
+            riskRewardRatio: d.riskRewardRatio,
+            accountCapital: d.accountCapital || 100000,
+            riskPct: d.riskPct || 1.0,
+            fibLevels: d.fibLevels || [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1.0, 1.618],
+            points: d.points || []
+        }));
+        localStorage.setItem(key, JSON.stringify(dataToSave));
+    } catch (e) {
+        console.error("Failed to save drawings:", e);
+    }
+}
+
+function loadDrawingsForCurrentSymbol() {
+    if (!state.activeSymbol) return;
+    try {
+        const key = `alphapulse_drawings_${state.activeSymbol.toUpperCase()}`;
+        const raw = localStorage.getItem(key);
+        if (raw) {
+            drawings = JSON.parse(raw);
+        } else {
+            drawings = [];
+        }
+        renderDrawings();
+    } catch (e) {
+        drawings = [];
+        renderDrawings();
+    }
+}
+
 function selectTvTool(tool) {
     activeTvTool = tool;
     closeAllTvFlyouts();
@@ -3996,19 +4587,25 @@ function selectTvTool(tool) {
     if (drawingCanvas) {
         if (tool === 'cursor') {
             drawingCanvas.classList.remove("drawing-active");
-            document.getElementById("btnToolCursor").classList.add("active");
+            const btn = document.getElementById("btnToolCursor");
+            if (btn) btn.classList.add("active");
         } else {
             drawingCanvas.classList.add("drawing-active");
             if (['trendline', 'ray', 'horizontal', 'horizontal_ray', 'vertical', 'channel'].includes(tool)) {
-                document.getElementById("btnToolTrend").classList.add("active");
+                const btn = document.getElementById("btnToolTrend");
+                if (btn) btn.classList.add("active");
             } else if (['fibonacci', 'fib_extension'].includes(tool)) {
-                document.getElementById("btnToolFib").classList.add("active");
+                const btn = document.getElementById("btnToolFib");
+                if (btn) btn.classList.add("active");
             } else if (['brush', 'highlighter', 'rectangle', 'circle', 'arrow_marker', 'text_tag'].includes(tool)) {
-                document.getElementById("btnToolShapes").classList.add("active");
+                const btn = document.getElementById("btnToolShapes");
+                if (btn) btn.classList.add("active");
             } else if (['long_position', 'short_position', 'price_range', 'date_range'].includes(tool)) {
-                document.getElementById("btnToolPosition").classList.add("active");
+                const btn = document.getElementById("btnToolPosition");
+                if (btn) btn.classList.add("active");
             } else if (tool === 'measure') {
-                document.getElementById("btnToolMeasure").classList.add("active");
+                const btn = document.getElementById("btnToolMeasure");
+                if (btn) btn.classList.add("active");
             }
         }
     }
@@ -4016,6 +4613,7 @@ function selectTvTool(tool) {
 
 function toggleFlyout(id) {
     const el = document.getElementById(id);
+    if (!el) return;
     const isOpen = el.style.display === "flex";
     closeAllTvFlyouts();
     if (!isOpen) {
@@ -4042,37 +4640,102 @@ function getCanvasCoords(e) {
     };
 }
 
+// Mouse Event Handlers
 function onDrawingMouseDown(e) {
-    if (activeTvTool === 'cursor') return;
     const pt = getCanvasCoords(e);
+
+    // If Cursor Tool active, check for drawing selection
+    if (activeTvTool === 'cursor') {
+        const found = findDrawingAt(pt.x, pt.y);
+        if (found) {
+            selectedDrawingId = found.id;
+            renderDrawings();
+        } else {
+            selectedDrawingId = null;
+            renderDrawings();
+        }
+        return;
+    }
+
     isDrawing = true;
+    let t = xToTime(pt.x);
+    let p = yToPrice(pt.y);
+
+    if (t === null && cachedChartData && cachedChartData.candles && cachedChartData.candles.length > 0) {
+        const lastC = cachedChartData.candles[cachedChartData.candles.length - 1];
+        t = formatChartTime(lastC.time, state.activeTimeframe);
+    }
+    if (p === null) p = 1000.0;
+
+    if (isMagnetMode) {
+        const snap = snapToNearestOHLC(pt.x, pt.y);
+        if (snap) {
+            t = snap.time;
+            p = snap.price;
+            pt.x = snap.x;
+            pt.y = snap.y;
+        }
+    }
 
     if (activeTvTool === 'horizontal') {
-        drawings.push({
+        const newD = {
+            id: `draw_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
             type: 'horizontal',
-            y: pt.y,
-            priceText: getPriceAtY(pt.y)
-        });
+            startTime: t,
+            startPrice: p,
+            endTime: t,
+            endPrice: p,
+            color: '#f59e0b',
+            lineWidth: 1.5,
+            lineStyle: 'dashed',
+            locked: isDrawingsLocked,
+            priceText: `₹${p.toFixed(2)}`
+        };
+        drawings.push(newD);
+        saveDrawingsForCurrentSymbol();
         isDrawing = false;
         selectTvTool('cursor');
+        selectedDrawingId = newD.id;
         renderDrawings();
         return;
     }
 
     if (activeTvTool === 'brush' || activeTvTool === 'highlighter') {
         currentDrawing = {
+            id: `draw_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
             type: activeTvTool,
-            points: [pt],
+            points: [{ x: pt.x, y: pt.y, t: t, p: p }],
             color: activeTvTool === 'highlighter' ? 'rgba(234, 179, 8, 0.45)' : '#06b6d4',
-            width: activeTvTool === 'highlighter' ? 12 : 2
+            lineWidth: activeTvTool === 'highlighter' ? 12 : 2,
+            locked: isDrawingsLocked
         };
     } else {
+        const defaultColor = (activeTvTool === 'long_position') ? '#10b981' :
+                             (activeTvTool === 'short_position') ? '#ef4444' :
+                             (activeTvTool === 'fibonacci') ? '#eab308' : '#38bdf8';
+
         currentDrawing = {
+            id: `draw_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
             type: activeTvTool,
+            startTime: t,
+            startPrice: p,
+            endTime: t,
+            endPrice: p,
             startX: pt.x,
             startY: pt.y,
             endX: pt.x,
-            endY: pt.y
+            endY: pt.y,
+            color: defaultColor,
+            lineWidth: 2,
+            lineStyle: 'solid',
+            locked: isDrawingsLocked,
+            entryPrice: p,
+            targetPrice: activeTvTool === 'long_position' ? p * 1.04 : (activeTvTool === 'short_position' ? p * 0.96 : p),
+            stopLossPrice: activeTvTool === 'long_position' ? p * 0.98 : (activeTvTool === 'short_position' ? p * 1.02 : p),
+            riskRewardRatio: 2.0,
+            accountCapital: 100000,
+            riskPct: 1.0,
+            fibLevels: [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1.0, 1.618]
         };
     }
     renderDrawings();
@@ -4081,12 +4744,38 @@ function onDrawingMouseDown(e) {
 function onDrawingMouseMove(e) {
     if (!isDrawing || !currentDrawing) return;
     const pt = getCanvasCoords(e);
+    let t = xToTime(pt.x) || currentDrawing.startTime;
+    let p = yToPrice(pt.y) || currentDrawing.startPrice;
+
+    if (isMagnetMode) {
+        const snap = snapToNearestOHLC(pt.x, pt.y);
+        if (snap) {
+            t = snap.time;
+            p = snap.price;
+            pt.x = snap.x;
+            pt.y = snap.y;
+        }
+    }
 
     if (currentDrawing.type === 'brush' || currentDrawing.type === 'highlighter') {
-        currentDrawing.points.push(pt);
+        currentDrawing.points.push({ x: pt.x, y: pt.y, t: t, p: p });
     } else {
         currentDrawing.endX = pt.x;
         currentDrawing.endY = pt.y;
+        currentDrawing.endTime = t;
+        currentDrawing.endPrice = p;
+
+        if (currentDrawing.type === 'long_position') {
+            currentDrawing.targetPrice = Math.max(currentDrawing.startPrice, p);
+            const riskDiff = Math.abs(currentDrawing.targetPrice - currentDrawing.startPrice) / 2.0;
+            currentDrawing.stopLossPrice = Math.max(0.1, currentDrawing.startPrice - riskDiff);
+            currentDrawing.riskRewardRatio = 2.0;
+        } else if (currentDrawing.type === 'short_position') {
+            currentDrawing.targetPrice = Math.min(currentDrawing.startPrice, p);
+            const riskDiff = Math.abs(currentDrawing.startPrice - currentDrawing.targetPrice) / 2.0;
+            currentDrawing.stopLossPrice = currentDrawing.startPrice + riskDiff;
+            currentDrawing.riskRewardRatio = 2.0;
+        }
     }
     renderDrawings();
 }
@@ -4095,29 +4784,247 @@ function onDrawingMouseUp(e) {
     if (!isDrawing || !currentDrawing) return;
     isDrawing = false;
     drawings.push(currentDrawing);
+    selectedDrawingId = currentDrawing.id;
+    saveDrawingsForCurrentSymbol();
     currentDrawing = null;
     selectTvTool('cursor');
     renderDrawings();
 }
 
+function onDrawingDblClick(e) {
+    const pt = getCanvasCoords(e);
+    const found = findDrawingAt(pt.x, pt.y);
+    if (found) {
+        selectedDrawingId = found.id;
+        openDrawingPropsModal(found.id);
+    }
+}
+
+function findDrawingAt(x, y) {
+    for (let i = drawings.length - 1; i >= 0; i--) {
+        const d = drawings[i];
+        if (d.type === 'horizontal') {
+            const dy = safePriceToY(d.startPrice);
+            if (Math.abs(dy - y) < 8) return d;
+        } else if (['trendline', 'ray', 'fibonacci', 'long_position', 'short_position', 'rectangle', 'measure'].includes(d.type)) {
+            const sx = safeTimeToX(d.startTime, d.startX);
+            const sy = safePriceToY(d.startPrice, d.startY);
+            const ex = safeTimeToX(d.endTime, d.endX);
+            const ey = safePriceToY(d.endPrice, d.endY);
+
+            const minX = Math.min(sx, ex) - 10;
+            const maxX = Math.max(sx, ex) + 10;
+            const minY = Math.min(sy, ey) - 10;
+            const maxY = Math.max(sy, ey) + 10;
+
+            if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
+                return d;
+            }
+        }
+    }
+    return null;
+}
+
+function deleteDrawingById(id) {
+    const idx = drawings.findIndex(d => d.id === id);
+    if (idx !== -1) {
+        if (drawings[idx].locked) {
+            showToast("Cannot delete locked drawing. Unlock first.");
+            return;
+        }
+        drawings.splice(idx, 1);
+        selectedDrawingId = null;
+        saveDrawingsForCurrentSymbol();
+        renderDrawings();
+        showToast("Drawing deleted.");
+    }
+}
+
 function clearAllDrawings() {
+    if (isDrawingsLocked) {
+        showToast("Drawings are locked. Unlock before clearing.");
+        return;
+    }
     drawings = [];
     currentDrawing = null;
+    selectedDrawingId = null;
+    saveDrawingsForCurrentSymbol();
     renderDrawings();
     showToast("Cleared all chart drawings.");
 }
 
-function getPriceAtY(y) {
-    if (!cachedChartData || !cachedChartData.candles || cachedChartData.candles.length === 0) return "";
-    const lastPrice = cachedChartData.candles[cachedChartData.candles.length - 1].close;
-    const rect = drawingCanvas.getBoundingClientRect();
-    const h = rect.height || 420;
-    const priceDelta = ((h / 2 - y) / (h / 2)) * (lastPrice * 0.05);
-    const estPrice = (lastPrice + priceDelta).toFixed(2);
-    const curr = (cachedChartData.meta && cachedChartData.meta.currency === "INR") ? "₹" : "$";
-    return `${curr}${estPrice}`;
+// Drawing Properties & Risk Modal Controller
+function openDrawingPropsModal(drawingId) {
+    const id = drawingId || selectedDrawingId;
+    let target = drawings.find(d => d.id === id);
+    if (!target && drawings.length > 0) target = drawings[drawings.length - 1];
+
+    const modal = document.getElementById("drawingPropsModal");
+    if (!modal) return;
+
+    if (!target) {
+        showToast("No active drawing selected to edit.");
+        return;
+    }
+
+    selectedDrawingId = target.id;
+    document.getElementById("propDrawingId").value = target.id;
+
+    const badge = document.getElementById("propDrawingTypeBadge");
+    if (badge) badge.innerText = target.type.toUpperCase().replace('_', ' ');
+
+    const posSec = document.getElementById("positionPropsSection");
+    const fibSec = document.getElementById("fibPropsSection");
+
+    if (target.type === 'long_position' || target.type === 'short_position') {
+        if (posSec) posSec.style.display = "block";
+        if (fibSec) fibSec.style.display = "none";
+
+        document.getElementById("propEntryPrice").value = (target.entryPrice || target.startPrice || 0).toFixed(2);
+        document.getElementById("propTargetPrice").value = (target.targetPrice || target.endPrice || 0).toFixed(2);
+        document.getElementById("propStopLossPrice").value = (target.stopLossPrice || 0).toFixed(2);
+        document.getElementById("propRiskRewardRatio").value = (target.riskRewardRatio || 2.0).toFixed(2);
+        document.getElementById("propAccountCapital").value = target.accountCapital || 100000;
+        document.getElementById("propRiskPct").value = target.riskPct || 1.0;
+
+        calculatePositionMetrics();
+    } else if (target.type === 'fibonacci') {
+        if (posSec) posSec.style.display = "none";
+        if (fibSec) fibSec.style.display = "block";
+    } else {
+        if (posSec) posSec.style.display = "none";
+        if (fibSec) fibSec.style.display = "none";
+    }
+
+    document.getElementById("propColorPicker").value = target.color || "#38bdf8";
+    document.getElementById("propColorText").value = target.color || "#38bdf8";
+    document.getElementById("propLineWidth").value = String(target.lineWidth || 2);
+    document.getElementById("propLineStyle").value = target.lineStyle || 'solid';
+
+    const lockBtn = document.getElementById("propBtnLock");
+    if (lockBtn) {
+        lockBtn.innerText = target.locked ? "🔒 Locked" : "🔓 Unlock";
+        lockBtn.style.color = target.locked ? "#ef4444" : "#10b981";
+    }
+
+    modal.classList.add("open");
 }
 
+function closeDrawingPropsModal() {
+    const modal = document.getElementById("drawingPropsModal");
+    if (modal) modal.classList.remove("open");
+}
+
+function calculatePositionMetrics() {
+    const entry = parseFloat(document.getElementById("propEntryPrice").value) || 0;
+    const target = parseFloat(document.getElementById("propTargetPrice").value) || 0;
+    const stop = parseFloat(document.getElementById("propStopLossPrice").value) || 0;
+    const capital = parseFloat(document.getElementById("propAccountCapital").value) || 100000;
+    const riskPct = parseFloat(document.getElementById("propRiskPct").value) || 1.0;
+
+    const riskPerShare = Math.abs(entry - stop);
+    const profitPerShare = Math.abs(target - entry);
+    const rr = riskPerShare > 0 ? (profitPerShare / riskPerShare) : 0;
+
+    const rrInput = document.getElementById("propRiskRewardRatio");
+    if (rrInput && !isNaN(rr) && rr > 0) {
+        rrInput.value = rr.toFixed(2);
+    }
+
+    const totalRiskAmount = capital * (riskPct / 100.0);
+    const shares = riskPerShare > 0 ? Math.floor(totalRiskAmount / riskPerShare) : 0;
+    const totalPotentialProfit = shares * profitPerShare;
+
+    const curr = (cachedChartData && cachedChartData.meta && cachedChartData.meta.currency === "USD") ? "$" : "₹";
+    document.getElementById("calcSharesQty").innerText = `${shares.toLocaleString()} Shares`;
+    document.getElementById("calcPotentialProfit").innerText = `+${curr}${totalPotentialProfit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    document.getElementById("calcMaxRisk").innerText = `-${curr}${totalRiskAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+}
+
+function updateTargetFromRR() {
+    const entry = parseFloat(document.getElementById("propEntryPrice").value) || 0;
+    const stop = parseFloat(document.getElementById("propStopLossPrice").value) || 0;
+    const rr = parseFloat(document.getElementById("propRiskRewardRatio").value) || 2.0;
+
+    const riskPerShare = Math.abs(entry - stop);
+    if (riskPerShare > 0) {
+        const id = document.getElementById("propDrawingId").value;
+        const d = drawings.find(x => x.id === id);
+        const isLong = !d || d.type === 'long_position';
+        const newTarget = isLong ? (entry + riskPerShare * rr) : Math.max(0.05, entry - riskPerShare * rr);
+        document.getElementById("propTargetPrice").value = newTarget.toFixed(2);
+        calculatePositionMetrics();
+    }
+}
+
+function applyDrawingProps() {
+    const id = document.getElementById("propDrawingId").value;
+    const d = drawings.find(x => x.id === id);
+    if (!d) return;
+
+    d.color = document.getElementById("propColorText").value || "#38bdf8";
+    d.lineWidth = parseInt(document.getElementById("propLineWidth").value) || 2;
+    d.lineStyle = document.getElementById("propLineStyle").value || 'solid';
+
+    if (d.type === 'long_position' || d.type === 'short_position') {
+        d.entryPrice = parseFloat(document.getElementById("propEntryPrice").value) || d.entryPrice;
+        d.targetPrice = parseFloat(document.getElementById("propTargetPrice").value) || d.targetPrice;
+        d.stopLossPrice = parseFloat(document.getElementById("propStopLossPrice").value) || d.stopLossPrice;
+        d.riskRewardRatio = parseFloat(document.getElementById("propRiskRewardRatio").value) || d.riskRewardRatio;
+        d.accountCapital = parseFloat(document.getElementById("propAccountCapital").value) || 100000;
+        d.riskPct = parseFloat(document.getElementById("propRiskPct").value) || 1.0;
+        d.startPrice = d.entryPrice;
+        d.endPrice = d.targetPrice;
+    }
+
+    saveDrawingsForCurrentSymbol();
+    renderDrawings();
+    closeDrawingPropsModal();
+    showToast("Drawing properties updated.");
+}
+
+function duplicateCurrentDrawing() {
+    const id = document.getElementById("propDrawingId").value;
+    const d = drawings.find(x => x.id === id);
+    if (!d) return;
+
+    const clone = JSON.parse(JSON.stringify(d));
+    clone.id = `draw_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    clone.startPrice = clone.startPrice * 1.01;
+    clone.endPrice = clone.endPrice * 1.01;
+    if (clone.entryPrice) clone.entryPrice = clone.entryPrice * 1.01;
+    if (clone.targetPrice) clone.targetPrice = clone.targetPrice * 1.01;
+    if (clone.stopLossPrice) clone.stopLossPrice = clone.stopLossPrice * 1.01;
+
+    drawings.push(clone);
+    selectedDrawingId = clone.id;
+    saveDrawingsForCurrentSymbol();
+    renderDrawings();
+    closeDrawingPropsModal();
+    showToast("Drawing duplicated.");
+}
+
+function deleteCurrentDrawing() {
+    const id = document.getElementById("propDrawingId").value;
+    deleteDrawingById(id);
+    closeDrawingPropsModal();
+}
+
+function toggleLockCurrentDrawing() {
+    const id = document.getElementById("propDrawingId").value;
+    const d = drawings.find(x => x.id === id);
+    if (!d) return;
+    d.locked = !d.locked;
+    const lockBtn = document.getElementById("propBtnLock");
+    if (lockBtn) {
+        lockBtn.innerText = d.locked ? "🔒 Locked" : "🔓 Unlock";
+        lockBtn.style.color = d.locked ? "#ef4444" : "#10b981";
+    }
+    saveDrawingsForCurrentSymbol();
+    renderDrawings();
+}
+
+// Master Render Loop for Chart Drawings
 function renderDrawings() {
     if (!drawingCtx || !drawingCanvas) return;
     const rect = drawingCanvas.getBoundingClientRect();
@@ -4129,76 +5036,132 @@ function renderDrawings() {
     const allDrawings = [...drawings];
     if (currentDrawing) allDrawings.push(currentDrawing);
 
+    const curr = (cachedChartData && cachedChartData.meta && cachedChartData.meta.currency === "USD") ? "$" : "₹";
+
     allDrawings.forEach(d => {
         drawingCtx.save();
+
         if (d.type === 'brush' || d.type === 'highlighter') {
             if (d.points && d.points.length > 1) {
                 drawingCtx.beginPath();
                 drawingCtx.strokeStyle = d.color;
-                drawingCtx.lineWidth = d.width;
+                drawingCtx.lineWidth = d.lineWidth || 2;
                 drawingCtx.lineCap = 'round';
                 drawingCtx.lineJoin = 'round';
-                drawingCtx.moveTo(d.points[0].x, d.points[0].y);
+                const p0 = d.points[0];
+                const x0 = p0.t ? safeTimeToX(p0.t, p0.x) : p0.x;
+                const y0 = p0.p ? safePriceToY(p0.p, p0.y) : p0.y;
+                drawingCtx.moveTo(x0, y0);
                 for (let i = 1; i < d.points.length; i++) {
-                    drawingCtx.lineTo(d.points[i].x, d.points[i].y);
+                    const pt = d.points[i];
+                    const px = pt.t ? safeTimeToX(pt.t, pt.x) : pt.x;
+                    const py = pt.p ? safePriceToY(pt.p, pt.y) : pt.y;
+                    drawingCtx.lineTo(px, py);
                 }
                 drawingCtx.stroke();
             }
-        } else if (d.type === 'trendline' || d.type === 'ray') {
+        } else if (d.type === 'horizontal') {
+            const lineY = safePriceToY(d.startPrice, d.y);
             drawingCtx.beginPath();
-            drawingCtx.strokeStyle = '#38bdf8';
-            drawingCtx.lineWidth = 2;
-            drawingCtx.moveTo(d.startX, d.startY);
-            drawingCtx.lineTo(d.endX, d.endY);
+            drawingCtx.strokeStyle = d.color || '#f59e0b';
+            drawingCtx.lineWidth = d.lineWidth || 1.5;
+            if (d.lineStyle === 'dashed') drawingCtx.setLineDash([4, 4]);
+            else if (d.lineStyle === 'dotted') drawingCtx.setLineDash([2, 2]);
+            drawingCtx.moveTo(0, lineY);
+            drawingCtx.lineTo(w, lineY);
             drawingCtx.stroke();
 
+            const pLabel = `${curr}${Number(d.startPrice || 0).toFixed(2)}`;
+            drawingCtx.fillStyle = d.color || '#f59e0b';
+            drawingCtx.fillRect(w - 75, lineY - 10, 75, 20);
+            drawingCtx.fillStyle = '#0b0f19';
+            drawingCtx.font = "bold 11px monospace";
+            drawingCtx.textAlign = "center";
+            drawingCtx.fillText(pLabel, w - 38, lineY + 4);
+
+        } else if (d.type === 'trendline' || d.type === 'ray') {
+            const sx = safeTimeToX(d.startTime, d.startX);
+            const sy = safePriceToY(d.startPrice, d.startY);
+            const ex = safeTimeToX(d.endTime, d.endX);
+            const ey = safePriceToY(d.endPrice, d.endY);
+
+            drawingCtx.beginPath();
+            drawingCtx.strokeStyle = d.color || '#38bdf8';
+            drawingCtx.lineWidth = d.lineWidth || 2;
+            if (d.lineStyle === 'dashed') drawingCtx.setLineDash([4, 4]);
+            drawingCtx.moveTo(sx, sy);
+
+            if (d.type === 'ray') {
+                const dx = ex - sx;
+                const dy = ey - sy;
+                if (Math.abs(dx) > 0.001) {
+                    const slope = dy / dx;
+                    const targetX = dx > 0 ? w : 0;
+                    const targetY = sy + slope * (targetX - sx);
+                    drawingCtx.lineTo(targetX, targetY);
+                } else {
+                    drawingCtx.lineTo(ex, ey);
+                }
+            } else {
+                drawingCtx.lineTo(ex, ey);
+            }
+            drawingCtx.stroke();
+
+            // Anchor Handles
             drawingCtx.fillStyle = '#ffffff';
             drawingCtx.beginPath();
-            drawingCtx.arc(d.startX, d.startY, 4, 0, Math.PI * 2);
-            drawingCtx.arc(d.endX, d.endY, 4, 0, Math.PI * 2);
+            drawingCtx.arc(sx, sy, 4, 0, Math.PI * 2);
+            drawingCtx.arc(ex, ey, 4, 0, Math.PI * 2);
             drawingCtx.fill();
-        } else if (d.type === 'horizontal') {
-            drawingCtx.beginPath();
-            drawingCtx.strokeStyle = '#f59e0b';
-            drawingCtx.lineWidth = 1.5;
-            drawingCtx.setLineDash([4, 4]);
-            drawingCtx.moveTo(0, d.y);
-            drawingCtx.lineTo(w, d.y);
-            drawingCtx.stroke();
 
-            if (d.priceText) {
-                drawingCtx.fillStyle = '#f59e0b';
-                drawingCtx.fillRect(w - 75, d.y - 10, 75, 20);
-                drawingCtx.fillStyle = '#0b0f19';
-                drawingCtx.font = "bold 11px monospace";
-                drawingCtx.textAlign = "center";
-                drawingCtx.fillText(d.priceText, w - 38, d.y + 4);
-            }
         } else if (d.type === 'rectangle') {
-            const rx = Math.min(d.startX, d.endX);
-            const ry = Math.min(d.startY, d.endY);
-            const rw = Math.abs(d.endX - d.startX);
-            const rh = Math.abs(d.endY - d.startY);
+            const sx = safeTimeToX(d.startTime, d.startX);
+            const sy = safePriceToY(d.startPrice, d.startY);
+            const ex = safeTimeToX(d.endTime, d.endX);
+            const ey = safePriceToY(d.endPrice, d.endY);
+
+            const rx = Math.min(sx, ex);
+            const ry = Math.min(sy, ey);
+            const rw = Math.abs(ex - sx);
+            const rh = Math.abs(ey - sy);
 
             drawingCtx.fillStyle = 'rgba(56, 189, 248, 0.12)';
             drawingCtx.fillRect(rx, ry, rw, rh);
-            drawingCtx.strokeStyle = '#38bdf8';
-            drawingCtx.lineWidth = 1.5;
+            drawingCtx.strokeStyle = d.color || '#38bdf8';
+            drawingCtx.lineWidth = d.lineWidth || 1.5;
             drawingCtx.strokeRect(rx, ry, rw, rh);
+
         } else if (d.type === 'circle') {
-            const cx = (d.startX + d.endX) / 2;
-            const cy = (d.startY + d.endY) / 2;
-            const rx = Math.abs(d.endX - d.startX) / 2;
-            const ry = Math.abs(d.endY - d.startY) / 2;
+            const sx = safeTimeToX(d.startTime, d.startX);
+            const sy = safePriceToY(d.startPrice, d.startY);
+            const ex = safeTimeToX(d.endTime, d.endX);
+            const ey = safePriceToY(d.endPrice, d.endY);
+
+            const cx = (sx + ex) / 2;
+            const cy = (sy + ey) / 2;
+            const rx = Math.abs(ex - sx) / 2;
+            const ry = Math.abs(ey - sy) / 2;
 
             drawingCtx.beginPath();
             drawingCtx.ellipse(cx, cy, Math.max(2, rx), Math.max(2, ry), 0, 0, Math.PI * 2);
             drawingCtx.fillStyle = 'rgba(168, 85, 247, 0.12)';
             drawingCtx.fill();
-            drawingCtx.strokeStyle = '#a855f7';
-            drawingCtx.lineWidth = 1.5;
+            drawingCtx.strokeStyle = d.color || '#a855f7';
+            drawingCtx.lineWidth = d.lineWidth || 1.5;
             drawingCtx.stroke();
+
         } else if (d.type === 'fibonacci') {
+            const sx = safeTimeToX(d.startTime, d.startX);
+            const sy = safePriceToY(d.startPrice, d.startY);
+            const ex = safeTimeToX(d.endTime, d.endX);
+            const ey = safePriceToY(d.endPrice, d.endY);
+
+            const left = Math.min(sx, ex);
+            const right = Math.max(sx, ex);
+            const priceStart = d.startPrice;
+            const priceEnd = d.endPrice;
+            const priceDelta = priceEnd - priceStart;
+
             const fibRatios = [
                 { r: 0.0, color: '#ef4444', label: '0.0%' },
                 { r: 0.236, color: '#f97316', label: '23.6%' },
@@ -4206,15 +5169,14 @@ function renderDrawings() {
                 { r: 0.500, color: '#10b981', label: '50.0%' },
                 { r: 0.618, color: '#06b6d4', label: '61.8% (Golden)' },
                 { r: 0.786, color: '#8b5cf6', label: '78.6%' },
-                { r: 1.000, color: '#ec4899', label: '100.0%' }
+                { r: 1.000, color: '#ec4899', label: '100.0%' },
+                { r: 1.618, color: '#0284c7', label: '161.8%' }
             ];
-            const dy = d.endY - d.startY;
-            const left = Math.min(d.startX, d.endX);
-            const right = Math.max(d.startX, d.endX);
 
             for (let i = 0; i < fibRatios.length; i++) {
                 const fib = fibRatios[i];
-                const yLevel = d.startY + dy * fib.r;
+                const levelPrice = priceStart + priceDelta * fib.r;
+                const yLevel = safePriceToY(levelPrice, sy + (ey - sy) * fib.r);
 
                 drawingCtx.beginPath();
                 drawingCtx.strokeStyle = fib.color;
@@ -4225,30 +5187,36 @@ function renderDrawings() {
                 drawingCtx.stroke();
 
                 if (i < fibRatios.length - 1) {
-                    const nextY = d.startY + dy * fibRatios[i + 1].r;
-                    drawingCtx.fillStyle = 'rgba(56, 189, 248, 0.05)';
+                    const nextLevelPrice = priceStart + priceDelta * fibRatios[i + 1].r;
+                    const nextY = safePriceToY(nextLevelPrice, sy + (ey - sy) * fibRatios[i + 1].r);
+                    drawingCtx.fillStyle = 'rgba(56, 189, 248, 0.04)';
                     drawingCtx.fillRect(left, Math.min(yLevel, nextY), right - left, Math.abs(nextY - yLevel));
                 }
 
                 drawingCtx.fillStyle = fib.color;
                 drawingCtx.font = "bold 10px monospace";
-                drawingCtx.fillText(fib.label, left + 6, yLevel - 3);
+                drawingCtx.fillText(`${fib.label} (${curr}${levelPrice.toFixed(2)})`, left + 6, yLevel - 3);
             }
-        } else if (d.type === 'long_position') {
-            const left = Math.min(d.startX, d.endX);
-            const right = Math.max(d.startX, d.endX);
-            const entryY = d.startY;
-            const targetY = Math.min(d.startY, d.endY);
-            const stopY = d.startY + Math.abs(entryY - targetY) / 2.0;
 
-            // Target (Profit) Green Box
+        } else if (d.type === 'long_position') {
+            const sx = safeTimeToX(d.startTime, d.startX);
+            const ex = safeTimeToX(d.endTime, d.endX);
+            const left = Math.min(sx, ex);
+            let right = Math.max(sx, ex);
+            if (right - left < 60) right = left + 120;
+
+            const entryY = safePriceToY(d.entryPrice || d.startPrice, d.startY);
+            const targetY = safePriceToY(d.targetPrice || d.endPrice, d.endY);
+            const stopY = safePriceToY(d.stopLossPrice || (d.startPrice * 0.98), d.startY + 40);
+
+            // Target (Profit) Green Zone
             drawingCtx.fillStyle = 'rgba(16, 185, 129, 0.22)';
             drawingCtx.fillRect(left, targetY, right - left, entryY - targetY);
             drawingCtx.strokeStyle = '#10b981';
             drawingCtx.lineWidth = 1.5;
             drawingCtx.strokeRect(left, targetY, right - left, entryY - targetY);
 
-            // Stop (Risk) Red Box
+            // Stop (Risk) Red Zone
             drawingCtx.fillStyle = 'rgba(239, 68, 68, 0.22)';
             drawingCtx.fillRect(left, entryY, right - left, stopY - entryY);
             drawingCtx.strokeStyle = '#ef4444';
@@ -4266,36 +5234,47 @@ function renderDrawings() {
             // Center Badge
             const midX = (left + right) / 2;
             drawingCtx.fillStyle = '#0f172a';
-            drawingCtx.fillRect(midX - 60, entryY - 12, 120, 24);
+            drawingCtx.fillRect(midX - 65, entryY - 12, 130, 24);
             drawingCtx.strokeStyle = '#10b981';
             drawingCtx.lineWidth = 1;
-            drawingCtx.strokeRect(midX - 60, entryY - 12, 120, 24);
+            drawingCtx.strokeRect(midX - 65, entryY - 12, 130, 24);
             drawingCtx.fillStyle = '#10b981';
             drawingCtx.font = "bold 11px sans-serif";
             drawingCtx.textAlign = "center";
-            drawingCtx.fillText("Risk/Reward: 2.00", midX, entryY + 4);
+            drawingCtx.fillText(`Risk/Reward: ${(d.riskRewardRatio || 2.0).toFixed(2)}`, midX, entryY + 4);
 
+            const tPrice = Number(d.targetPrice || d.endPrice || d.startPrice || 0);
+            const sPrice = Number(d.stopLossPrice || (d.startPrice ? d.startPrice * 0.98 : 0));
             drawingCtx.fillStyle = '#10b981';
-            drawingCtx.fillText("TARGET (PROFIT)", left + 60, targetY + 14);
+            drawingCtx.font = "bold 10px monospace";
+            drawingCtx.textAlign = "left";
+            drawingCtx.fillText(`TARGET ${curr}${tPrice.toFixed(2)}`, left + 6, targetY + 14);
             drawingCtx.fillStyle = '#ef4444';
-            drawingCtx.fillText("STOP LOSS", left + 45, stopY - 6);
-        } else if (d.type === 'short_position') {
-            const left = Math.min(d.startX, d.endX);
-            const right = Math.max(d.startX, d.endX);
-            const entryY = d.startY;
-            const targetY = Math.max(d.startY, d.endY);
-            const stopY = d.startY - Math.abs(targetY - entryY) / 2.0;
+            drawingCtx.fillText(`STOP ${curr}${sPrice.toFixed(2)}`, left + 6, stopY - 6);
 
-            // Stop Loss Red Box
+        } else if (d.type === 'short_position') {
+            const sx = safeTimeToX(d.startTime, d.startX);
+            const ex = safeTimeToX(d.endTime, d.endX);
+            const left = Math.min(sx, ex);
+            let right = Math.max(sx, ex);
+            if (right - left < 60) right = left + 120;
+
+            const entryY = safePriceToY(d.entryPrice || d.startPrice, d.startY);
+            const targetY = safePriceToY(d.targetPrice || d.endPrice, d.endY);
+            const stopY = safePriceToY(d.stopLossPrice || (d.startPrice * 1.02), d.startY - 40);
+
+            // Stop Loss Red Zone
             drawingCtx.fillStyle = 'rgba(239, 68, 68, 0.22)';
             drawingCtx.fillRect(left, stopY, right - left, entryY - stopY);
             drawingCtx.strokeStyle = '#ef4444';
+            drawingCtx.lineWidth = 1.5;
             drawingCtx.strokeRect(left, stopY, right - left, entryY - stopY);
 
-            // Target Green Box
+            // Target Profit Green Zone
             drawingCtx.fillStyle = 'rgba(16, 185, 129, 0.22)';
             drawingCtx.fillRect(left, entryY, right - left, targetY - entryY);
             drawingCtx.strokeStyle = '#10b981';
+            drawingCtx.lineWidth = 1.5;
             drawingCtx.strokeRect(left, entryY, right - left, targetY - entryY);
 
             // Entry line
@@ -4308,34 +5287,175 @@ function renderDrawings() {
 
             const midX = (left + right) / 2;
             drawingCtx.fillStyle = '#0f172a';
-            drawingCtx.fillRect(midX - 60, entryY - 12, 120, 24);
+            drawingCtx.fillRect(midX - 65, entryY - 12, 130, 24);
             drawingCtx.strokeStyle = '#ef4444';
-            drawingCtx.strokeRect(midX - 60, entryY - 12, 120, 24);
+            drawingCtx.strokeRect(midX - 65, entryY - 12, 130, 24);
             drawingCtx.fillStyle = '#ef4444';
             drawingCtx.font = "bold 11px sans-serif";
             drawingCtx.textAlign = "center";
-            drawingCtx.fillText("Risk/Reward: 2.00", midX, entryY + 4);
+            drawingCtx.fillText(`Risk/Reward: ${(d.riskRewardRatio || 2.0).toFixed(2)}`, midX, entryY + 4);
+
+            const tPrice = Number(d.targetPrice || d.endPrice || d.startPrice || 0);
+            const sPrice = Number(d.stopLossPrice || (d.startPrice ? d.startPrice * 1.02 : 0));
+            drawingCtx.fillStyle = '#10b981';
+            drawingCtx.font = "bold 10px monospace";
+            drawingCtx.textAlign = "left";
+            drawingCtx.fillText(`TARGET ${curr}${tPrice.toFixed(2)}`, left + 6, targetY - 6);
+            drawingCtx.fillStyle = '#ef4444';
+            drawingCtx.fillText(`STOP ${curr}${sPrice.toFixed(2)}`, left + 6, stopY + 14);
+
         } else if (d.type === 'measure') {
-            const rx = Math.min(d.startX, d.endX);
-            const ry = Math.min(d.startY, d.endY);
-            const rw = Math.abs(d.endX - d.startX);
-            const rh = Math.abs(d.endY - d.startY);
+            const sx = safeTimeToX(d.startTime, d.startX);
+            const sy = safePriceToY(d.startPrice, d.startY);
+            const ex = safeTimeToX(d.endTime, d.endX);
+            const ey = safePriceToY(d.endPrice, d.endY);
+
+            const rx = Math.min(sx, ex);
+            const ry = Math.min(sy, ey);
+            const rw = Math.abs(ex - sx);
+            const rh = Math.abs(ey - sy);
 
             drawingCtx.strokeStyle = '#06b6d4';
             drawingCtx.lineWidth = 1.5;
             drawingCtx.setLineDash([4, 4]);
             drawingCtx.strokeRect(rx, ry, rw, rh);
 
+            const sPrice = Number(d.startPrice || 0);
+            const ePrice = Number(d.endPrice || 0);
+            const pDelta = Math.abs(ePrice - sPrice);
+            const pPct = sPrice > 0 ? ((pDelta / sPrice) * 100).toFixed(2) : "0.00";
+
             drawingCtx.fillStyle = 'rgba(6, 182, 212, 0.9)';
-            drawingCtx.fillRect(rx, ry - 22, 140, 20);
+            drawingCtx.fillRect(rx, ry - 22, 160, 20);
             drawingCtx.fillStyle = '#0b0f19';
             drawingCtx.font = "bold 10px monospace";
             drawingCtx.textAlign = "left";
-            const pct = ((rh / 420) * 10).toFixed(2);
-            drawingCtx.fillText(`Δ: ${rw}px | +${pct}%`, rx + 6, ry - 8);
+            drawingCtx.fillText(`Δ: ${curr}${pDelta.toFixed(2)} (${pPct}%)`, rx + 6, ry - 8);
         }
+
+        // Selection Highlight Border
+        if (selectedDrawingId === d.id) {
+            const sx = safeTimeToX(d.startTime, d.startX);
+            const sy = safePriceToY(d.startPrice, d.startY);
+            drawingCtx.strokeStyle = '#38bdf8';
+            drawingCtx.lineWidth = 1.5;
+            drawingCtx.strokeRect(sx - 5, sy - 5, 10, 10);
+            if (d.endTime !== undefined) {
+                const ex = safeTimeToX(d.endTime, d.endX);
+                const ey = safePriceToY(d.endPrice, d.endY);
+                drawingCtx.strokeRect(ex - 5, ey - 5, 10, 10);
+            }
+        }
+
         drawingCtx.restore();
     });
+}
+
+// ==========================================================================
+// Real-Time Institutional Indices & Market Breadth Engine
+// ==========================================================================
+async function fetchMarketIndicesOverview() {
+    try {
+        const res = await fetch("/api/indices/overview");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data || !data.indices) return;
+
+        data.indices.forEach(idx => {
+            const sign = idx.is_positive ? "+" : "";
+            const cls = idx.is_positive ? "pos" : "neg";
+            const chgText = `${sign}${idx.change.toFixed(2)} (${sign}${idx.change_pct.toFixed(2)}%)`;
+
+            if (idx.id === "NIFTY50") {
+                const elP = document.getElementById("idxNiftyPrice");
+                const elC = document.getElementById("idxNiftyChg");
+                if (elP) elP.innerText = idx.price.toLocaleString(undefined, {minimumFractionDigits: 2});
+                if (elC) { elC.innerText = chgText; elC.className = `idx-chg ${cls}`; }
+            } else if (idx.id === "BANKNIFTY") {
+                const elP = document.getElementById("idxBankPrice");
+                const elC = document.getElementById("idxBankChg");
+                if (elP) elP.innerText = idx.price.toLocaleString(undefined, {minimumFractionDigits: 2});
+                if (elC) { elC.innerText = chgText; elC.className = `idx-chg ${cls}`; }
+            } else if (idx.id === "SENSEX") {
+                const elP = document.getElementById("idxSensexPrice");
+                const elC = document.getElementById("idxSensexChg");
+                if (elP) elP.innerText = idx.price.toLocaleString(undefined, {minimumFractionDigits: 2});
+                if (elC) { elC.innerText = chgText; elC.className = `idx-chg ${cls}`; }
+            } else if (idx.id === "FINNIFTY") {
+                const elP = document.getElementById("idxFinPrice");
+                const elC = document.getElementById("idxFinChg");
+                if (elP) elP.innerText = idx.price.toLocaleString(undefined, {minimumFractionDigits: 2});
+                if (elC) { elC.innerText = chgText; elC.className = `idx-chg ${cls}`; }
+            } else if (idx.id === "MIDCAP") {
+                const elP = document.getElementById("idxMidPrice");
+                const elC = document.getElementById("idxMidChg");
+                if (elP) elP.innerText = idx.price.toLocaleString(undefined, {minimumFractionDigits: 2});
+                if (elC) { elC.innerText = chgText; elC.className = `idx-chg ${cls}`; }
+            } else if (idx.id === "VIX") {
+                const elP = document.getElementById("idxVixPrice");
+                const elC = document.getElementById("idxVixChg");
+                if (elP) elP.innerText = idx.price.toFixed(2);
+                if (elC) { elC.innerText = chgText; elC.className = `idx-chg ${cls}`; }
+            }
+        });
+
+        if (data.breadth) {
+            const bVal = document.getElementById("idxBreadthVal");
+            const bSent = document.getElementById("idxSentiment");
+            if (bVal) {
+                bVal.innerText = `🟢 ${data.breadth.advances} Adv | 🔴 ${data.breadth.declines} Dec`;
+            }
+            if (bSent) {
+                bSent.innerText = `${data.breadth.market_sentiment} (${data.breadth.advance_ratio}x)`;
+                bSent.className = `idx-chg ${data.breadth.market_sentiment === 'BULLISH' ? 'pos' : (data.breadth.market_sentiment === 'BEARISH' ? 'neg' : '')}`;
+            }
+        }
+    } catch (e) {
+        console.warn("Failed to update index overview:", e);
+    }
+}
+
+// Single Market Time Engine Integration (IST Asia/Kolkata Clock)
+async function fetchMarketTimeEngine() {
+    try {
+        const res = await fetch("/api/market-time?asset_type=EQUITY");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data) return;
+
+        const clockEl = document.getElementById("serverIstClock");
+        if (clockEl && data.time_formatted) {
+            clockEl.innerText = `${data.time_formatted} IST`;
+        }
+
+        const badge = document.getElementById("marketSessionBadge");
+        if (badge && data.status) {
+            badge.innerText = data.status;
+            badge.className = `session-badge ${data.status.toLowerCase()}`;
+            badge.title = data.reason || "";
+        }
+    } catch (e) {
+        console.warn("Market time engine sync issue:", e);
+    }
+}
+
+function initMarketOverviewStrip() {
+    fetchMarketIndicesOverview();
+    fetchMarketTimeEngine();
+    setInterval(fetchMarketIndicesOverview, 10000); // 10s refresh for index overview
+    setInterval(fetchMarketTimeEngine, 5000);        // 5s refresh for session state
+
+    // High precision local second tick for IST clock
+    setInterval(() => {
+        const clockEl = document.getElementById("serverIstClock");
+        if (clockEl) {
+            const now = new Date();
+            // Calculate IST (+5:30)
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const ist = new Date(utc + (3600000 * 5.5));
+            clockEl.innerText = `${ist.toTimeString().split(' ')[0]} IST`;
+        }
+    }, 1000);
 }
 
 /* ==========================================================================
@@ -4628,8 +5748,24 @@ async function loadStockChart(symbol, isSilentRefresh = false) {
 
         const data = await res.json();
         cachedChartData = data;
-        renderChartData(data, isSilentRefresh);
-        renderDiagnosis(data.analysis, data.meta);
+
+        try {
+            renderChartData(data, isSilentRefresh);
+        } catch (re) {
+            console.error("renderChartData error:", re);
+        }
+
+        try {
+            renderDiagnosis(data.analysis, data.meta);
+        } catch (de) {
+            console.error("renderDiagnosis error:", de);
+        }
+
+        try {
+            loadDrawingsForCurrentSymbol();
+        } catch (le) {
+            console.error("loadDrawings error:", le);
+        }
 
         // Flash live tick indicator
         const tick = document.getElementById("lastUpdatedTick");
@@ -4642,7 +5778,7 @@ async function loadStockChart(symbol, isSilentRefresh = false) {
         console.error("Error loading chart:", err);
         document.getElementById("activeTrendBadge").innerText = "CONNECTION ISSUE";
         document.getElementById("activeTrendBadge").className = "trend-badge bearish";
-        if (!isSilentRefresh) showToast(`Failed to load ${symbol}`);
+        if (!isSilentRefresh) showToast(`Failed to load ${symbol}: ${err.message || 'Check network'}`);
     }
 }
 
@@ -4721,9 +5857,10 @@ function renderChartData(data, isSilentRefresh = false) {
     }
 
     // 5. Market Profile / Orderflow (POC, VAH, VAL)
-    if (pocLine) candleSeries.removePriceLine(pocLine);
-    if (vahLine) candleSeries.removePriceLine(vahLine);
-    if (valLine) candleSeries.removePriceLine(valLine);
+    try { if (pocLine && candleSeries) candleSeries.removePriceLine(pocLine); } catch(e) {}
+    try { if (vahLine && candleSeries) candleSeries.removePriceLine(vahLine); } catch(e) {}
+    try { if (valLine && candleSeries) candleSeries.removePriceLine(valLine); } catch(e) {}
+    pocLine = null; vahLine = null; valLine = null;
     
     if (data.orderflow && data.orderflow.poc) {
         pocLine = candleSeries.createPriceLine({
@@ -5035,16 +6172,17 @@ function setupSearchAutoComplete() {
     const btnQuick = document.getElementById("btnQuickAnalyze");
 
     const fetchSuggestions = async (query) => {
-        if (!query.trim()) {
-            dropdown.style.display = "none";
+        if (!query || !query.trim()) {
+            renderSuggestions([]);
             return;
         }
 
         try {
-            const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const res = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`);
             if (!res.ok) return;
             const data = await res.json();
-            renderSuggestions(data.results || []);
+            const items = Array.isArray(data) ? data : (data.results || []);
+            renderSuggestions(items);
         } catch (e) {
             console.error("Search fetch error:", e);
         }
@@ -5076,7 +6214,7 @@ function setupSearchAutoComplete() {
             emptyDiv.style.padding = "0.75rem 1rem";
             emptyDiv.style.color = "#64748b";
             emptyDiv.style.fontSize = "0.75rem";
-            emptyDiv.innerText = "No exact symbol match found. Press Enter to search.";
+            emptyDiv.innerText = "Type symbol or company name (e.g. RELIANCE, TCS, GOLD, NIFTY) or press Enter to load.";
             dropdown.appendChild(emptyDiv);
             dropdown.style.display = "block";
             return;
@@ -5089,7 +6227,7 @@ function setupSearchAutoComplete() {
             div.dataset.symbol = item.symbol;
 
             const isFav = favs.includes(item.symbol);
-            const badgeClass = item.exchange.toLowerCase();
+            const badgeClass = (item.exchange || 'NSE').toLowerCase();
             const typeBadge = item.type ? `<span style="font-size:0.62rem; background:rgba(245,158,11,0.18); color:#f59e0b; padding:1px 4px; border-radius:3px; font-weight:700;">${item.type}</span>` : '';
             const sectorTag = item.sector ? ` • ${item.sector}` : '';
             const isinTag = item.isin ? ` • ${item.isin}` : '';
@@ -5102,11 +6240,11 @@ function setupSearchAutoComplete() {
                             <span class="suggestion-sym">${item.symbol}</span>
                             ${typeBadge}
                         </div>
-                        <div class="suggestion-name">${item.name}${sectorTag}${isinTag}</div>
+                        <div class="suggestion-name">${item.name || item.symbol}${sectorTag}${isinTag}</div>
                     </div>
                 </div>
                 <div class="suggestion-right">
-                    <span class="suggestion-badge ${badgeClass}">${item.exchange}</span>
+                    <span class="suggestion-badge ${badgeClass}">${item.exchange || 'NSE'}</span>
                 </div>
             `;
 
@@ -5134,17 +6272,30 @@ function setupSearchAutoComplete() {
     };
 
     const selectSuggestion = (symbol) => {
+        if (!symbol) return;
         input.value = symbol;
         dropdown.style.display = "none";
         loadStockChart(symbol);
+        if (typeof AlphaPulseEventBus !== "undefined") {
+            AlphaPulseEventBus.emit('symbol:change', { symbol, source: 'search' });
+        }
     };
+
+    // Show Watchlist on focus
+    input.addEventListener("focus", () => {
+        if (!input.value.trim()) {
+            renderSuggestions([]);
+        } else {
+            fetchSuggestions(input.value);
+        }
+    });
 
     // Debounced input handler
     input.addEventListener("input", (e) => {
         clearTimeout(searchDebounceTimer);
         searchDebounceTimer = setTimeout(() => {
             fetchSuggestions(e.target.value);
-        }, 150);
+        }, 120);
     });
 
     // Keyboard navigation (Arrow keys + Enter)
@@ -5153,7 +6304,12 @@ function setupSearchAutoComplete() {
         if (items.length === 0 || dropdown.style.display === "none") {
             if (e.key === "Enter") {
                 const val = input.value.trim().toUpperCase();
-                if (val) loadStockChart(val);
+                if (val) {
+                    loadStockChart(val);
+                    if (typeof AlphaPulseEventBus !== "undefined") {
+                        AlphaPulseEventBus.emit('symbol:change', { symbol: val, source: 'search' });
+                    }
+                }
             }
             return;
         }
@@ -5174,7 +6330,12 @@ function setupSearchAutoComplete() {
             } else {
                 const val = input.value.trim().toUpperCase();
                 dropdown.style.display = "none";
-                if (val) loadStockChart(val);
+                if (val) {
+                    loadStockChart(val);
+                    if (typeof AlphaPulseEventBus !== "undefined") {
+                        AlphaPulseEventBus.emit('symbol:change', { symbol: val, source: 'search' });
+                    }
+                }
             }
         } else if (e.key === "Escape") {
             dropdown.style.display = "none";
@@ -5191,9 +6352,14 @@ function setupSearchAutoComplete() {
     };
 
     btnQuick.addEventListener("click", () => {
-        const val = input.value.trim().toUpperCase();
+        const val = input.value.trim().toUpperCase() || state.activeSymbol;
         dropdown.style.display = "none";
-        if (val) loadStockChart(val);
+        if (val) {
+            loadStockChart(val);
+            if (typeof AlphaPulseEventBus !== "undefined") {
+                AlphaPulseEventBus.emit('symbol:change', { symbol: val, source: 'search' });
+            }
+        }
     });
 
     // Close dropdown on outside click

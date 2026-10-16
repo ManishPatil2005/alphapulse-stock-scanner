@@ -33,9 +33,9 @@ def compute_bollinger_bands(close: pd.Series, period: int=20, std_dev: float=2.0
     lower = sma - (std * std_dev)
     return upper, sma, lower
 
-def compute_supertrend(df: pd.DataFrame, period: int=10, multiplier: float=3.0):
+def compute_supertrend(df: pd.DataFrame, period: int = 10, multiplier: float = 3.0):
     hl2 = (df['high'] + df['low']) / 2
-    atr = compute_atr(df, period) if 'atr_14' not in df.columns else df['atr_14'] # rough approx
+    atr = compute_atr(df['high'], df['low'], df['close'], period)
     
     final_upperband = hl2 + (multiplier * atr)
     final_lowerband = hl2 - (multiplier * atr)
